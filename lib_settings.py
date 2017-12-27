@@ -1,4 +1,4 @@
-""" Variables for my projects """
+""" Definitions for my library """
 
 from os.path import dirname, abspath
 

@@ -9,7 +9,7 @@
 
 import sys
 
-from my_path import DATA_DIR
+from lib_settings import DATA_DIR
 from genome.fasta import Fasta
 
 GENOME_VER = "hg19"
