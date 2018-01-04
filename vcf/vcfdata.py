@@ -19,12 +19,39 @@ class VCFData:
         self.anno_alt_genic = ''
         self.anno_SNV_type = ''
 
-        """ info from refSeq (in-house rep-isoforms) """
-        self.gene_sym_to_genic = {}
-        self.rep_gene_sym = ''
-        self.rep_genic = ''
+        """ info from refFlat (in-house rep-isoforms) """
+        self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> genic region
+        self.rep_gene_sym = None
+        self.rep_genic = 'intergenic'
 
     # END: __init__
+
+    def set_genic_region(self, genes_same_chr):
+        """
+        :param genes_same_chr: the list of 'RefFlat' objects
+                               this genes must be involved in the chromosome same with the variant.
+        """
+        var_pos = self.pos - 1  # 1-base -> 0-base
+        genes_same_chr.sort(key=lambda gene: gene.tx_start)
+
+        for gene in genes_same_chr:
+            if var_pos < gene.tx_start:
+                break
+            elif gene.tx_start <= var_pos <= gene.tx_end:
+                gene_sym = gene.symbol
+                gene_id = gene.id
+                genic_region = gene.find_genic_region(var_pos)
+
+                if gene_sym not in self.genic_region_dict:
+                    self.genic_region_dict[gene_sym] = {}
+
+                if genic_region[gene_sym][gene_id]:
+                    print('There are RefFlat objects with same id.')
+                    sys.exit()
+
+                self.genic_region_dict[gene_sym][gene_id] = genic_region
+        # END: for loop 'gene'
+    # END: find_genic_region
 
     @staticmethod
     def parse_vcf_file(vcf_filename, isClustered=False):
