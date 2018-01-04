@@ -35,6 +35,12 @@ class VCFData:
         genes_same_chr.sort(key=lambda gene: gene.tx_start)
 
         for gene in genes_same_chr:
+            if gene.chrom != self.chrID:
+                print('Different chromosome ID')
+                print('ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
+                print('ChrID of the variant: %s' % self.chrID)
+                sys.exit()
+
             if var_pos < gene.tx_start:
                 break
             elif gene.tx_start <= var_pos <= gene.tx_end:
