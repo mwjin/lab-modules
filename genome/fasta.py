@@ -65,8 +65,7 @@ class Fasta:
             sys.exit('Error: invalid strand')
     # END: fetch_seq
 
-    @staticmethod
-    def _reverse_complement(seq):
+    def _reverse_complement(self, seq):
         base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
                         'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
                         'N': 'N', '.':'.'}
