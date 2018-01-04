@@ -22,6 +22,7 @@ class VCFData:
         """ info from refFlat (in-house rep-isoforms) """
         self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> genic region
         self.rep_gene_sym = None
+        self.rep_gene_id = None
         self.rep_genic = 'intergenic'
 
     # END: __init__
@@ -57,7 +58,28 @@ class VCFData:
 
                 self.genic_region_dict[gene_sym][gene_id] = genic_region
         # END: for loop 'gene'
+
+        self._set_rep_genic_region()
     # END: find_genic_region
+
+    def _set_rep_genic_region(self):
+        genic_precedence_dict = {'exonic': 1,
+                                 'ncRNA_intronic': 2, 'ncRNA_exonic': 2,
+                                 '3UTR': 3, '5UTR': 3,
+                                 'intronic': 4,
+                                 'intergenic': 5}
+
+        for gene_sym in self.genic_region_dict:
+            for gene_id in self.genic_region_dict[gene_sym]:
+                genic_region = self.genic_region_dict[gene_sym][gene_id]
+
+                if genic_precedence_dict[self.rep_genic] < genic_precedence_dict[genic_region]:
+                    self.rep_gene_sym = gene_sym
+                    self.rep_gene_id = gene_id
+                    self.rep_genic = genic_region
+            # END: for loop 'gene_id'
+        # END: for loop 'gene_sym'
+    # END: _set_rep_genic_region
 
     @staticmethod
     def parse_vcf_file(vcf_filename, isClustered=False):
