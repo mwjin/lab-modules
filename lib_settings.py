@@ -5,3 +5,7 @@ from os.path import dirname, abspath
 BASE_DIR = dirname(dirname(abspath(__file__)))  # the directory that contains all my projects
 DATA_DIR = "%s/data" % BASE_DIR  # the directory that contains common data for my projects
 ROOT_DIR = dirname(BASE_DIR)
+
+# settings for genome/reader.py
+GENOME_VER = "hg19"
+GENOME_FILENAME = "{0}/ref_genome/{1}/{1}.fa".format(ROOT_DIR, GENOME_VER)
