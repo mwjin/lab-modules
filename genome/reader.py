@@ -9,11 +9,11 @@
 
 import sys
 
-from lib_settings import DATA_DIR
+from lib_settings import ROOT_DIR
 from genome.fasta import Fasta
 
 GENOME_VER = "hg19"
-GENOME_FILENAME = "{0}/genome/{1}/{1}.fa".format(DATA_DIR, GENOME_VER)
+GENOME_FILENAME = "{0}/ref_genome/{1}/{1}.fa".format(ROOT_DIR, GENOME_VER)
 GENOME = Fasta(GENOME_FILENAME)
 
 def reverse_complement(seq):

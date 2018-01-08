@@ -6,7 +6,7 @@ class Fasta:
         # V-S Check: File Existence
         if not os.path.isfile(genome_filename):
             sys.exit('Error: The genome file does not exist.')
-
+        
         self.genome_file = open(genome_filename, 'r')
         self.chrID_list = []
         self.chrlen_list = []
