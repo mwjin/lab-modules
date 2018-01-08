@@ -44,7 +44,7 @@ class VCFData:
 
             if var_pos < gene.tx_start:
                 break
-            elif gene.tx_start <= var_pos <= gene.tx_end:
+            elif gene.tx_start <= var_pos < gene.tx_end:
                 gene_sym = gene.symbol
                 gene_id = gene.id
                 genic_region = gene.find_genic_region(var_pos)
