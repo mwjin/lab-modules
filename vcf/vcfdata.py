@@ -74,7 +74,7 @@ class VCFData:
             for gene_id in self.genic_region_dict[gene_sym]:
                 genic_region = self.genic_region_dict[gene_sym][gene_id]
 
-                if genic_precedence_dict[self.rep_genic] < genic_precedence_dict[genic_region]:
+                if genic_precedence_dict[self.rep_genic] > genic_precedence_dict[genic_region]:
                     self.rep_gene_sym = gene_sym
                     self.rep_gene_id = gene_id
                     self.rep_genic = genic_region
