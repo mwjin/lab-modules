@@ -52,11 +52,12 @@ class VCFData:
                 if gene_sym not in self.genic_region_dict:
                     self.genic_region_dict[gene_sym] = {}
 
-                if genic_region[gene_sym][gene_id]:
+                if gene_id in self.genic_region_dict[gene_sym]:
                     print('There are RefFlat objects with same id.')
                     sys.exit()
 
                 self.genic_region_dict[gene_sym][gene_id] = genic_region
+            # END: else
         # END: for loop 'gene'
 
         self._set_rep_genic_region()
