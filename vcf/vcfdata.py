@@ -85,9 +85,8 @@ class VCFData:
                     self.rep_gene_id = gene_id
                     self.rep_genic = genic_region
 
-                # 5UTR vs 3UTR
                 elif genic_precedence_dict[self.rep_genic] == genic_precedence_dict[genic_region]:
-                    if int(self.rep_gene_id[3:]) > int(gene_id[3:]):
+                    if self.rep_gene_sym > gene_sym:
                         self.rep_gene_sym = gene_sym
                         self.rep_gene_id = gene_id
                         self.rep_genic = genic_region
