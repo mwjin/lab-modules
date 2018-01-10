@@ -75,6 +75,12 @@ class VCFData:
                 genic_region = self.genic_region_dict[gene_sym][gene_id]
 
                 if genic_precedence_dict[self.rep_genic] > genic_precedence_dict[genic_region]:
+
+                    # If a gene has both NM and NR, NR will be ignored.
+                    if self.rep_gene_sym == gene_sym:
+                        if self.rep_gene_id.startswith('NM') and gene_id.startswith('NR'):
+                            continue
+
                     self.rep_gene_sym = gene_sym
                     self.rep_gene_id = gene_id
                     self.rep_genic = genic_region
