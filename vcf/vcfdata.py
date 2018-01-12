@@ -65,9 +65,10 @@ class VCFData:
 
     def _set_rep_genic_region(self):
         genic_precedence_dict = {'exonic': 1,
-                                 'ncRNA_exonic': 2, 'ncRNA_intronic': 3,
-                                 '3UTR': 4, '5UTR': 4,
-                                 'intronic': 5,
+                                 '3UTR': 2, '5UTR': 2,
+                                 'ncRNA_exonic': 3,
+                                 'intronic': 4,
+                                 'ncRNA_intronic': 5,
                                  'intergenic': 6}
 
         for gene_sym in self.genic_region_dict:
