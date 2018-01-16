@@ -1,6 +1,6 @@
 import sys, os
 
-class VCFData:
+class AnnovarData:
     """ from annovar, only consider SNV """
     def __init__(self):
         self.chrID = ''
@@ -133,7 +133,7 @@ class VCFData:
             if 'PASS' not in line:
                 continue
 
-            variant = VCFData()
+            variant = AnnovarData()
             variant.chrID  = 'chr%s' % fields[0]
 
             try: variant.pos = int(fields[1])
