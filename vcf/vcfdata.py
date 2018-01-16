@@ -19,7 +19,7 @@ class VCFData:
         self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> genic region
         self.rep_gene_sym = None
         self.rep_gene_id = None
-        self.rep_genic = 'intergenic'  # default
+        self.rep_genic_region = 'intergenic'  # default
 
     # END: __init__
 
@@ -27,7 +27,7 @@ class VCFData:
         """
         :return: representative genic region
         """
-        return self.rep_genic
+        return self.rep_genic_region
 
     @staticmethod
     def parse_vcf_file(vcf_filename, isClustered=False):
@@ -157,17 +157,17 @@ class VCFData:
             for gene_id in self.genic_region_dict[gene_sym]:
                 genic_region = self.genic_region_dict[gene_sym][gene_id]
 
-                if genic_precedence_dict[self.rep_genic] > genic_precedence_dict[genic_region]:
+                if genic_precedence_dict[self.rep_genic_region] > genic_precedence_dict[genic_region]:
                     self.rep_gene_sym = gene_sym
                     self.rep_gene_id = gene_id
-                    self.rep_genic = genic_region
+                    self.rep_genic_region = genic_region
 
                 # set priority to the gene with lower ID
-                elif genic_precedence_dict[self.rep_genic] == genic_precedence_dict[genic_region]:
+                elif genic_precedence_dict[self.rep_genic_region] == genic_precedence_dict[genic_region]:
                     if int(self.rep_gene_id[3:]) > int(gene_id[3:]):
                         self.rep_gene_sym = gene_sym
                         self.rep_gene_id = gene_id
-                        self.rep_genic = genic_region
+                        self.rep_genic_region = genic_region
 
             # END: for loop 'gene_id'
         # END: for loop 'gene_sym'
