@@ -234,6 +234,6 @@ class RefFlat:
                 elif pos >= self.cds_end:
                     return '3UTR' if self.strand == '+' else '5UTR'
                 else:
-                    return 'exonic'
+                    return 'ORF'
             else:
                 return 'ncRNA_exonic'

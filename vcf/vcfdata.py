@@ -146,7 +146,7 @@ class VCFData:
     # END: find_genic_region
 
     def _set_rep_genic_region(self):
-        genic_precedence_dict = {'exonic': 1,
+        genic_precedence_dict = {'ORF': 1,
                                  '3UTR': 2, '5UTR': 2,
                                  'ncRNA_exonic': 3,
                                  'intronic': 4,
