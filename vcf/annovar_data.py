@@ -1,7 +1,7 @@
 import sys, os
 
 class AnnovarData:
-    """ from annovar, only consider SNV """
+    """ VCF files from annovar, only consider SNV """
     def __init__(self):
         self.chrID = ''
         self.pos = 0  # 1-base
