@@ -1,4 +1,5 @@
 import sys, os, re
+import gzip
 
 class VCFData:
     """ The object of this class represents one entry in VCF files (only consider SNV). """
@@ -34,7 +35,11 @@ class VCFData:
         p_pos = re.compile('^[0-9]+$')
 
         var_list = []
-        vcf_file = open(vcf_filename, 'r')
+
+        if vcf_filename.endswith('.gz'):
+            vcf_file = gzip.open(vcf_filename, 'r')
+        else:
+            vcf_file = open(vcf_filename, 'r')
 
         for line in vcf_file:
             # File Format
