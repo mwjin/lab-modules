@@ -23,6 +23,12 @@ class VCFData:
 
     # END: __init__
 
+    def get_var_genic_region(self):
+        """
+        :return: representative genic region
+        """
+        return self.rep_genic
+
     @staticmethod
     def parse_vcf_file(vcf_filename, isClustered=False):
 
@@ -156,8 +162,9 @@ class VCFData:
                     self.rep_gene_id = gene_id
                     self.rep_genic = genic_region
 
+                # set priority to the gene with lower ID
                 elif genic_precedence_dict[self.rep_genic] == genic_precedence_dict[genic_region]:
-                    if self.rep_gene_sym > gene_sym:
+                    if int(self.rep_gene_id[3:]) > int(gene_id[3:]):
                         self.rep_gene_sym = gene_sym
                         self.rep_gene_id = gene_id
                         self.rep_genic = genic_region
