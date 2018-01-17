@@ -120,11 +120,13 @@ class VCFData:
         vcf_file.close()
 
         ## print the invalid chromosome ID
-        print('Invalid chromosome ID of the variants in %s' % vcf_filename)
+        print('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
 
         for invalid_chrID in invalid_chr_to_cnt:
             print('%s: %d' % (invalid_chrID, invalid_chr_to_cnt[invalid_chrID]))
 
+        print()
+        
         return var_list
     # END: parse_vcf_file
 
