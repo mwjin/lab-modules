@@ -43,7 +43,7 @@ class VCFData:
         var_list = []
 
         if vcf_filename.endswith('.gz'):
-            vcf_file = gzip.open(vcf_filename, 'r')
+            vcf_file = gzip.open(vcf_filename, 'rt')
         else:
             vcf_file = open(vcf_filename, 'r')
 
