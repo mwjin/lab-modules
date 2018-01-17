@@ -41,6 +41,7 @@ class VCFData:
         p_pos = re.compile('^[0-9]+$')
 
         var_list = []
+        invalid_chr_to_cnt = {}
 
         if vcf_filename.endswith('.gz'):
             vcf_file = gzip.open(vcf_filename, 'rt')
@@ -77,18 +78,30 @@ class VCFData:
             ## filters for chrID
             if p_autosome.match(chrID):
                 if int(chrID) > 23:  # Wrong chromosome number
-                    print('Invalid chromosome ID in \'%s\'' % line)
+                    invalid_chrID = 'chr%s' % chrID
+
+                    if invalid_chrID not in invalid_chr_to_cnt:
+                        invalid_chr_to_cnt[invalid_chrID] = 0
+
+                    invalid_chr_to_cnt[invalid_chrID] += 1
+
                     continue
 
             elif not p_sexchr.match(chrID):
-                print('Invalid chromosome ID in \'%s\'' % line)
+                invalid_chrID = 'chr%s' % chrID
+
+                if invalid_chrID not in invalid_chr_to_cnt:
+                    invalid_chr_to_cnt[invalid_chrID] = 0
+
+                invalid_chr_to_cnt[invalid_chrID] += 1
+
                 continue
 
             variant = VCFData()
             variant.chrID  = 'chr%s' % fields[0]
 
             if not p_pos.match(fields[1]):
-                print('Invalid variant position in \'%s\'' % line)
+                print('Invalid variant position \'%s\'' % fields[1])
                 continue
 
             variant.pos = int(fields[1])
@@ -105,6 +118,12 @@ class VCFData:
         # END: for loop 'line'
 
         vcf_file.close()
+
+        ## print the invalid chromosome ID
+        print('Invalid chromosome ID of the variants in %s' % vcf_filename)
+
+        for invalid_chrID in invalid_chr_to_cnt:
+            print('%s: %d' % (invalid_chrID, invalid_chr_to_cnt[invalid_chrID]))
 
         return var_list
     # END: parse_vcf_file
