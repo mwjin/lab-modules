@@ -17,8 +17,6 @@ class VCFData:
 
         """ info from refFlat (in-house rep-isoforms) """
         self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> genic region
-        self.rep_gene_sym = None
-        self.rep_gene_id = None
         self.rep_genic_region = 'intergenic'  # default
 
     # END: __init__
@@ -168,7 +166,7 @@ class VCFData:
 
     def _set_rep_genic_region(self):
         genic_precedence_dict = {'ORF': 1,
-                                 '3UTR': 2, '5UTR': 2,
+                                 '5UTR': 2, '3UTR': 2, 'UTR': 2, # UTR: both 5 and 3UTR
                                  'ncRNA_exonic': 3,
                                  'intronic': 4,
                                  'ncRNA_intronic': 5,
@@ -179,17 +177,14 @@ class VCFData:
                 genic_region = self.genic_region_dict[gene_sym][gene_id]
 
                 if genic_precedence_dict[self.rep_genic_region] > genic_precedence_dict[genic_region]:
-                    self.rep_gene_sym = gene_sym
-                    self.rep_gene_id = gene_id
                     self.rep_genic_region = genic_region
-
-                # set priority to the gene with lower ID
+                
                 elif genic_precedence_dict[self.rep_genic_region] == genic_precedence_dict[genic_region]:
-                    if int(self.rep_gene_id[3:]) > int(gene_id[3:]):
-                        self.rep_gene_sym = gene_sym
-                        self.rep_gene_id = gene_id
-                        self.rep_genic_region = genic_region
-
+                    # deals with the case that one position can be annotated as both 5UTR and 3UTR
+                    if genic_precedence_dict[genic_region] == 2 and self.rep_genic_region != genic_region:
+                        if self.rep_genic_region != 'UTR':
+                            self.rep_genic_region = 'UTR'
+                        
             # END: for loop 'gene_id'
         # END: for loop 'gene_sym'
     # END: _set_rep_genic_region
