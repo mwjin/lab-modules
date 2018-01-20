@@ -1,11 +1,11 @@
-#
-#######################################################################
-# This code reads a part of chromosome sequence only we want.
-# Author: Jinman Park
-# Modified by Minwoo Jeong
-# last update: 2017. 9. 15.
-#######################################################################
-#
+"""
+Genome utilities
+1. make reverse complementary sequence for the input sequence
+2. read partial sequence
+3. get the sizes of chromosomes
+4. set the range of bins of chromosomes
+"""
+
 
 import sys
 
@@ -27,6 +27,7 @@ def reverse_complement(seq):
     return comp_seq[::-1]  # reverse
 # END: reverse_complement
 
+
 def read_partial_seq(chrID, start, end):
     start = int(start)
     end = int(end)
@@ -34,6 +35,33 @@ def read_partial_seq(chrID, start, end):
 
     return seq.upper()
 # END: read_partial_seq
+
+
+def get_chr_sizes():
+    """
+    :return: a dictionary that maps chromosome ID to the size of this chromosome
+    """
+    chr_to_size = {}
+
+    genome_idx_file = open('%s.fai' % GENOME_FILENAME, 'r')
+
+    for line in genome_idx_file.readlines():
+        """
+        Column 1: chromosome ID e.g. chr1
+        Column 2: size of each chromosome without newline characters
+        Column 3: size of each chromosome with newline characters
+        Column 4: length of lines in each chromosome without newline characters
+        Column 5: length of lines in each chromosome with newline characters
+        """
+        fields = line.split('\t')
+
+        chrID = fields[0]
+        chr_size = int(fields[1])
+
+        chr_to_size[chrID] = chr_size
+
+    return chr_to_size
+
 
 def main():
     pass

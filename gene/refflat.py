@@ -1,4 +1,4 @@
-from genome.reader import read_partial_seq, reverse_complement
+from genome.genome_utils import read_partial_seq, reverse_complement
 
 class RefFlat:
     """ save the information from refFlat file """
