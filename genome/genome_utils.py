@@ -81,7 +81,7 @@ def get_chr_bin_ranges(bin_size):
         chr_to_bin_ranges[chrID] = []
 
         chr_size = chr_to_size[chrID]
-        bin_cnt = chr_to_size[chrID] / bin_size + 1
+        bin_cnt = int(chr_to_size[chrID] / bin_size) + 1
 
         for i in range(bin_cnt):
             bin_start_idx = i * bin_size
