@@ -134,7 +134,7 @@ class VCFData:
                                this genes must be involved in the chromosome same with the variant.
         """
         var_pos = self.pos - 1  # 1-base -> 0-base
-        genes_same_chr.sort(key=lambda gene: gene.tx_start)
+        genes_same_chr.sort(key=lambda gene: (gene.tx_start, gene.tx_end))
 
         for gene in genes_same_chr:
             if gene.chrID != self.chrID:
@@ -145,6 +145,7 @@ class VCFData:
 
             if var_pos < gene.tx_start:
                 break
+
             elif gene.tx_start <= var_pos < gene.tx_end:
                 gene_sym = gene.symbol
                 gene_id = gene.id
@@ -158,7 +159,7 @@ class VCFData:
                     sys.exit()
 
                 self.genic_region_dict[gene_sym][gene_id] = genic_region
-            # END: else
+
         # END: for loop 'gene'
 
         self._set_rep_genic_region()
