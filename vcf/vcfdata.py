@@ -180,7 +180,7 @@ class VCFData:
                     self.rep_genic_region = genic_region
                 
                 elif genic_precedence_dict[self.rep_genic_region] == genic_precedence_dict[genic_region]:
-                    # deals with the case that one position can be annotated as both 5UTR and 3UTR
+                    # dealing with the case one position can be annotated as both 5UTR and 3UTR
                     if genic_precedence_dict[genic_region] == 2 and self.rep_genic_region != genic_region:
                         if self.rep_genic_region != 'UTR':
                             self.rep_genic_region = 'UTR'
