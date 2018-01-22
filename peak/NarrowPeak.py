@@ -88,7 +88,7 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    def parse_genic_region_info(self, region_code_list):
+    def make_genic_region_stat(self, region_code_list):
         """
         This code makes up the 'genic_region_to_size' attribute.
 
@@ -123,5 +123,5 @@ class NarrowPeak:
 
             self.genic_region_to_size[genic_region] += 1
 
-    # END: the function 'parse_genic_region_info'
+    # END: the function 'make_genic_region_stat'
 # END: the definition of the class 'NarrowPeak'
