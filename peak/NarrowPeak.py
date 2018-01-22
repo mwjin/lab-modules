@@ -1,6 +1,7 @@
 from lib_utils import *
 
-import sys, os
+import sys
+
 
 class NarrowPeak:
     """ The object of this class represents one entry of a file that has narrow peaks BED format """
@@ -8,24 +9,42 @@ class NarrowPeak:
         self.chrID = None
         self.start = 0
         self.end = 0
+
+        # following attributes will be string because of the bed files after merged.
         self.name = '.'
-        self.score = 0
+        self.score = '0'
         self.strand = '.'
-        self.sig_val = 0.0
-        self.p_val = -1.0
-        self.q_val = -1.0
-        self.point_source = -1
+        self.sig_val = '0.0'
+        self.p_val = '-1.0'
+        self.q_val = '-1.0'
+        self.point_source = '-1'
 
         """ info for gene-based annotation of the peak """
         self.genic_region_to_size = {}
 
+    # END: __init__
+
     def __str__(self):
-        return '%s\t%d\t%d\t%s\t%d\t%s\t%f\t%f\t%f\t%d' % \
+        return '%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % \
                (self.chrID, self.start, self.end, self.name, self.score,
                 self.strand, self.sig_val, self.p_val, self.q_val, self.point_source)
 
+    # END: __str__
+
+    def get_position(self):
+        """
+        :return: a tuple (start, end)
+        """
+        return self.start, self.end
+
+    # END: the function 'get_position'
+
     @staticmethod
-    def parse_peak_file():
+    def parse_peak_file(peak_filename):
+        """
+        :param peak_filename: a file which has a narrow peak bed format
+        :return: a list of NarrowPeak objects
+        """
         # File Format:
         # Column:        0       | 1         | 2        | 3               | 4      | 5       |
         # ID:            ChrID   | start     | end      | name            | score  | strand  |
@@ -34,7 +53,40 @@ class NarrowPeak:
         # ID:            signal_value | p-value   | q-value  | point_source
         # Example:       1.29065      | 0.198802  | -1       | -1
 
-        pass
+        peak_file = open(peak_filename, 'r')
+
+        peak_list = []
+
+        for line in peak_file.readlines():
+            peak = NarrowPeak()
+            peak.parse_peak_entry(line.strip())
+            peak_list.append(peak)
+
+        peak_file.close()
+
+        return peak_list
+
+    # END: the function 'parse_peak_file'
+
+    def parse_peak_entry(self, peak_entry):
+        """
+        :param peak_entry: an entry from a narrow peak bed file
+        """
+
+        fields = peak_entry.split('\t')
+
+        self.chrID = fields[0]
+        self.start = int(fields[1])
+        self.end = int(fields[2])
+        self.name = fields[3]
+        self.score = fields[4]
+        self.strand = fields[5]
+        self.sig_val = fields[6]
+        self.p_val = fields[7]
+        self.q_val = fields[8]
+        self.point_source = fields[9]
+
+    # END: the function 'parse_peak_entry'
 
     def parse_genic_region_info(self, region_code_list):
         """
@@ -71,3 +123,5 @@ class NarrowPeak:
 
             self.genic_region_to_size[genic_region] += 1
 
+    # END: the function 'parse_genic_region_info'
+# END: the definition of the class 'NarrowPeak'
