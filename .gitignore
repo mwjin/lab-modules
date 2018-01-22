@@ -3,3 +3,4 @@ __pycache__/
 gene/__pycache__/
 genome/__pycache__/
 vcf/__pycache__/
+peak/__pycache__/
