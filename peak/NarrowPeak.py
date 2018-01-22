@@ -17,7 +17,7 @@ class NarrowPeak:
         self.sig_val = '0.0'
         self.p_val = '-1.0'
         self.q_val = '-1.0'
-        self.point_source = '-1'
+        self.point_src = '-1'
 
         """ info for gene-based annotation of the peak """
         self.genic_region_to_size = {}
@@ -27,7 +27,7 @@ class NarrowPeak:
     def __str__(self):
         return '%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % \
                (self.chrID, self.start, self.end, self.name, self.score,
-                self.strand, self.sig_val, self.p_val, self.q_val, self.point_source)
+                self.strand, self.sig_val, self.p_val, self.q_val, self.point_src)
 
     # END: __str__
 
@@ -50,7 +50,7 @@ class NarrowPeak:
         # ID:            ChrID   | start     | end      | name            | score  | strand  |
         # Example:       chr14   | 56879239  | 56879435 | ILF3_K562_rep02 | 1000   | -       |
         # Column:        6            | 7         | 8        | 9
-        # ID:            signal_value | p-value   | q-value  | point_source
+        # ID:            signal_value | p-value   | q-value  | point_src
         # Example:       1.29065      | 0.198802  | -1       | -1
 
         peak_file = open(peak_filename, 'r')
@@ -84,7 +84,7 @@ class NarrowPeak:
         self.sig_val = fields[6]
         self.p_val = fields[7]
         self.q_val = fields[8]
-        self.point_source = fields[9]
+        self.point_src = fields[9]
 
     # END: the function 'parse_peak_entry'
 
