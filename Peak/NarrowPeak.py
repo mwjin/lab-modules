@@ -3,10 +3,23 @@ import sys, os
 class NarrowPeak:
     """ The object of this class represents one entry of a file that has narrow peaks BED format """
     def __init__(self):
-        pass
+        self.chrID = None
+        self.start = 0
+        self.end = 0
+        self.name = '.'
+        self.score = 0
+        self.strand = '.'
+        self.sig_val = 0.0
+        self.p_val = -1.0
+        self.q_val = -1.0
+        self.point_source = -1
+
+        """ info for gene-based annotation of the peak """
 
     def __str__(self):
-        pass
+        return '%s\t%d\t%d\t%s\t%d\t%s\t%f\t%f\t%f\t%d' % \
+               (self.chrID, self.start, self.end, self.name, self.score,
+                self.strand, self.sig_val, self.p_val, self.q_val, self.point_source)
 
     @staticmethod
     def parse_peak_file():
@@ -19,5 +32,3 @@ class NarrowPeak:
         # Example:       1.29065      | 0.198802  | -1       | -1
 
         pass
-
-
