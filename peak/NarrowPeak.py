@@ -24,6 +24,7 @@ class NarrowPeak:
 
         """ attributes for seeing a distribution of variants """
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
+        self.var_pos_to_genic_region = {}
 
     # END: __init__
 
@@ -143,6 +144,11 @@ class NarrowPeak:
             self.var_pos_to_cnt[var_pos] = 0
 
         self.var_pos_to_cnt[var_pos] += 1
+
+        if var_pos not in self.var_pos_to_genic_region:
+            self.var_pos_to_genic_region[var_pos] = variant.get_var_genic_region()
+        else:
+            assert self.var_pos_to_genic_region[var_pos] == variant.get_var_genic_region()
 
     # END: the function 'record_variant'
 # END: the definition of the class 'NarrowPeak'
