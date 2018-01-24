@@ -24,7 +24,7 @@ class NarrowPeak:
         self.genic_region_to_size = {}
 
         """ attributes for seeing a distribution of variants """
-        self.var_pos_to_cnt = {}
+        self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
 
     # END: __init__
 
@@ -131,4 +131,21 @@ class NarrowPeak:
             self.genic_region_to_size[genic_region] += 1
 
     # END: the function 'set_genic_region'
+
+    def record_variant(self, variant):
+        """
+        :param variant: an object of the class 'VCFData'
+        """
+
+        assert variant.__class__.__name__ == 'VCFData'
+        assert self.start <= (variant.pos - 1) < self.end
+
+        var_pos = variant.pos - 1  # 1-based -> 0-based
+
+        if var_pos not in self.var_pos_to_cnt:
+            self.var_pos_to_cnt[var_pos] = 0
+
+        self.var_pos_to_cnt[var_pos] += 1
+
+    # END: the function 'record_variant'
 # END: the definition of the class 'NarrowPeak'
