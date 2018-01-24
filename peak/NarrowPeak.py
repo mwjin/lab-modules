@@ -20,6 +20,7 @@ class NarrowPeak:
         self.point_src = '-1'
 
         """ info for gene-based annotation of the peak """
+        self.genic_region_list = []  # a list of codes for genic regions
         self.genic_region_to_size = {}
 
     # END: __init__
@@ -108,6 +109,7 @@ class NarrowPeak:
         """
         assert len(region_code_list) == (self.end - self.start)
 
+        self.genic_region_list = region_code_list
         code_to_region = {100: 'ORF', 101: '5UTR', 102: '3UTR', 103: 'UTR', 104: 'ncRNA_exonic',
                           105: 'intronic', 106: 'ncRNA_intronic', 107: 'intergenic'}
 
