@@ -19,9 +19,12 @@ class NarrowPeak:
         self.q_val = '-1.0'
         self.point_src = '-1'
 
-        """ info for gene-based annotation of the peak """
+        """ attributes for gene-based annotation of the peak """
         self.genic_region_list = []  # a list of codes for genic regions
         self.genic_region_to_size = {}
+
+        """ attributes for seeing a distribution of variants """
+        self.var_pos_to_cnt = {}
 
     # END: __init__
 
@@ -89,7 +92,7 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    def make_genic_region_stat(self, region_code_list):
+    def set_genic_region(self, region_code_list):
         """
         This code makes up the 'genic_region_to_size' attribute.
 
@@ -110,9 +113,11 @@ class NarrowPeak:
         assert len(region_code_list) == (self.end - self.start)
 
         self.genic_region_list = region_code_list
+        
         code_to_region = {100: 'ORF', 101: '5UTR', 102: '3UTR', 103: 'UTR', 104: 'ncRNA_exonic',
                           105: 'intronic', 106: 'ncRNA_intronic', 107: 'intergenic'}
 
+        # make a statistics for genic regions
         for code in region_code_list:
             try:
                 genic_region = code_to_region[code]
@@ -125,5 +130,5 @@ class NarrowPeak:
 
             self.genic_region_to_size[genic_region] += 1
 
-    # END: the function 'make_genic_region_stat'
+    # END: the function 'set_genic_region'
 # END: the definition of the class 'NarrowPeak'
