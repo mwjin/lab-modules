@@ -140,8 +140,6 @@ class NarrowPeak:
         106: ncRNA intronic
         107: intergenic
         """
-        assert len(region_code_list) == (self.end - self.start)
-
         code_to_region = {100: 'ORF', 101: '5UTR', 102: '3UTR', 103: 'UTR', 104: 'ncRNA_exonic',
                           105: 'intronic', 106: 'ncRNA_intronic', 107: 'intergenic'}
 
