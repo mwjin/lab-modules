@@ -43,6 +43,36 @@ class NarrowPeak:
 
     # END: the function 'get_position'
 
+    def get_genic_region_to_size(self):
+        """
+        :return: a dictionary that documents the size of each genic region on this peak.
+                 (key: a genic region, value: a size of the genic region (integer))
+        """
+        return self.genic_region_to_size
+
+    # END: the function 'get_genic_region_to_size'
+
+    def get_genic_region_to_var_cnt(self):
+        """
+        :return: a dictionary that documents the number of variants of each genic region on this peak.
+                 (key: a genic region, value: the number of variants on the genic region (integer))
+        """
+
+        genic_region_to_var_cnt = {}
+
+        for pos in self.var_pos_to_cnt:
+            var_cnt = self.var_pos_to_cnt[pos]
+            var_genic_region = self.var_pos_to_genic_region[pos]
+
+            if var_genic_region not in genic_region_to_var_cnt:
+                genic_region_to_var_cnt[var_genic_region] = 0
+
+            genic_region_to_var_cnt[var_genic_region] += var_cnt
+
+        return genic_region_to_var_cnt
+
+    # END: the function 'get_genic_region_to_var_cnt'
+
     @staticmethod
     def parse_peak_file(peak_filename):
         """
