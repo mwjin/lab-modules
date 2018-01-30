@@ -1,7 +1,8 @@
 from genome.genome_utils import read_partial_seq, reverse_complement
 
+
 class RefFlat:
-    """ save the information from refFlat file """
+    """ save the information from refflat file """
     def __init__(self):
         self.symbol = None
         self.id = None  # NR: ncRNA, NM: mRNA
@@ -31,48 +32,48 @@ class RefFlat:
                                                                self.tx_start, self.tx_end, self.cds_start, self.cds_end,
                                                                self.exon_cnt, exon_starts, exon_ends)
 
-    def parse_refFlat_line(self, refFlat_line):
-        refFlat_fields = refFlat_line.strip().split('\t')
+    def parse_refflat_line(self, refflat_line):
+        refflat_fields = refflat_line.strip().split('\t')
 
-        self.symbol = refFlat_fields[0]
-        self.id = refFlat_fields[1]
-        self.chrID = refFlat_fields[2]
-        self.strand = refFlat_fields[3]
-        self.tx_start = int(refFlat_fields[4])
-        self.tx_end = int(refFlat_fields[5])
+        self.symbol = refflat_fields[0]
+        self.id = refflat_fields[1]
+        self.chrID = refflat_fields[2]
+        self.strand = refflat_fields[3]
+        self.tx_start = int(refflat_fields[4])
+        self.tx_end = int(refflat_fields[5])
 
         if self.tx_start > self.tx_end:
-            print("Error in %s: tx end point is ahead of tx start." % (self.symbol))
+            print("Error in %s: tx end point is ahead of tx start." % self.symbol)
             return
 
-        self.cds_start = int(refFlat_fields[6])
-        self.cds_end = int(refFlat_fields[7])
+        self.cds_start = int(refflat_fields[6])
+        self.cds_end = int(refflat_fields[7])
 
         if self.cds_start > self.cds_end:
-            print("Error in %s: cds end point is ahead of cds start." % (self.symbol))
+            print("Error in %s: cds end point is ahead of cds start." % self.symbol)
             return
 
-        self.exon_cnt = int(refFlat_fields[8])
-        self.exon_starts = [ int(exon_start) for exon_start in refFlat_fields[9].strip(',').split(',') ]
+        self.exon_cnt = int(refflat_fields[8])
+        self.exon_starts = [int(exon_start) for exon_start in refflat_fields[9].strip(',').split(',')]
         self.exon_starts.sort()
 
         if self.tx_start != self.exon_starts[0]:
-            print("Error in %s: Tx start point is different with exon start point." % (self.symbol))
+            print("Error in %s: Tx start point is different with exon start point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_starts):
-            print("Error in %s: Exon count is different with the number of exon starts." % (self.symbol))
+            print("Error in %s: Exon count is different with the number of exon starts." % self.symbol)
             return
 
-        self.exon_ends = [ int(exon_end) for exon_end in refFlat_fields[10].strip(',').split(',') ]
+        self.exon_ends = [int(exon_end) for exon_end in refflat_fields[10].strip(',').split(',')]
         self.exon_ends.sort()
 
         if self.tx_end != self.exon_ends[-1]:
-            print("Error in %s: Tx end point is different with exon end point." % (self.symbol))
+            print("Error in %s: Tx end point is different with exon end point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_ends):
-            print("Error in %s: Exon count is different with the number of exon ends." % (self.symbol))
+            print("Error in %s: Exon count is different with the number of exon ends." % self.symbol)
             return
 
         valid_exon = self._check_exon_overlap()
@@ -130,14 +131,14 @@ class RefFlat:
                 cds_end_offset -= (self.exon_ends[i] - self.exon_starts[i])
 
         if self.strand == '+':
-            self.seq_5UTR = seq_exons[0 : cds_start_offset]
-            self.seq_ORF = seq_exons[cds_start_offset : cds_end_offset]
-            self.seq_3UTR = seq_exons[cds_end_offset : self.exons_size]
+            self.seq_5UTR = seq_exons[0:cds_start_offset]
+            self.seq_ORF = seq_exons[cds_start_offset:cds_end_offset]
+            self.seq_3UTR = seq_exons[cds_end_offset:self.exons_size]
 
         elif self.strand == '-':
-            self.seq_5UTR = reverse_complement(seq_exons[cds_end_offset : self.exons_size])
-            self.seq_ORF = reverse_complement(seq_exons[cds_start_offset : cds_end_offset])
-            self.seq_3UTR = reverse_complement(seq_exons[0 : cds_start_offset])
+            self.seq_5UTR = reverse_complement(seq_exons[cds_end_offset:self.exons_size])
+            self.seq_ORF = reverse_complement(seq_exons[cds_start_offset:cds_end_offset])
+            self.seq_3UTR = reverse_complement(seq_exons[0:cds_start_offset])
 
         else:
             print("Error: invalid strand %s" % self.strand)
@@ -179,7 +180,7 @@ class RefFlat:
         ORF_size = len(self.seq_ORF)
 
         for i in range(0, ORF_size - 3, 3):
-            codon = self.seq_ORF[i : i + 3]
+            codon = self.seq_ORF[i:i + 3]
 
             if codon in stop_codons:
                 return True
