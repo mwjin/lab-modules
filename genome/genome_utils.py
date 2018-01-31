@@ -98,13 +98,14 @@ def get_chr_bin_ranges(bin_size):
 def main():
     pass
 # END: main function
-    
+
 if __name__ == '__main__':
-    if len(sys.argv) == 1: main()
+    if len(sys.argv) == 1:
+        main()
     else:
-        function_name       = sys.argv[1]
+        function_name = sys.argv[1]
         function_parameters = sys.argv[2:]
-        if function_name in locals().keys(): locals()[function_name](*function_parameters)
-        else: sys.exit('ERROR: function_name=%s, parameters=%s' % (function_name, function_parameters))
-    #if END: len(sys.argv)
-#if END: __name__
+        if function_name in locals().keys():
+            locals()[function_name](*function_parameters)
+        else:
+            sys.exit('ERROR: function_name=%s, parameters=%s' % (function_name, function_parameters))
