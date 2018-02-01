@@ -1,5 +1,8 @@
-import sys, os, re
+import sys
+import os
+import re
 import gzip
+
 
 class VCFData:
     """ The object of this class represents one entry in VCF files (only consider SNV). """
@@ -28,7 +31,7 @@ class VCFData:
         return self.rep_genic_region
 
     @staticmethod
-    def parse_vcf_file(vcf_filename, isClustered=False):
+    def parse_vcf_file(vcf_filename):
 
         if not os.path.isfile(vcf_filename):
             sys.exit('File Not Found %s' % vcf_filename)
@@ -65,7 +68,7 @@ class VCFData:
             if line.startswith('#'):  # skip information headers
                 continue
 
-            ## check if the variant passed the variant calling filters
+            # check if the variant passed the variant calling filters
             if 'PASS' not in line:
                 continue
 
@@ -73,7 +76,7 @@ class VCFData:
 
             chrID = fields[0]
 
-            ## filters for chrID
+            # filters for chrID
             if pat_autosome.match(chrID):
                 if int(chrID) > 23:  # Wrong chromosome number
                     invalid_chrID = 'chr%s' % chrID
@@ -96,13 +99,13 @@ class VCFData:
                 continue
 
             variant = VCFData()
-            variant.chrID  = 'chr%s' % fields[0]
+            variant.chrID = 'chr%s' % fields[0]
 
             if not pat_pos.match(fields[1]):
                 print('Invalid variant position \'%s\'' % fields[1])
                 continue
 
-            variant.pos = int(fields[1])
+            variant.pos = int(fields[1])  # 1-based
             variant.dbSNP_id = fields[2]
             variant.ref_nuc = fields[3]
             variant.alt_nuc = fields[4]
@@ -117,7 +120,7 @@ class VCFData:
 
         vcf_file.close()
 
-        ## print the invalid chromosome ID
+        # print the invalid chromosome ID
         print('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
 
         for invalid_chrID in invalid_chr_to_cnt:
@@ -167,7 +170,7 @@ class VCFData:
 
     def _set_rep_genic_region(self):
         genic_precedence_dict = {'ORF': 1,
-                                 '5UTR': 2, '3UTR': 2, 'UTR': 2, # UTR: both 5 and 3UTR
+                                 '5UTR': 2, '3UTR': 2, 'UTR': 2,  # UTR: both 5 and 3UTR
                                  'ncRNA_exonic': 3,
                                  'intronic': 4,
                                  'ncRNA_intronic': 5,
@@ -183,8 +186,7 @@ class VCFData:
                 elif genic_precedence_dict[self.rep_genic_region] == genic_precedence_dict[genic_region]:
                     # dealing with the case one position can be annotated as both 5UTR and 3UTR
                     if genic_precedence_dict[genic_region] == 2 and self.rep_genic_region != genic_region:
-                        if self.rep_genic_region != 'UTR':
-                            self.rep_genic_region = 'UTR'
+                        self.rep_genic_region = 'UTR'
                         
             # END: for loop 'gene_id'
         # END: for loop 'gene_sym'
