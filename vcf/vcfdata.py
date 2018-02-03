@@ -215,10 +215,10 @@ class VCFData:
         elif pos_gene_cnt < neg_gene_cnt:
             self.rep_strand = '-'
         elif pos_gene_cnt != 0:
-            pos_first_gene_id = self._strand_to_gene_ids['+'][0]
-            neg_first_gene_id = self._strand_to_gene_ids['-'][0]
+            pos_lowest_gene_id = self._strand_to_gene_ids['+'][0]
+            neg_lowest_gene_id = self._strand_to_gene_ids['-'][0]
 
-            if int(pos_first_gene_id[:3]) >= int(neg_first_gene_id[:3]):
+            if int(pos_lowest_gene_id[:3]) >= int(neg_lowest_gene_id[:3]):
                 self.rep_strand = '+'
             else:
                 self.rep_strand = '-'
