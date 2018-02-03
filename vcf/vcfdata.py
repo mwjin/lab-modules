@@ -203,34 +203,31 @@ class VCFData:
             # END: for loop 'gene_id'
         # END: for loop 'gene_sym'
 
-        # deal with the case there are multiple genes with genic regions of the same priority
-        pos_gene_cnt = len(rep_gene_info_dict['+'])
-        neg_gene_cnt = len(rep_gene_info_dict['-'])
+        self._strand_to_gene_ids['+'].sort(key=lambda one_gene_id: int(one_gene_id[:3]))
+        self._strand_to_gene_ids['-'].sort(key=lambda one_gene_id: int(one_gene_id[:3]))
+
+        pos_gene_cnt = len(self._strand_to_gene_ids['+'])
+        neg_gene_cnt = len(self._strand_to_gene_ids['-'])
 
         # determine the representative strand of the variant
         if pos_gene_cnt > neg_gene_cnt:
             self.rep_strand = '+'
         elif pos_gene_cnt < neg_gene_cnt:
             self.rep_strand = '-'
-        else:
-            for strand in rep_gene_info_dict:
-                rep_gene_info_dict[strand].sort(key=lambda gene_info: int(gene_info[0][:3]))
+        elif pos_gene_cnt != 0:
+            pos_first_gene_id = self._strand_to_gene_ids['+'][0]
+            neg_first_gene_id = self._strand_to_gene_ids['-'][0]
 
-            pos_first_gene_id = rep_gene_info_dict['+'][0]
-            neg_first_gene_id = rep_gene_info_dict['-'][0]
-
-            if int(pos_first_gene_id[:3]) < int(neg_first_gene_id[:3]):
+            if int(pos_first_gene_id[:3]) >= int(neg_first_gene_id[:3]):
                 self.rep_strand = '+'
             else:
                 self.rep_strand = '-'
+        else:
+            self.rep_strand = '+'
 
-        self.rep_gene_id = ','.join([gene_id for gene_id, _ in rep_gene_info_dict[self.rep_strand]])
-
-        if genic_priority_dict[self.rep_genic_region] == 2:
-            for _, genic_region in rep_gene_info_dict[self.rep_strand]:
-                if self.rep_genic_region != genic_region:
-                    self.rep_genic_region = 'UTR'
-                    break
+        if not self._strand_to_gene_ids[self.rep_strand]:
+            self.rep_gene_id = ','.join(self._strand_to_gene_ids[self.rep_strand])
+            self.rep_genic_region = self._strand_to_genic_region[self.rep_strand]
 
     # END: _set_rep_genic_region
 # END: class 'VCFData'
