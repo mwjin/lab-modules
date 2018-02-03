@@ -7,7 +7,7 @@ import gzip
 class VCFData:
     """ The object of this class represents one entry in VCF files (only consider SNV). """
     def __init__(self):
-        self.chrID = ''
+        self.chrom = ''
         self.pos = 0  # 1-base
         self.dbSNP_id = ''
         self.ref_nuc = ''
@@ -54,7 +54,7 @@ class VCFData:
         for line in vcf_file:
             # File Format
             # Column Number:     | 0       | 1        | 2          | 3       | 4
-            # Column Description:| chrID   | pos      | dbSNP_id   | ref_nuc | alt_nuc
+            # Column Description:| chrom   | pos      | dbSNP_id   | ref_nuc | alt_nuc
             # Column Example:    | 13      | 32906558 | rs79483201 | T       | A
             # Column Number:     | 5       | 6        | 7          | 8              | 9./..
             # Column Description:| qual    | filter   | info       | format         | SampleIDs
@@ -76,32 +76,32 @@ class VCFData:
 
             fields = line.strip('\n').split('\t')
 
-            chrID = fields[0]
+            chrom = fields[0]
 
-            # filters for chrID
-            if pat_autosome.match(chrID):
-                if int(chrID) > 23:  # Wrong chromosome number
-                    invalid_chrID = 'chr%s' % chrID
+            # filters for chrom
+            if pat_autosome.match(chrom):
+                if int(chrom) > 23:  # Wrong chromosome number
+                    invalid_chrom = 'chr%s' % chrom
 
-                    if invalid_chrID not in invalid_chr_to_cnt:
-                        invalid_chr_to_cnt[invalid_chrID] = 0
+                    if invalid_chrom not in invalid_chr_to_cnt:
+                        invalid_chr_to_cnt[invalid_chrom] = 0
 
-                    invalid_chr_to_cnt[invalid_chrID] += 1
+                    invalid_chr_to_cnt[invalid_chrom] += 1
 
                     continue
 
-            elif not pat_sexchr.match(chrID):
-                invalid_chrID = 'chr%s' % chrID
+            elif not pat_sexchr.match(chrom):
+                invalid_chrom = 'chr%s' % chrom
 
-                if invalid_chrID not in invalid_chr_to_cnt:
-                    invalid_chr_to_cnt[invalid_chrID] = 0
+                if invalid_chrom not in invalid_chr_to_cnt:
+                    invalid_chr_to_cnt[invalid_chrom] = 0
 
-                invalid_chr_to_cnt[invalid_chrID] += 1
+                invalid_chr_to_cnt[invalid_chrom] += 1
 
                 continue
 
             variant = VCFData()
-            variant.chrID = 'chr%s' % fields[0]
+            variant.chrom = 'chr%s' % fields[0]
 
             if not pat_pos.match(fields[1]):
                 print('Invalid variant position \'%s\'' % fields[1])
@@ -125,8 +125,8 @@ class VCFData:
         # print the invalid chromosome ID
         print('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
 
-        for invalid_chrID in invalid_chr_to_cnt:
-            print('%s: %d' % (invalid_chrID, invalid_chr_to_cnt[invalid_chrID]))
+        for invalid_chrom in invalid_chr_to_cnt:
+            print('%s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
 
         print()
 
@@ -142,10 +142,10 @@ class VCFData:
         genes_same_chr.sort(key=lambda gene: (gene.tx_start, gene.tx_end))
 
         for gene in genes_same_chr:
-            if gene.chrID != self.chrID:
+            if gene.chrom != self.chrom:
                 print('Different chromosome ID')
-                print('ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrID)
-                print('ChrID of the variant: %s' % self.chrID)
+                print('ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
+                print('ChrID of the variant: %s' % self.chrom)
                 sys.exit()
 
             if var_pos < gene.tx_start:
