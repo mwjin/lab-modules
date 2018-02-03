@@ -1,6 +1,10 @@
-import sys, os, re
+import os
+import sys
+import re
 
 re_nonchr = re.compile('[^a-zA-Z]')
+
+
 class Fasta:
     def __init__(self, genome_filename):
         # V-S Check: File Existence
@@ -14,14 +18,14 @@ class Fasta:
         self.line_len_list = []
         self.line_len_with_blank_list = []
 
-        #V-S Check: File Existence
-        if not os.path.isfile('%s.fai'% genome_filename):
+        # V-S Check: File Existence
+        if not os.path.isfile('%s.fai' % genome_filename):
             sys.exit('.fai file does not exist')
 
         genome_idx_file = open('%s.fai' % genome_filename, 'r')
 
         for line in genome_idx_file:
-            fields = line.strip('\n').split() # Goes backwards, -1 skips the new line character
+            fields = line.strip('\n').split()  # Goes backwards, -1 skips the new line character
 
             self.chrom_list.append(fields[0])
             self.chrlen_list.append(int(fields[1]))
@@ -36,28 +40,32 @@ class Fasta:
     def __del__(self):
         self.genome_file.close()
 
-    def fetch_seq(self, chrom, start = None, end = None, strand = '+'):
+    def fetch_seq(self, chrom, start=None, end=None, strand='+'):
         assert chrom in self.chrom_list, chrom
         chr_idx = self.chrom_list.index(chrom)
 
-        if start == None: start = 0
-        if end == None: end = self.chrlen_list[chr_idx]
+        if start is None:
+            start = 0
 
-        try: assert(0 <= start) and(start < end) and(end <= self.chrlen_list[chr_idx])
+        if end is None:
+            end = self.chrlen_list[chr_idx]
+
+        try:
+            assert (0 <= start) and (start < end) and (end <= self.chrlen_list[chr_idx])
         except AssertionError:
             print('Fasta fetch assertion error', chrom, start, end)
             sys.exit()
 
         blank_cnt = self.line_len_with_blank_list[chr_idx] - self.line_len_list[chr_idx]
 
-        start  = int(start +(start / self.line_len_list[chr_idx]) * blank_cnt) # Start Fetch Position
-        end    = int(end   +(end   / self.line_len_list[chr_idx]) * blank_cnt) # End Fetch Position
+        start = int(start + (start / self.line_len_list[chr_idx]) * blank_cnt)  # Start Fetch Position
+        end = int(end + (end / self.line_len_list[chr_idx]) * blank_cnt)  # End Fetch Position
 
         self.genome_file.seek(self.offset_list[chr_idx] + start)            # Get Sequence
 
         seq = re.sub(re_nonchr, '', self.genome_file.read(end - start))
 
-        if   strand == '+':
+        if strand == '+':
             return seq
         elif strand == '-':
             return self._reverse_complement(seq)
@@ -65,10 +73,11 @@ class Fasta:
             sys.exit('Error: invalid strand')
     # END: fetch_seq
 
-    def _reverse_complement(self, seq):
+    @staticmethod
+    def _reverse_complement(seq):
         base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
                         'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
-                        'N': 'N', '.':'.'}
+                        'N': 'N', '.': '.'}
 
         comp_seq = ''
 
