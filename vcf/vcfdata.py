@@ -19,10 +19,10 @@ class VCFData:
         self.samples = []
 
         """ info from refFlat (in-house rep-isoforms) """
-        self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> (genic region, strand)
         self.rep_strand = '.'  # the strand of the representative gene
         self.rep_gene_id = '.'  # the gene from which the representative genic region comes
         self.rep_genic_region = 'intergenic'  # default
+        self._genic_region_dict = {}  # Mapping route: gene symbol -> ID -> (genic region, strand)
         self._strand_to_gene_ids = {'+': [], '-': []}
         self._strand_to_genic_region = {'+': 'intergenic', '-': 'intergenic'}
 
@@ -161,14 +161,14 @@ class VCFData:
                 genic_region = gene.find_genic_region(var_pos)
                 strand = gene.strand
 
-                if gene_sym not in self.genic_region_dict:
-                    self.genic_region_dict[gene_sym] = {}
+                if gene_sym not in self._genic_region_dict:
+                    self._genic_region_dict[gene_sym] = {}
 
-                if gene_id in self.genic_region_dict[gene_sym]:
+                if gene_id in self._genic_region_dict[gene_sym]:
                     print('There are RefFlat objects with same id.')
                     sys.exit()
 
-                self.genic_region_dict[gene_sym][gene_id] = (genic_region, strand)
+                self._genic_region_dict[gene_sym][gene_id] = (genic_region, strand)
 
         # END: for loop 'gene'
 
@@ -183,20 +183,22 @@ class VCFData:
                                'ncRNA_intronic': 5,
                                'intergenic': 6}
 
-        rep_gene_info_dict = {'+': [],  # mapping route: strand -> (gene_id, genic_region)
-                              '-': []}
+        # set strand-specific representative genic region
+        for gene_sym in self._genic_region_dict:
+            for gene_id in self._genic_region_dict[gene_sym]:
+                genic_region, strand = self._genic_region_dict[gene_sym][gene_id]
 
-        for gene_sym in self.genic_region_dict:
-            for gene_id in self.genic_region_dict[gene_sym]:
-                genic_region, strand = self.genic_region_dict[gene_sym][gene_id]
+                if genic_priority_dict[self._strand_to_genic_region[strand]] > genic_priority_dict[genic_region]:
+                    self._strand_to_genic_region[strand] = genic_region
+                    self._strand_to_gene_ids[strand] = [gene_id]
 
-                if genic_priority_dict[self.rep_genic_region] > genic_priority_dict[genic_region]:
-                    self.rep_genic_region = genic_region
-                    self.rep_strand = strand
-                    rep_gene_info_dict[strand].append((gene_id, genic_region))
+                elif genic_priority_dict[self._strand_to_genic_region[strand]] == genic_priority_dict[genic_region]:
+                    self._strand_to_gene_ids[strand].append(gene_id)
+                    strand_genic_region = self._strand_to_genic_region[strand]
 
-                elif genic_priority_dict[self.rep_genic_region] == genic_priority_dict[genic_region]:
-                    rep_gene_info_dict[strand].append((gene_id, genic_region))
+                    # deal with the case where it is possible for this variant to be annotated with both 5 and 3'UTR
+                    if genic_priority_dict[strand_genic_region] == 2 and strand_genic_region != genic_region:
+                        self._strand_to_genic_region[strand] = 'UTR'
 
             # END: for loop 'gene_id'
         # END: for loop 'gene_sym'
