@@ -20,9 +20,11 @@ class VCFData:
 
         """ info from refFlat (in-house rep-isoforms) """
         self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> (genic region, strand)
-        self.rep_genic_region = 'intergenic'  # default
-        self.rep_gene_id = '.'  # the gene from which the representative genic region comes
         self.rep_strand = '.'  # the strand of the representative gene
+        self.rep_gene_id = '.'  # the gene from which the representative genic region comes
+        self.rep_genic_region = 'intergenic'  # default
+        self._strand_to_gene_ids = {'+': [], '-': []}
+        self._strand_to_genic_region = {'+': 'intergenic', '-': 'intergenic'}
 
     # END: __init__
 
