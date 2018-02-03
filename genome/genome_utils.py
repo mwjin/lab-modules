@@ -29,10 +29,10 @@ def reverse_complement(seq):
 # END: reverse_complement
 
 
-def read_partial_seq(chrID, start, end):
+def read_partial_seq(chrom, start, end):
     start = int(start)
     end = int(end)
-    seq = GENOME.fetch_seq(chrID, start, end)
+    seq = GENOME.fetch_seq(chrom, start, end)
 
     return seq.upper()
 # END: read_partial_seq
@@ -56,10 +56,10 @@ def get_chr_sizes():
         """
         fields = line.split('\t')
 
-        chrID = fields[0]
+        chrom = fields[0]
         chr_size = int(fields[1])
 
-        chr_to_size[chrID] = chr_size
+        chr_to_size[chrom] = chr_size
 
     return chr_to_size
 
@@ -76,12 +76,12 @@ def get_chr_bin_ranges(bin_size):
     chr_to_size = get_chr_sizes()
     chr_to_bin_ranges = {}
 
-    for chrID in chr_to_size:
-        assert chrID not in chr_to_bin_ranges
-        chr_to_bin_ranges[chrID] = []
+    for chrom in chr_to_size:
+        assert chrom not in chr_to_bin_ranges
+        chr_to_bin_ranges[chrom] = []
 
-        chr_size = chr_to_size[chrID]
-        bin_cnt = int(chr_to_size[chrID] / bin_size) + 1
+        chr_size = chr_to_size[chrom]
+        bin_cnt = int(chr_to_size[chrom] / bin_size) + 1
 
         for i in range(bin_cnt):
             bin_start_idx = i * bin_size
@@ -90,7 +90,7 @@ def get_chr_bin_ranges(bin_size):
             if bin_end_idx > chr_size:
                 bin_end_idx = chr_size
 
-            chr_to_bin_ranges[chrID].append((bin_start_idx, bin_end_idx))
+            chr_to_bin_ranges[chrom].append((bin_start_idx, bin_end_idx))
 
     return chr_to_bin_ranges
 

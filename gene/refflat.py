@@ -6,7 +6,7 @@ class RefFlat:
     def __init__(self):
         self.symbol = None
         self.id = None  # NR: ncRNA, NM: mRNA
-        self.chrID = None
+        self.chrom = None
         self.strand = None
         self.tx_start = 0
         self.tx_end = 0
@@ -28,7 +28,7 @@ class RefFlat:
             exon_starts += "%s," % self.exon_starts[i]
             exon_ends += "%s," % self.exon_ends[i]
 
-        return "%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%s\t%s" % (self.symbol, self.id, self.chrID, self.strand,
+        return "%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%s\t%s" % (self.symbol, self.id, self.chrom, self.strand,
                                                                self.tx_start, self.tx_end, self.cds_start, self.cds_end,
                                                                self.exon_cnt, exon_starts, exon_ends)
 
@@ -37,7 +37,7 @@ class RefFlat:
 
         self.symbol = refflat_fields[0]
         self.id = refflat_fields[1]
-        self.chrID = refflat_fields[2]
+        self.chrom = refflat_fields[2]
         self.strand = refflat_fields[3]
         self.tx_start = int(refflat_fields[4])
         self.tx_end = int(refflat_fields[5])
@@ -107,7 +107,7 @@ class RefFlat:
                 print("Error in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
                 return False
 
-            seq_exon = read_partial_seq(self.chrID, self.exon_starts[i], self.exon_ends[i])
+            seq_exon = read_partial_seq(self.chrom, self.exon_starts[i], self.exon_ends[i])
 
             seq_exons += seq_exon
             self.exons_size += one_exon_size

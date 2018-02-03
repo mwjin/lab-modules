@@ -6,7 +6,7 @@ import sys
 class NarrowPeak:
     """ The object of this class represents one entry of a file that has narrow peaks BED format """
     def __init__(self):
-        self.chrID = None
+        self.chrom = None
         self.start = 0
         self.end = 0
 
@@ -30,7 +30,7 @@ class NarrowPeak:
 
     def __str__(self):
         return '%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % \
-               (self.chrID, self.start, self.end, self.name, self.score,
+               (self.chrom, self.start, self.end, self.name, self.score,
                 self.strand, self.sig_val, self.p_val, self.q_val, self.point_src)
 
     # END: __str__
@@ -81,7 +81,7 @@ class NarrowPeak:
         """
         # File Format:
         # Column:        0       | 1         | 2        | 3               | 4      | 5       |
-        # ID:            ChrID   | start     | end      | name            | score  | strand  |
+        # ID:            chrom   | start     | end      | name            | score  | strand  |
         # Example:       chr14   | 56879239  | 56879435 | ILF3_K562_rep02 | 1000   | -       |
         # Column:        6            | 7         | 8        | 9
         # ID:            signal_value | p-value   | q-value  | point_src
@@ -109,7 +109,7 @@ class NarrowPeak:
 
         fields = peak_entry.split('\t')
 
-        self.chrID = fields[0]
+        self.chrom = fields[0]
         self.start = int(fields[1])
         self.end = int(fields[2])
         self.name = fields[3]

@@ -8,7 +8,7 @@ class Fasta:
             sys.exit('Error: The genome file does not exist.')
         
         self.genome_file = open(genome_filename, 'r')
-        self.chrID_list = []
+        self.chrom_list = []
         self.chrlen_list = []
         self.offset_list = []
         self.line_len_list = []
@@ -23,7 +23,7 @@ class Fasta:
         for line in genome_idx_file:
             fields = line.strip('\n').split() # Goes backwards, -1 skips the new line character
 
-            self.chrID_list.append(fields[0])
+            self.chrom_list.append(fields[0])
             self.chrlen_list.append(int(fields[1]))
             self.offset_list.append(int(fields[2]))
             self.line_len_list.append(int(fields[3]))
@@ -36,16 +36,16 @@ class Fasta:
     def __del__(self):
         self.genome_file.close()
 
-    def fetch_seq(self, chrID, start = None, end = None, strand = '+'):
-        assert chrID in self.chrID_list, chrID
-        chr_idx = self.chrID_list.index(chrID)
+    def fetch_seq(self, chrom, start = None, end = None, strand = '+'):
+        assert chrom in self.chrom_list, chrom
+        chr_idx = self.chrom_list.index(chrom)
 
         if start == None: start = 0
         if end == None: end = self.chrlen_list[chr_idx]
 
         try: assert(0 <= start) and(start < end) and(end <= self.chrlen_list[chr_idx])
         except AssertionError:
-            print('Fasta fetch assertion error', chrID, start, end)
+            print('Fasta fetch assertion error', chrom, start, end)
             sys.exit()
 
         blank_cnt = self.line_len_with_blank_list[chr_idx] - self.line_len_list[chr_idx]
