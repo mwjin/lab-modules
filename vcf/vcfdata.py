@@ -139,7 +139,7 @@ class VCFData:
                                this genes must be involved in the chromosome same with the variant.
         """
         var_pos = self.pos - 1  # 1-base -> 0-base
-        genes_same_chr.sort(key=lambda gene: (gene.tx_start, gene.tx_end))
+        genes_same_chr.sort(key=lambda chr_gene: (chr_gene.tx_start, chr_gene.tx_end))
 
         for gene in genes_same_chr:
             if gene.chrom != self.chrom:

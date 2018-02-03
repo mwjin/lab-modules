@@ -16,9 +16,9 @@ class RefFlat:
         self.exon_starts = []
         self.exon_ends = []
         self.exons_size = 0
-        self.seq_5UTR = 0
-        self.seq_3UTR = 0
-        self.seq_ORF = 0
+        self.seq_5utr = ''
+        self.seq_3utr = ''
+        self.seq_orf = ''
 
     def __str__(self):
         exon_starts = ""
@@ -131,14 +131,14 @@ class RefFlat:
                 cds_end_offset -= (self.exon_ends[i] - self.exon_starts[i])
 
         if self.strand == '+':
-            self.seq_5UTR = seq_exons[0:cds_start_offset]
-            self.seq_ORF = seq_exons[cds_start_offset:cds_end_offset]
-            self.seq_3UTR = seq_exons[cds_end_offset:self.exons_size]
+            self.seq_5utr = seq_exons[0:cds_start_offset]
+            self.seq_orf = seq_exons[cds_start_offset:cds_end_offset]
+            self.seq_3utr = seq_exons[cds_end_offset:self.exons_size]
 
         elif self.strand == '-':
-            self.seq_5UTR = reverse_complement(seq_exons[cds_end_offset:self.exons_size])
-            self.seq_ORF = reverse_complement(seq_exons[cds_start_offset:cds_end_offset])
-            self.seq_3UTR = reverse_complement(seq_exons[0:cds_start_offset])
+            self.seq_5utr = reverse_complement(seq_exons[cds_end_offset:self.exons_size])
+            self.seq_orf = reverse_complement(seq_exons[cds_start_offset:cds_end_offset])
+            self.seq_3utr = reverse_complement(seq_exons[0:cds_start_offset])
 
         else:
             print("Error: invalid strand %s" % self.strand)
@@ -146,14 +146,14 @@ class RefFlat:
 
         return True
 
-    def has_wrong_ORF(self):
+    def has_wrong_orf(self):
         if not self._has_start_codon():
             return True
 
         if not self._has_stop_codon():
             return True
 
-        if len(self.seq_ORF) % 3 != 0:
+        if len(self.seq_orf) % 3 != 0:
             return True
 
         if self._has_internal_stop_codon():
@@ -162,7 +162,7 @@ class RefFlat:
         return False
 
     def _has_start_codon(self):
-        if self.seq_ORF[:3] == 'ATG':
+        if self.seq_orf[:3] == 'ATG':
             return True
         else:
             return False
@@ -170,33 +170,33 @@ class RefFlat:
     def _has_stop_codon(self):
         stop_codons = ['TAA', 'TAG', 'TGA']
 
-        if self.seq_ORF[-3:] in stop_codons:
+        if self.seq_orf[-3:] in stop_codons:
             return True
         else:
             return False
 
     def _has_internal_stop_codon(self):
         stop_codons = ['TAA', 'TAG', 'TGA']
-        ORF_size = len(self.seq_ORF)
+        orf_size = len(self.seq_orf)
 
-        for i in range(0, ORF_size - 3, 3):
-            codon = self.seq_ORF[i:i + 3]
+        for i in range(0, orf_size - 3, 3):
+            codon = self.seq_orf[i:i + 3]
 
             if codon in stop_codons:
                 return True
 
         return False
 
-    def is_NMD_candidate(self):
-        """ The boundary between ORF and 3'UTR is ahead of the last exon junction + 50nt upstream. """
+    def is_nmd_candidate(self):
+        """ The boundary between orf and 3'utr is ahead of the last exon junction + 50nt upstream. """
         if self.strand == '+':
             last_exon_size = self.exon_ends[-1] - self.exon_starts[-1]
         else:  # '-'
             last_exon_size = self.exon_ends[0] - self.exon_starts[0]
 
-        size_3UTR = len(self.seq_3UTR)
+        size_3utr = len(self.seq_3utr)
 
-        if size_3UTR > (last_exon_size + 50):
+        if size_3utr > (last_exon_size + 50):
             return True
         else:
             return False
@@ -204,7 +204,7 @@ class RefFlat:
     def find_genic_region(self, pos):
         """
         :param pos: should be 0-based.
-        :return: genic region (intronic, 5UTR, exonic(ORF), 3UTR). if intergenic, return None
+        :return: genic region (intronic, 5utr, exonic(orf), 3utr). if intergenic, return None
         """
         exon_positions = []
 
@@ -219,17 +219,17 @@ class RefFlat:
                 index = i
                 break
 
-        is_mRNA = (self.id[:2] == 'NM')
+        is_mrna = (self.id[:2] == 'NM')
 
         if index == 0:
             print("Error: position %d is not in the rep-genes %s." % (pos, self.symbol))
             return None
 
         elif index % 2 == 0:
-            return 'intronic' if is_mRNA else 'ncRNA_intronic'
+            return 'intronic' if is_mrna else 'ncRNA_intronic'
 
         else:
-            if is_mRNA:
+            if is_mrna:
                 if pos < self.cds_start:
                     return '5UTR' if self.strand == '+' else '3UTR'
                 elif pos >= self.cds_end:
