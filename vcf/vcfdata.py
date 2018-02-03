@@ -34,6 +34,24 @@ class VCFData:
         """
         return self.rep_genic_region
 
+    # END: the function 'get_var_genic_region'
+
+    def get_vat_strand_genic_region(self):
+        """
+        :return: a tuple with strand-specific genic regions (genic regions in +, genic regions in -)
+        """
+        return self._strand_to_genic_region['+'], self._strand_to_genic_region['-']
+
+    # END: the function 'get_var_strand_genic_region'
+
+    def get_var_assign_strand(self):
+        """
+        :return: a strand where this variant was more likely to be assigned.
+        """
+        return self.rep_strand
+    
+    # END: the function 'get_vat_assign_strand'
+
     @staticmethod
     def parse_vcf_file(vcf_filename):
 
