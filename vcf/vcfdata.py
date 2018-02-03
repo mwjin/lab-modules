@@ -225,8 +225,8 @@ class VCFData:
             # END: for loop 'gene_id'
         # END: for loop 'gene_sym'
 
-        self._strand_to_gene_ids['+'].sort(key=lambda one_gene_id: int(one_gene_id[:3]))
-        self._strand_to_gene_ids['-'].sort(key=lambda one_gene_id: int(one_gene_id[:3]))
+        self._strand_to_gene_ids['+'].sort(key=lambda one_gene_id: int(one_gene_id[3:]))
+        self._strand_to_gene_ids['-'].sort(key=lambda one_gene_id: int(one_gene_id[3:]))
 
         # determine the representative strand of the variant
         pos_genic_region = self._strand_to_genic_region['+']
@@ -248,7 +248,7 @@ class VCFData:
                 pos_lowest_gene_id = self._strand_to_gene_ids['+'][0]
                 neg_lowest_gene_id = self._strand_to_gene_ids['-'][0]
 
-                if int(pos_lowest_gene_id[:3]) >= int(neg_lowest_gene_id[:3]):
+                if int(pos_lowest_gene_id[3:]) >= int(neg_lowest_gene_id[3:]):
                     self.rep_strand = '+'
                 else:
                     self.rep_strand = '-'
