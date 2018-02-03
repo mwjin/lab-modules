@@ -47,9 +47,11 @@ class VCFData:
     def get_var_assign_strand(self):
         """
         :return: a strand where this variant was more likely to be assigned.
+        * Notice: there is no strand for variants actually. However, to determine the transcript (+ or -)
+                  this variant was more likely to be assigned, we set this virtual strand of this variant.
         """
         return self.rep_strand
-    
+
     # END: the function 'get_vat_assign_strand'
 
     @staticmethod
