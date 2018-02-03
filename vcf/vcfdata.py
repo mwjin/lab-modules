@@ -60,12 +60,14 @@ class VCFData:
             # Column Description:| qual    | filter   | info       | format         | SampleIDs
             # Column Example:    | 5645.6  | PASS     | .          | GT:AD:DP:GQ:PL | Scores corresponding to format
 
-            # Examples of the formats
-            ##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
-            ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+            """
+            Examples of the formats
+            ##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths">
+            ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth">
             ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
             ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
             ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Ph
+            """
 
             if line.startswith('#'):  # skip information headers
                 continue
