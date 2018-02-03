@@ -19,8 +19,10 @@ class VCFData:
         self.samples = []
 
         """ info from refFlat (in-house rep-isoforms) """
-        self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> genic region
+        self.genic_region_dict = {}  # Mapping route: gene symbol -> ID -> (genic region, strand)
         self.rep_genic_region = 'intergenic'  # default
+        self.rep_gene_id = '.'  # the gene from which the representative genic region comes
+        self.rep_strand = '.'  # the strand of the representative gene
 
     # END: __init__
 
@@ -153,6 +155,7 @@ class VCFData:
                 gene_sym = gene.symbol
                 gene_id = gene.id
                 genic_region = gene.find_genic_region(var_pos)
+                strand = gene.strand
 
                 if gene_sym not in self.genic_region_dict:
                     self.genic_region_dict[gene_sym] = {}
@@ -161,7 +164,7 @@ class VCFData:
                     print('There are RefFlat objects with same id.')
                     sys.exit()
 
-                self.genic_region_dict[gene_sym][gene_id] = genic_region
+                self.genic_region_dict[gene_sym][gene_id] = (genic_region, strand)
 
         # END: for loop 'gene'
 
@@ -169,26 +172,59 @@ class VCFData:
     # END: find_genic_region
 
     def _set_rep_genic_region(self):
-        genic_precedence_dict = {'ORF': 1,
-                                 '5UTR': 2, '3UTR': 2, 'UTR': 2,  # UTR: both 5 and 3UTR
-                                 'ncRNA_exonic': 3,
-                                 'intronic': 4,
-                                 'ncRNA_intronic': 5,
-                                 'intergenic': 6}
+        genic_priority_dict = {'ORF': 1,
+                               '5UTR': 2, '3UTR': 2, 'UTR': 2,  # UTR: both 5 and 3UTR
+                               'ncRNA_exonic': 3,
+                               'intronic': 4,
+                               'ncRNA_intronic': 5,
+                               'intergenic': 6}
+
+        rep_gene_info_dict = {'+': [],  # mapping route: strand -> (gene_id, genic_region)
+                              '-': []}
 
         for gene_sym in self.genic_region_dict:
             for gene_id in self.genic_region_dict[gene_sym]:
-                genic_region = self.genic_region_dict[gene_sym][gene_id]
+                genic_region, strand = self.genic_region_dict[gene_sym][gene_id]
 
-                if genic_precedence_dict[self.rep_genic_region] > genic_precedence_dict[genic_region]:
+                if genic_priority_dict[self.rep_genic_region] > genic_priority_dict[genic_region]:
                     self.rep_genic_region = genic_region
-                
-                elif genic_precedence_dict[self.rep_genic_region] == genic_precedence_dict[genic_region]:
-                    # dealing with the case one position can be annotated as both 5UTR and 3UTR
-                    if genic_precedence_dict[genic_region] == 2 and self.rep_genic_region != genic_region:
-                        self.rep_genic_region = 'UTR'
-                        
+                    self.rep_strand = strand
+                    rep_gene_info_dict[strand].append((gene_id, genic_region))
+
+                elif genic_priority_dict[self.rep_genic_region] == genic_priority_dict[genic_region]:
+                    rep_gene_info_dict[strand].append((gene_id, genic_region))
+
             # END: for loop 'gene_id'
         # END: for loop 'gene_sym'
+
+        # deal with the case there are multiple genes with genic regions of the same priority
+        pos_gene_cnt = len(rep_gene_info_dict['+'])
+        neg_gene_cnt = len(rep_gene_info_dict['-'])
+
+        # determine the representative strand of the variant
+        if pos_gene_cnt > neg_gene_cnt:
+            self.rep_strand = '+'
+        elif pos_gene_cnt < neg_gene_cnt:
+            self.rep_strand = '-'
+        else:
+            for strand in rep_gene_info_dict:
+                rep_gene_info_dict[strand].sort(key=lambda gene_info: int(gene_info[0][:3]))
+
+            pos_first_gene_id = rep_gene_info_dict['+'][0]
+            neg_first_gene_id = rep_gene_info_dict['-'][0]
+
+            if int(pos_first_gene_id[:3]) < int(neg_first_gene_id[:3]):
+                self.rep_strand = '+'
+            else:
+                self.rep_strand = '-'
+
+        self.rep_gene_id = ','.join([gene_id for gene_id, _ in rep_gene_info_dict[self.rep_strand]])
+
+        if genic_priority_dict[self.rep_genic_region] == 2:
+            for _, genic_region in rep_gene_info_dict[self.rep_strand]:
+                if self.rep_genic_region != genic_region:
+                    self.rep_genic_region = 'UTR'
+                    break
+
     # END: _set_rep_genic_region
 # END: class 'VCFData'
