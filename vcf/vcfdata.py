@@ -135,7 +135,8 @@ class VCFData:
         print()
 
         return var_list
-    # END: parse_vcf_file
+
+    # END: the function 'parse_vcf_file'
 
     def set_genic_region(self, genes_same_chr):
         """
@@ -173,7 +174,8 @@ class VCFData:
         # END: for loop 'gene'
 
         self._set_rep_genic_region()
-    # END: find_genic_region
+
+    # END: the function 'find_genic_region'
 
     def _set_rep_genic_region(self):
         genic_priority_dict = {'ORF': 1,
@@ -229,5 +231,5 @@ class VCFData:
             self.rep_gene_id = ','.join(self._strand_to_gene_ids[self.rep_strand])
             self.rep_genic_region = self._strand_to_genic_region[self.rep_strand]
 
-    # END: _set_rep_genic_region
+    # END: the function '_set_rep_genic_region'
 # END: class 'VCFData'
