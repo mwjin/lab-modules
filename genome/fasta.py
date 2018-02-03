@@ -2,8 +2,6 @@ import os
 import sys
 import re
 
-re_nonchr = re.compile('[^a-zA-Z]')
-
 
 class Fasta:
     def __init__(self, genome_filename):
@@ -63,6 +61,7 @@ class Fasta:
 
         self.genome_file.seek(self.offset_list[chr_idx] + start)            # Get Sequence
 
+        re_nonchr = re.compile('[^a-zA-Z]')
         seq = re.sub(re_nonchr, '', self.genome_file.read(end - start))
 
         if strand == '+':
