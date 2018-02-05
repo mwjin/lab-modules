@@ -36,7 +36,7 @@ class VCFData:
 
     # END: the function 'get_var_genic_region'
 
-    def get_vat_strand_genic_region(self):
+    def get_var_strand_genic_region(self):
         """
         :return: a tuple with strand-specific genic regions (genic regions in +, genic regions in -)
         """
