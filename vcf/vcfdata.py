@@ -32,7 +32,7 @@ class VCFData:
         """
         :return: representative genic region
         """
-        return self._strand_to_genic_region[self.rep_strand]
+        return self.rep_genic_region
 
     # END: the function 'get_var_genic_region'
 
@@ -255,9 +255,15 @@ class VCFData:
             else:
                 self.rep_strand = '+'
 
-            if not self._strand_to_gene_ids[self.rep_strand]:
-                self.rep_gene_id = ','.join(self._strand_to_gene_ids[self.rep_strand])
-                self.rep_genic_region = self._strand_to_genic_region[self.rep_strand]
+        # determine the id for representative genes where the variant is located
+        rep_gene_id_list = self._strand_to_gene_ids[self.rep_strand]
+
+        if not rep_gene_id_list:
+            self.rep_gene_id = '.'
+        else:
+            self.rep_gene_id = ','.join(rep_gene_id_list)
+
+        self.rep_genic_region = self._strand_to_genic_region[self.rep_strand]
 
     # END: the function '_set_rep_genic_region'
 # END: class 'VCFData'
