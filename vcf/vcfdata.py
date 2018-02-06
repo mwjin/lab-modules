@@ -32,7 +32,7 @@ class VCFData:
         """
         :return: representative genic region
         """
-        return self.rep_genic_region
+        return self._strand_to_genic_region[self.rep_strand]
 
     # END: the function 'get_var_genic_region'
 
