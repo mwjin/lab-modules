@@ -61,9 +61,9 @@ class VCFData:
             sys.exit('File Not Found %s' % vcf_filename)
 
         # regex for VCF entries
-        pat_autosome = re.compile('^[0-9]{1,2}$')
-        pat_sexchr = re.compile('^[XY]$')
-        pat_pos = re.compile('^[0-9]+$')
+        ptn_autosome = re.compile('^[0-9]{1,2}$')
+        ptn_sexchr = re.compile('^[XY]$')
+        ptn_pos = re.compile('^[0-9]+$')
 
         var_list = []
         invalid_chr_to_cnt = {}
@@ -103,7 +103,7 @@ class VCFData:
             chrom = fields[0]
 
             # filters for chrom
-            if pat_autosome.match(chrom):
+            if ptn_autosome.match(chrom):
                 if int(chrom) > 23:  # Wrong chromosome number
                     invalid_chrom = 'chr%s' % chrom
 
@@ -114,7 +114,7 @@ class VCFData:
 
                     continue
 
-            elif not pat_sexchr.match(chrom):
+            elif not ptn_sexchr.match(chrom):
                 invalid_chrom = 'chr%s' % chrom
 
                 if invalid_chrom not in invalid_chr_to_cnt:
@@ -127,7 +127,7 @@ class VCFData:
             variant = VCFData()
             variant.chrom = 'chr%s' % fields[0]
 
-            if not pat_pos.match(fields[1]):
+            if not ptn_pos.match(fields[1]):
                 print('Invalid variant position \'%s\'' % fields[1])
                 continue
 
