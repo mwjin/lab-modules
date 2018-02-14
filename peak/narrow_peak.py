@@ -158,7 +158,7 @@ class NarrowPeak:
 
     # END: the function 'set_genic_region_stat'
 
-    def assign_variant(self, variant):
+    def put_variant(self, variant):
         """
         :param variant: an object of the class 'VCFData'
         """
@@ -178,5 +178,5 @@ class NarrowPeak:
         else:
             assert self.var_pos_to_genic_region[var_pos] == variant.get_var_genic_region()
 
-    # END: the function 'assign_variant'
+    # END: the function 'put_variant'
 # END: the definition of the class 'NarrowPeak'
