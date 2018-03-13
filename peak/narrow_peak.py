@@ -1,7 +1,3 @@
-from lib_utils import *
-
-import sys
-
 
 class NarrowPeak:
     """ The object of this class represents one entry of a file that has narrow peaks BED format """
@@ -122,11 +118,11 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    def set_genic_region_size(self, genic_region_list):
+    def set_genic_region_size(self, genic_region_val_list):
         """
         This code makes up the 'genic_region_to_size' attribute.
 
-        :param genic_region_list: a list of integers that contain the information of gene-based annotation
+        :param genic_region_val_list: a list of integers that contain the information of gene-based annotation
         for the corresponded nucleotide.
         /* Notice */
         The information of gene-based annotation of each nucleotide is stored as integer which bit length is 6.
@@ -143,21 +139,24 @@ class NarrowPeak:
         34 (0b100010). If the integer value is 0, it means that the nucleotide is intergenic.
 
         """
-        code_to_region = {100: 'ORF', 101: '5UTR', 102: '3UTR', 103: 'UTR', 104: 'ncRNA_exonic',
-                          105: 'intronic', 106: 'ncRNA_intronic', 107: 'intergenic'}
+        genic_region_list = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'intronic', 'ncRNA_intronic', 'intergenic']
+
+        self.genic_region_to_size = {genic_region: 0 for genic_region in genic_region_list}
+        bit_pos_to_region = {(i + 1): genic_region for i, genic_region in enumerate(genic_region_list)}
 
         # make a statistics for genic regions
-        for code in region_code_list:
-            try:
-                genic_region = code_to_region[code]
-            except KeyError:
-                print('Error in %s: invalid code for genic region' % caller_file_and_line())
-                sys.exit()
+        for region_val in genic_region_val_list:
+            assert region_val < 64
 
-            if genic_region not in self.genic_region_to_size:
-                self.genic_region_to_size[genic_region] = 0
+            if region_val == 0:
+                self.genic_region_to_size['intergenic'] += 1
+            else:
+                for bit_pos in range(1, 7):
+                    bit = int(region_val / (2 ** (6 - bit_pos))) % 2
 
-            self.genic_region_to_size[genic_region] += 1
+                    if bit == 1:
+                        genic_region = bit_pos_to_region[bit_pos]
+                        self.genic_region_to_size[genic_region] += 1
 
     # END: the function 'set_genic_region_size'
 
