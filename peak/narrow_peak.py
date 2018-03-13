@@ -122,7 +122,7 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    def set_genic_region_stat(self, genic_region_list):
+    def set_genic_region_size(self, genic_region_list):
         """
         This code makes up the 'genic_region_to_size' attribute.
 
@@ -159,7 +159,7 @@ class NarrowPeak:
 
             self.genic_region_to_size[genic_region] += 1
 
-    # END: the function 'set_genic_region_stat'
+    # END: the function 'set_genic_region_size'
 
     def put_variant(self, variant):
         """
