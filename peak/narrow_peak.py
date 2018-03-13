@@ -122,23 +122,26 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    def set_genic_region_stat(self, region_code_list):
+    def set_genic_region_stat(self, genic_region_list):
         """
         This code makes up the 'genic_region_to_size' attribute.
 
-        :param region_code_list: a list that has a same length with the peak and
-                                 consists of codes representing each genic region
-                                 (100, 101, ..., 107)
+        :param genic_region_list: a list of integers that contain the information of gene-based annotation
+        for the corresponded nucleotide.
+        /* Notice */
+        The information of gene-based annotation of each nucleotide is stored as integer which bit length is 6.
+        Each bit of the integer represents a boolean value for one genic region.
 
-        ** codes for each genic region **
-        100: ORF
-        101: 5UTR
-        102: 3UTR
-        103: UTR (both 5UTR and 3UTR)
-        104: ncRNA exonic
-        105: intronic
-        106: ncRNA intronic
-        107: intergenic
+        1st bit: ORF
+        2nd bit: 5'UTR
+        3rd bit: 3'UTR
+        4th bit: ncRNA exonic
+        5th bit: intron
+        6th bit: ncRNA intronic
+
+        For example, if a nucleotide is annotated as ORF and intron, an integer value of the nucleotide will be
+        34 (0b100010). If the integer value is 0, it means that the nucleotide is intergenic.
+
         """
         code_to_region = {100: 'ORF', 101: '5UTR', 102: '3UTR', 103: 'UTR', 104: 'ncRNA_exonic',
                           105: 'intronic', 106: 'ncRNA_intronic', 107: 'intergenic'}
