@@ -33,11 +33,27 @@ _region_to_bit_pos = {'ORF': 1,  # MSB
 _bit_pos_to_region = {(i + 1): genic_region for i, genic_region in enumerate(GENIC_REGION_LIST)}
 
 
+def get_genic_region_val(genic_region_to_bool):
+    """
+    get the genic region value by parsing the input dictionary
+    :param genic_region_to_bool: a dictionary
+                                 (key: genic region,
+                                  value: a boolean value (whether the region is used for the annotation)
+    :return: an integer that represents a genic region value
+    """
+    if genic_region_to_bool['intergenic']:
+        return 0
+    else:
+        pass
+
+# END: the function 'get_genic_region_val'
+
+
 def parse_genic_region_val(region_val):
     """
-    parses the genic region value and get information which genic region is annotated in the region
+    parse the genic region value and get information which genic region is used for the annotation
     :param region_val: an integer that represents a genic region value
-    :return: a dictionary (key: genic region, value: boolean (whether the region is annotated or not)
+    :return: a dictionary (key: genic region, value: boolean (whether the region ios used for the annotation)
     """
     assert region_val < 64  # the maximum bit length of the genic region value is 6
 
