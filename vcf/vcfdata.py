@@ -206,6 +206,7 @@ class VCFData:
         # END: for loop 'gene'
 
         self._set_rep_genic_region()
+        self._set_genic_region_value()
 
     # END: the function 'find_genic_region'
 
