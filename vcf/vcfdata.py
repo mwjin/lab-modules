@@ -28,7 +28,7 @@ class VCFData:
         self._genic_region_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
         self._strand_to_gene_ids = {'+': [], '-': []}
         self._strand_to_genic_region = {'+': 'intergenic', '-': 'intergenic'}
-        self._strand_to_region_val = {'+': 0, '-': 0}
+        self._strand_to_region_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
 
     # END: __init__
 
