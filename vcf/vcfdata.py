@@ -19,10 +19,11 @@ class VCFData:
         self.samples = []
 
         """ info from refFlat (in-house rep-isoforms) """
-        self.rep_strand = '.'  # the strand of the representative gene
         self.rep_gene_id = '.'  # the gene from which the representative genic region comes
+        self.rep_strand = '.'  # the strand of the representative gene
         self.rep_genic_region = 'intergenic'  # default
-        self._genic_region_dict = {}  # Mapping route: gene symbol -> ID -> (genic region, strand)
+
+        self._genic_region_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
         self._strand_to_gene_ids = {'+': [], '-': []}
         self._strand_to_genic_region = {'+': 'intergenic', '-': 'intergenic'}
 
@@ -160,8 +161,7 @@ class VCFData:
 
     def set_genic_region(self, genes_same_chr):
         """
-        :param genes_same_chr: the list of 'RefFlat' objects
-                               this genes must be involved in the chromosome same with the variant.
+        :param genes_same_chr: the list of 'RefFlat' object in the same chromosome with this variant
         """
         var_pos = self.pos - 1  # 1-base -> 0-base
         genes_same_chr.sort(key=lambda chr_gene: (chr_gene.tx_start, chr_gene.tx_end))
@@ -177,19 +177,19 @@ class VCFData:
                 break
 
             elif gene.tx_start <= var_pos < gene.tx_end:
+                strand = gene.strand
                 gene_sym = gene.symbol
                 gene_id = gene.id
                 genic_region = gene.find_genic_region(var_pos)
-                strand = gene.strand
 
-                if gene_sym not in self._genic_region_dict:
-                    self._genic_region_dict[gene_sym] = {}
+                if gene_sym not in self._genic_region_dict[strand]:
+                    self._genic_region_dict[strand][gene_sym] = {}
 
-                if gene_id in self._genic_region_dict[gene_sym]:
+                if gene_id in self._genic_region_dict[strand][gene_sym]:
                     print('There are RefFlat objects with same id.')
                     sys.exit()
 
-                self._genic_region_dict[gene_sym][gene_id] = (genic_region, strand)
+                self._genic_region_dict[strand][gene_sym][gene_id] = genic_region
 
         # END: for loop 'gene'
 
