@@ -122,8 +122,6 @@ class NarrowPeak:
         """
         This code makes up the 'genic_region_to_size' attribute.
 
-        :param genic_region_val_list: a list of integers that contain the information of gene-based annotation
-        for the corresponded nucleotide.
         /* Notice */
         The information of gene-based annotation of each nucleotide is stored as integer which bit length is 6.
         Each bit of the integer represents a boolean value for one genic region.
@@ -138,6 +136,8 @@ class NarrowPeak:
         For example, if a nucleotide is annotated as ORF and intron, an integer value of the nucleotide will be
         34 (0b100010). If the integer value is 0, it means that the nucleotide is intergenic.
 
+        :param genic_region_val_list: a list of integers that contain the information of gene-based annotation
+        for the corresponded nucleotide.
         """
         genic_region_list = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'intronic', 'ncRNA_intronic', 'intergenic']
 
