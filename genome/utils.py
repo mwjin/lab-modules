@@ -9,7 +9,7 @@ Genome utilities
 
 import sys
 
-from genome.genome_settings import GENOME_FILENAME
+from genome.settings import GENOME_FILENAME
 from genome.fasta import Fasta
 
 GENOME = Fasta(GENOME_FILENAME)
