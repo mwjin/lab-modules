@@ -1,3 +1,5 @@
+from gene.utils import *
+
 
 class NarrowPeak:
     """ The object of this class represents one entry of a file that has narrow peaks BED format """
@@ -121,42 +123,17 @@ class NarrowPeak:
     def set_genic_region_size(self, genic_region_val_list):
         """
         This code makes up the 'genic_region_to_size' attribute.
-
-        /* Notice */
-        The information of gene-based annotation of each nucleotide is stored as integer which bit length is 6.
-        Each bit of the integer represents a boolean value for one genic region.
-
-        1st bit: ORF
-        2nd bit: 5'UTR
-        3rd bit: 3'UTR
-        4th bit: ncRNA exonic
-        5th bit: intron
-        6th bit: ncRNA intronic
-
-        For example, if a nucleotide is annotated as ORF and intron, an integer value of the nucleotide will be
-        34 (0b100010). If the integer value is 0, it means that the nucleotide is intergenic.
-
-        :param genic_region_val_list: a list of integers that contain the information of gene-based annotation
-        for the corresponded nucleotide.
+        :param genic_region_val_list: a list of genic region values (see gene.utils)
         """
-        genic_region_list = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'intronic', 'ncRNA_intronic', 'intergenic']
-
-        self.genic_region_to_size = {genic_region: 0 for genic_region in genic_region_list}
-        bit_pos_to_region = {(i + 1): genic_region for i, genic_region in enumerate(genic_region_list)}
+        self.genic_region_to_size = {genic_region: 0 for genic_region in GENIC_REGION_LIST}
 
         # make a statistics for genic regions
         for region_val in genic_region_val_list:
-            assert region_val < 64
+            genic_region_to_bool = parse_genic_region_val(region_val)
 
-            if region_val == 0:
-                self.genic_region_to_size['intergenic'] += 1
-            else:
-                for bit_pos in range(1, 7):
-                    bit = int(region_val / (2 ** (6 - bit_pos))) % 2
-
-                    if bit == 1:
-                        genic_region = bit_pos_to_region[bit_pos]
-                        self.genic_region_to_size[genic_region] += 1
+            for genic_region in GENIC_REGION_LIST:
+                if genic_region_to_bool[genic_region]:
+                    self.genic_region_to_size[genic_region] += 1
 
     # END: the function 'set_genic_region_size'
 
