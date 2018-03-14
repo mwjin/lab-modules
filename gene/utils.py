@@ -44,7 +44,15 @@ def get_genic_region_val(genic_region_to_bool):
     if genic_region_to_bool['intergenic']:
         return 0
     else:
-        pass
+        region_val = 0
+
+        for genic_region in GENIC_REGION_LIST:
+            if genic_region_to_bool[genic_region]:
+                bit_pos = _region_to_bit_pos[genic_region]
+                region_val += 2 ** (6 - bit_pos)
+
+        assert region_val != 0
+        return region_val
 
 # END: the function 'get_genic_region_val'
 
