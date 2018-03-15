@@ -63,7 +63,7 @@ def parse_genic_region_val(region_val):
     :param region_val: an integer that represents a genic region value
     :return: a dictionary (key: genic region, value: boolean (whether the region ios used for the annotation)
     """
-    assert region_val < 64  # the maximum bit length of the genic region value is 6
+    assert 0 <= region_val < 64  # the maximum bit length of the genic region value is 6
 
     genic_region_dict = {genic_region: False for genic_region in GENIC_REGION_LIST}
 
