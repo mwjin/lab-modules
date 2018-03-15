@@ -35,3 +35,6 @@ def test_parse_genic_region_val():
 def test_parse_genic_region_val_fail():
     with pytest.raises(AssertionError):
         parse_genic_region_val(64)
+
+    with pytest.raises(AssertionError):
+        parse_genic_region_val(-1)
