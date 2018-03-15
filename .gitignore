@@ -4,3 +4,9 @@ src/gene/__pycache__/
 src/genome/__pycache__/
 src/vcf/__pycache__/
 src/peak/__pycache__/
+tests/.cache/
+tests/__pycache__/
+tests/gene/__pycache__/
+tests/genome/__pycache__/
+tests/vcf/__pycache__/
+tests/peak/__pycache__/
