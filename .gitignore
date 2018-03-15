@@ -1,5 +1,6 @@
 .idea/
 .cache/
+.coverage
 src/__pycache__/
 src/gene/__pycache__/
 src/genome/__pycache__/
