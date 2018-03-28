@@ -109,18 +109,36 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    def set_genic_region_size(self, genic_region_val_list):
+    def set_genic_region_size(self, genic_region_val_list, repr_on=False):
         """
         This code makes up the 'genic_region_to_size' attribute.
         :param genic_region_val_list: a list of genic region values (see gene.utils)
+        :param repr_on: if it is true, consider only the representative genic region
+                        when making up the self.genic_region_to_size.
+
+        * representative genic region: a genic region which has the highest priority among genic region candidates
         """
         # make a statistics for genic regions
-        for region_val in genic_region_val_list:
-            genic_region_to_bool = parse_genic_region_val(region_val)
+        if repr_on:
+            for region_val in genic_region_val_list:
+                genic_region_to_bool = parse_genic_region_val(region_val)
 
-            for genic_region in GENIC_REGION_LIST:
-                if genic_region_to_bool[genic_region]:
-                    self.genic_region_to_size[genic_region] += 1
+                for genic_region in GENIC_REGION_LIST:
+                    if genic_region_to_bool[genic_region]:
+                        self.genic_region_to_size[genic_region] += 1
+
+                        # 5UTR and 3UTR have same priority.
+                        if genic_region.startswith('5') and genic_region_to_bool['3UTR'] is True:
+                            self.genic_region_to_size['3UTR'] += 1
+
+                        break
+        else:
+            for region_val in genic_region_val_list:
+                genic_region_to_bool = parse_genic_region_val(region_val)
+
+                for genic_region in GENIC_REGION_LIST:
+                    if genic_region_to_bool[genic_region]:
+                        self.genic_region_to_size[genic_region] += 1
 
     # END: the function 'set_genic_region_size'
 
