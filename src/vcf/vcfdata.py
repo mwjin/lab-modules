@@ -26,6 +26,18 @@ class VCFData:
 
     # END: __init__
 
+    def get_assigned_strand(self):
+        """
+        * Notice: there is no strand for variants actually. However, to determine the transcript (+ or -)
+                  this variant was more likely to be assigned, we set this virtual strand of this variant.
+
+        :return: a strand where this variant was more likely to be assigned.
+        """
+
+        if self._strand_to_region_val['+'] >= self._strand_to_region_val['-']:
+            return '+'
+        else:
+            return '-'
     # END: the function 'get_assigned_strand'
 
     def get_strand_region_val(self, strand):
