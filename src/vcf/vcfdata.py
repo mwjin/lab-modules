@@ -205,82 +205,9 @@ class VCFData:
 
         # END: for loop 'gene'
 
-        self._set_rep_genic_region()
         self._set_genic_region_value()
 
     # END: the function 'find_genic_region'
-
-    def _set_rep_genic_region(self):
-        genic_priority_dict = {'ORF': 1,
-                               '5UTR': 2, '3UTR': 2, 'UTR': 2,  # UTR: both 5 and 3UTR
-                               'ncRNA_exonic': 3,
-                               'intronic': 4,
-                               'ncRNA_intronic': 5,
-                               'intergenic': 6}
-
-        # set strand-specific representative genic region
-        for strand in ['+', '-']:
-            for gene_sym in self._genic_region_dict[strand]:
-                for gene_id in self._genic_region_dict[strand][gene_sym]:
-                    genic_region = str(self._genic_region_dict[strand][gene_sym][gene_id])
-
-                    if genic_priority_dict[self._strand_to_genic_region[strand]] > genic_priority_dict[genic_region]:
-                        self._strand_to_genic_region[strand] = genic_region
-                        self._strand_to_gene_ids[strand] = [gene_id]
-
-                    elif genic_priority_dict[self._strand_to_genic_region[strand]] == genic_priority_dict[genic_region]:
-                        self._strand_to_gene_ids[strand].append(gene_id)
-                        strand_genic_region = self._strand_to_genic_region[strand]
-
-                        # deal with the case where one variable is annotated with both 5 and 3'UTR
-                        if genic_priority_dict[strand_genic_region] == 2 and strand_genic_region != genic_region:
-                            self._strand_to_genic_region[strand] = 'UTR'
-
-                # END: for loop 'gene_id'
-            # END: for loop 'gene_sym'
-        # END: for loop 'strand'
-
-        self._strand_to_gene_ids['+'].sort(key=lambda one_gene_id: int(one_gene_id[3:]))
-        self._strand_to_gene_ids['-'].sort(key=lambda one_gene_id: int(one_gene_id[3:]))
-
-        # determine the representative strand of the variant
-        pos_genic_region = self._strand_to_genic_region['+']
-        neg_genic_region = self._strand_to_genic_region['-']
-
-        if genic_priority_dict[pos_genic_region] < genic_priority_dict[neg_genic_region]:
-            self.rep_strand = '+'
-        elif genic_priority_dict[pos_genic_region] > genic_priority_dict[neg_genic_region]:
-            self.rep_strand = '-'
-        else:
-            pos_gene_cnt = len(self._strand_to_gene_ids['+'])
-            neg_gene_cnt = len(self._strand_to_gene_ids['-'])
-
-            if pos_gene_cnt > neg_gene_cnt:
-                self.rep_strand = '+'
-            elif pos_gene_cnt < neg_gene_cnt:
-                self.rep_strand = '-'
-            elif pos_gene_cnt != 0:
-                pos_lowest_gene_id = self._strand_to_gene_ids['+'][0]
-                neg_lowest_gene_id = self._strand_to_gene_ids['-'][0]
-
-                if int(pos_lowest_gene_id[3:]) >= int(neg_lowest_gene_id[3:]):
-                    self.rep_strand = '+'
-                else:
-                    self.rep_strand = '-'
-            else:
-                self.rep_strand = '+'
-
-        # determine the id for representative genes where the variant is located
-        rep_gene_id_list = self._strand_to_gene_ids[self.rep_strand]
-
-        if not rep_gene_id_list:
-            self.rep_gene_id = '.'
-        else:
-            self.rep_gene_id = ','.join(rep_gene_id_list)
-
-        self.rep_genic_region = self._strand_to_genic_region[self.rep_strand]
-
-    # END: the function '_set_rep_genic_region'
 
     def _set_genic_region_value(self):
         """
