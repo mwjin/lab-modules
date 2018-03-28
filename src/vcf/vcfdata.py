@@ -21,40 +21,10 @@ class VCFData:
         self.samples = []
 
         """ info from refFlat (in-house rep-isoforms) """
-        self.rep_gene_id = '.'  # the gene from which the representative genic region comes
-        self.rep_strand = '.'  # the strand of the representative gene
-        self.rep_genic_region = 'intergenic'  # default
-
         self._genic_region_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
-        self._strand_to_gene_ids = {'+': [], '-': []}
-        self._strand_to_genic_region = {'+': 'intergenic', '-': 'intergenic'}
         self._strand_to_region_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
 
     # END: __init__
-
-    def get_genic_region(self):
-        """
-        :return: representative genic region
-        """
-        return self.rep_genic_region
-
-    # END: the function 'get_genic_region'
-
-    def get_strand_genic_regions(self):
-        """
-        :return: a tuple with strand-specific genic regions (genic regions in +, genic regions in -)
-        """
-        return self._strand_to_genic_region['+'], self._strand_to_genic_region['-']
-
-    # END: the function 'get_strand_genic_regions'
-
-    def get_assigned_strand(self):
-        """
-        :return: a strand where this variant was more likely to be assigned.
-        * Notice: there is no strand for variants actually. However, to determine the transcript (+ or -)
-                  this variant was more likely to be assigned, we set this virtual strand of this variant.
-        """
-        return self.rep_strand
 
     # END: the function 'get_assigned_strand'
 
