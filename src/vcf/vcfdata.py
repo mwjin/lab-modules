@@ -3,7 +3,7 @@ import os
 import re
 import gzip
 
-from gene.utils import *
+from gene.utils import get_genic_region_val, GENIC_REGION_LIST
 
 
 class VCFData:
