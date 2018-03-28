@@ -1,6 +1,4 @@
-from lib_utils import *
-
-import sys
+from gene.utils import *
 
 
 class NarrowPeak:
@@ -20,11 +18,12 @@ class NarrowPeak:
         self.point_src = '-1'
 
         """ attributes for gene-based annotation of the peak """
-        self.genic_region_to_size = {}
+        self.genic_region_to_size = {genic_region: 0 for genic_region in GENIC_REGION_LIST}
+        self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in GENIC_REGION_LIST}
 
         """ attributes for seeing a distribution of variants """
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
-        self.var_pos_to_genic_region = {}
+        self.var_pos_to_region_val = {}  # value: genic region value
 
     # END: __init__
 
@@ -57,19 +56,7 @@ class NarrowPeak:
         :return: a dictionary that documents the number of variants of each genic region on this peak.
                  (key: a genic region, value: the number of variants on the genic region (integer))
         """
-
-        genic_region_to_var_cnt = {}
-
-        for pos in self.var_pos_to_cnt:
-            var_cnt = self.var_pos_to_cnt[pos]
-            var_genic_region = self.var_pos_to_genic_region[pos]
-
-            if var_genic_region not in genic_region_to_var_cnt:
-                genic_region_to_var_cnt[var_genic_region] = 0
-
-            genic_region_to_var_cnt[var_genic_region] += var_cnt
-
-        return genic_region_to_var_cnt
+        return self.genic_region_to_var_cnt
 
     # END: the function 'get_genic_region_to_var_cnt'
 
@@ -122,41 +109,20 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    def set_genic_region_stat(self, region_code_list):
+    def set_genic_region_size(self, genic_region_val_list):
         """
         This code makes up the 'genic_region_to_size' attribute.
-
-        :param region_code_list: a list that has a same length with the peak and
-                                 consists of codes representing each genic region
-                                 (100, 101, ..., 107)
-
-        ** codes for each genic region **
-        100: ORF
-        101: 5UTR
-        102: 3UTR
-        103: UTR (both 5UTR and 3UTR)
-        104: ncRNA exonic
-        105: intronic
-        106: ncRNA intronic
-        107: intergenic
+        :param genic_region_val_list: a list of genic region values (see gene.utils)
         """
-        code_to_region = {100: 'ORF', 101: '5UTR', 102: '3UTR', 103: 'UTR', 104: 'ncRNA_exonic',
-                          105: 'intronic', 106: 'ncRNA_intronic', 107: 'intergenic'}
-
         # make a statistics for genic regions
-        for code in region_code_list:
-            try:
-                genic_region = code_to_region[code]
-            except KeyError:
-                print('Error in %s: invalid code for genic region' % caller_file_and_line())
-                sys.exit()
+        for region_val in genic_region_val_list:
+            genic_region_to_bool = parse_genic_region_val(region_val)
 
-            if genic_region not in self.genic_region_to_size:
-                self.genic_region_to_size[genic_region] = 0
+            for genic_region in GENIC_REGION_LIST:
+                if genic_region_to_bool[genic_region]:
+                    self.genic_region_to_size[genic_region] += 1
 
-            self.genic_region_to_size[genic_region] += 1
-
-    # END: the function 'set_genic_region_stat'
+    # END: the function 'set_genic_region_size'
 
     def put_variant(self, variant):
         """
@@ -173,10 +139,18 @@ class NarrowPeak:
 
         self.var_pos_to_cnt[var_pos] += 1
 
-        if var_pos not in self.var_pos_to_genic_region:
-            self.var_pos_to_genic_region[var_pos] = variant.get_var_genic_region()
+        if var_pos not in self.var_pos_to_region_val:
+            var_region_val = variant.get_strand_region_val(self.strand)
+            self.var_pos_to_region_val[var_pos] = var_region_val
+
+            genic_region_to_bool = parse_genic_region_val(var_region_val)
+
+            for genic_region in GENIC_REGION_LIST:
+                if genic_region_to_bool[genic_region]:
+                    self.genic_region_to_var_cnt[genic_region] += 1
+
         else:
-            assert self.var_pos_to_genic_region[var_pos] == variant.get_var_genic_region()
+            assert self.var_pos_to_region_val[var_pos] == variant.get_var_genic_region(self.strand)
 
     # END: the function 'put_variant'
 # END: the definition of the class 'NarrowPeak'

@@ -1,4 +1,4 @@
-from genome.genome_utils import read_partial_seq, reverse_complement
+from genome.utils import read_partial_seq, reverse_complement
 
 
 class RefFlat:

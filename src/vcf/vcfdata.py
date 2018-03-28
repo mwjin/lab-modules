@@ -3,6 +3,8 @@ import os
 import re
 import gzip
 
+from gene.utils import *
+
 
 class VCFData:
     """ The object of this class represents one entry in VCF files (only consider SNV). """
@@ -19,32 +21,34 @@ class VCFData:
         self.samples = []
 
         """ info from refFlat (in-house rep-isoforms) """
-        self.rep_strand = '.'  # the strand of the representative gene
         self.rep_gene_id = '.'  # the gene from which the representative genic region comes
+        self.rep_strand = '.'  # the strand of the representative gene
         self.rep_genic_region = 'intergenic'  # default
-        self._genic_region_dict = {}  # Mapping route: gene symbol -> ID -> (genic region, strand)
+
+        self._genic_region_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
         self._strand_to_gene_ids = {'+': [], '-': []}
         self._strand_to_genic_region = {'+': 'intergenic', '-': 'intergenic'}
+        self._strand_to_region_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
 
     # END: __init__
 
-    def get_var_genic_region(self):
+    def get_genic_region(self):
         """
         :return: representative genic region
         """
         return self.rep_genic_region
 
-    # END: the function 'get_var_genic_region'
+    # END: the function 'get_genic_region'
 
-    def get_var_strand_genic_region(self):
+    def get_strand_genic_regions(self):
         """
         :return: a tuple with strand-specific genic regions (genic regions in +, genic regions in -)
         """
         return self._strand_to_genic_region['+'], self._strand_to_genic_region['-']
 
-    # END: the function 'get_var_strand_genic_region'
+    # END: the function 'get_strand_genic_regions'
 
-    def get_var_assign_strand(self):
+    def get_assigned_strand(self):
         """
         :return: a strand where this variant was more likely to be assigned.
         * Notice: there is no strand for variants actually. However, to determine the transcript (+ or -)
@@ -52,7 +56,16 @@ class VCFData:
         """
         return self.rep_strand
 
-    # END: the function 'get_vat_assign_strand'
+    # END: the function 'get_assigned_strand'
+
+    def get_strand_region_val(self, strand):
+        """
+        :param strand: '+' or '-'
+        :return: the genic region value on the input strand
+        """
+        return self._strand_to_region_val[strand]
+
+    # END: the function 'get_strand_region_val'
 
     @staticmethod
     def parse_vcf_file(vcf_filename):
@@ -160,8 +173,7 @@ class VCFData:
 
     def set_genic_region(self, genes_same_chr):
         """
-        :param genes_same_chr: the list of 'RefFlat' objects
-                               this genes must be involved in the chromosome same with the variant.
+        :param genes_same_chr: the list of 'RefFlat' object in the same chromosome with this variant
         """
         var_pos = self.pos - 1  # 1-base -> 0-base
         genes_same_chr.sort(key=lambda chr_gene: (chr_gene.tx_start, chr_gene.tx_end))
@@ -177,23 +189,24 @@ class VCFData:
                 break
 
             elif gene.tx_start <= var_pos < gene.tx_end:
+                strand = gene.strand
                 gene_sym = gene.symbol
                 gene_id = gene.id
                 genic_region = gene.find_genic_region(var_pos)
-                strand = gene.strand
 
-                if gene_sym not in self._genic_region_dict:
-                    self._genic_region_dict[gene_sym] = {}
+                if gene_sym not in self._genic_region_dict[strand]:
+                    self._genic_region_dict[strand][gene_sym] = {}
 
-                if gene_id in self._genic_region_dict[gene_sym]:
+                if gene_id in self._genic_region_dict[strand][gene_sym]:
                     print('There are RefFlat objects with same id.')
                     sys.exit()
 
-                self._genic_region_dict[gene_sym][gene_id] = (genic_region, strand)
+                self._genic_region_dict[strand][gene_sym][gene_id] = genic_region
 
         # END: for loop 'gene'
 
         self._set_rep_genic_region()
+        self._set_genic_region_value()
 
     # END: the function 'find_genic_region'
 
@@ -206,24 +219,26 @@ class VCFData:
                                'intergenic': 6}
 
         # set strand-specific representative genic region
-        for gene_sym in self._genic_region_dict:
-            for gene_id in self._genic_region_dict[gene_sym]:
-                genic_region, strand = self._genic_region_dict[gene_sym][gene_id]
+        for strand in ['+', '-']:
+            for gene_sym in self._genic_region_dict[strand]:
+                for gene_id in self._genic_region_dict[strand][gene_sym]:
+                    genic_region = str(self._genic_region_dict[strand][gene_sym][gene_id])
 
-                if genic_priority_dict[self._strand_to_genic_region[strand]] > genic_priority_dict[genic_region]:
-                    self._strand_to_genic_region[strand] = genic_region
-                    self._strand_to_gene_ids[strand] = [gene_id]
+                    if genic_priority_dict[self._strand_to_genic_region[strand]] > genic_priority_dict[genic_region]:
+                        self._strand_to_genic_region[strand] = genic_region
+                        self._strand_to_gene_ids[strand] = [gene_id]
 
-                elif genic_priority_dict[self._strand_to_genic_region[strand]] == genic_priority_dict[genic_region]:
-                    self._strand_to_gene_ids[strand].append(gene_id)
-                    strand_genic_region = self._strand_to_genic_region[strand]
+                    elif genic_priority_dict[self._strand_to_genic_region[strand]] == genic_priority_dict[genic_region]:
+                        self._strand_to_gene_ids[strand].append(gene_id)
+                        strand_genic_region = self._strand_to_genic_region[strand]
 
-                    # deal with the case where it is possible for this variant to be annotated with both 5 and 3'UTR
-                    if genic_priority_dict[strand_genic_region] == 2 and strand_genic_region != genic_region:
-                        self._strand_to_genic_region[strand] = 'UTR'
+                        # deal with the case where one variable is annotated with both 5 and 3'UTR
+                        if genic_priority_dict[strand_genic_region] == 2 and strand_genic_region != genic_region:
+                            self._strand_to_genic_region[strand] = 'UTR'
 
-            # END: for loop 'gene_id'
-        # END: for loop 'gene_sym'
+                # END: for loop 'gene_id'
+            # END: for loop 'gene_sym'
+        # END: for loop 'strand'
 
         self._strand_to_gene_ids['+'].sort(key=lambda one_gene_id: int(one_gene_id[3:]))
         self._strand_to_gene_ids['-'].sort(key=lambda one_gene_id: int(one_gene_id[3:]))
@@ -266,4 +281,23 @@ class VCFData:
         self.rep_genic_region = self._strand_to_genic_region[self.rep_strand]
 
     # END: the function '_set_rep_genic_region'
+
+    def _set_genic_region_value(self):
+        """
+        makes up _strand_to_region_val
+        """
+        for strand in ['+', '-']:
+            genic_region_to_bool = {genic_region: False for genic_region in GENIC_REGION_LIST}
+            genic_region_to_bool['intergenic'] = True  # default
+
+            for gene_sym in self._genic_region_dict[strand]:
+                for gene_id in self._genic_region_dict[strand][gene_sym]:
+                    genic_region = str(self._genic_region_dict[strand][gene_sym][gene_id])
+                    genic_region_to_bool[genic_region] = True
+                    genic_region_to_bool['intergenic'] = False
+
+            region_val = get_genic_region_val(genic_region_to_bool)
+            self._strand_to_region_val[strand] = region_val
+
+    # END: the function '_set_genic_region_value'
 # END: class 'VCFData'
