@@ -172,10 +172,10 @@ class NarrowPeak:
                     if genic_region_to_bool[genic_region]:
                         self.genic_region_to_var_cnt[genic_region] += 1
 
-                    if genic_region.startswith('5') and genic_region_to_bool['3UTR'] is True:
-                        self.genic_region_to_var_cnt['3UTR'] += 1
+                        if genic_region.startswith('5') and genic_region_to_bool['3UTR'] is True:
+                            self.genic_region_to_var_cnt['3UTR'] += 2
 
-                    break
+                        break
             else:
                 for genic_region in GENIC_REGION_LIST:
                     if genic_region_to_bool[genic_region]:
