@@ -1,9 +1,11 @@
-from genome.utils import read_partial_seq, reverse_complement
+from lab.utils import eprint
+from lab.genome.utils import read_partial_seq, reverse_complement
 
 
 class RefFlat:
-    """ save the information from refflat file """
+    """ represents each entry of the RefFlat file """
     def __init__(self):
+        # default information of RefFlat
         self.symbol = None
         self.id = None  # NR: ncRNA, NM: mRNA
         self.chrom = None
@@ -15,12 +17,17 @@ class RefFlat:
         self.exon_cnt = 0
         self.exon_starts = []
         self.exon_ends = []
+
+        # information gotten after parsing the default information
         self.exons_size = 0
         self.seq_5utr = ''
         self.seq_3utr = ''
         self.seq_orf = ''
 
     def __str__(self):
+        """
+        represents the object as the RefFlat entry
+        """
         exon_starts = ""
         exon_ends = ""
 
@@ -43,14 +50,14 @@ class RefFlat:
         self.tx_end = int(refflat_fields[5])
 
         if self.tx_start > self.tx_end:
-            print("Error in %s: tx end point is ahead of tx start." % self.symbol)
+            eprint("Error in %s: tx end point is ahead of tx start." % self.symbol)
             return
 
         self.cds_start = int(refflat_fields[6])
         self.cds_end = int(refflat_fields[7])
 
         if self.cds_start > self.cds_end:
-            print("Error in %s: cds end point is ahead of cds start." % self.symbol)
+            eprint("Error in %s: cds end point is ahead of cds start." % self.symbol)
             return
 
         self.exon_cnt = int(refflat_fields[8])
@@ -58,22 +65,22 @@ class RefFlat:
         self.exon_starts.sort()
 
         if self.tx_start != self.exon_starts[0]:
-            print("Error in %s: Tx start point is different with exon start point." % self.symbol)
+            eprint("Error in %s: Tx start point is different with exon start point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_starts):
-            print("Error in %s: Exon count is different with the number of exon starts." % self.symbol)
+            eprint("Error in %s: Exon count is different with the number of exon starts." % self.symbol)
             return
 
         self.exon_ends = [int(exon_end) for exon_end in refflat_fields[10].strip(',').split(',')]
         self.exon_ends.sort()
 
         if self.tx_end != self.exon_ends[-1]:
-            print("Error in %s: Tx end point is different with exon end point." % self.symbol)
+            eprint("Error in %s: Tx end point is different with exon end point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_ends):
-            print("Error in %s: Exon count is different with the number of exon ends." % self.symbol)
+            eprint("Error in %s: Exon count is different with the number of exon ends." % self.symbol)
             return
 
         valid_exon = self._check_exon_overlap()
@@ -92,19 +99,24 @@ class RefFlat:
 
         for i in range(num_iter):
             if exon_positions[i] > exon_positions[i + 1]:
-                print("Error: %s has a exon overlap." % self.symbol)
+                eprint("Error: %s has a exon overlap." % self.symbol)
                 return False
 
         return True
 
     def parse_exon_seq(self):
+        """
+        By parsing the default information from RefFlat,
+        get the total size of the exons and the sequences of ORF and UTR.
+        :return: a boolean value (if False, the default information is invalid)
+        """
         seq_exons = ""
 
         for i in range(self.exon_cnt):
             one_exon_size = self.exon_ends[i] - self.exon_starts[i]
 
             if one_exon_size < 0:
-                print("Error in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
+                eprint("Error in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
                 return False
 
             seq_exon = read_partial_seq(self.chrom, self.exon_starts[i], self.exon_ends[i])
@@ -123,7 +135,7 @@ class RefFlat:
 
         cds_end_offset = self.exons_size  # exclusive
 
-        for i in range(self.exon_cnt - 1, -1, -1):
+        for i in range(self.exon_cnt - 1, -1, -1):  # reverse for loop
             if self.cds_end >= self.exon_starts[i]:
                 cds_end_offset -= (self.exon_ends[i] - self.cds_end)
                 break
@@ -141,7 +153,7 @@ class RefFlat:
             self.seq_3utr = reverse_complement(seq_exons[0:cds_start_offset])
 
         else:
-            print("Error: invalid strand %s" % self.strand)
+            eprint("Error: invalid strand %s" % self.strand)
             return False
 
         return True
@@ -188,7 +200,10 @@ class RefFlat:
         return False
 
     def is_nmd_candidate(self):
-        """ The boundary between orf and 3'utr is ahead of the last exon junction + 50nt upstream. """
+        """
+        NMD: Nonsense Mediated Decay
+        NMD candidate: The boundary between orf and 3'utr is ahead of the last exon junction + 50nt upstream.
+        """
         if self.strand == '+':
             last_exon_size = self.exon_ends[-1] - self.exon_starts[-1]
         else:  # '-'
@@ -203,7 +218,7 @@ class RefFlat:
 
     def find_genic_region(self, pos):
         """
-        :param pos: should be 0-based.
+        :param pos: 0-based position
         :return: genic region (intronic, 5utr, exonic(orf), 3utr). if intergenic, return None
         """
         exon_positions = []
@@ -222,7 +237,7 @@ class RefFlat:
         is_mrna = (self.id[:2] == 'NM')
 
         if index == 0:
-            print("Error: position %d is not in the rep-genes %s." % (pos, self.symbol))
+            eprint("Error: position %d is not in the rep-genes %s." % (pos, self.symbol))
             return None
 
         elif index % 2 == 0:
