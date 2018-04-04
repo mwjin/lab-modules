@@ -6,11 +6,13 @@ import sys
 import time
 
 
-# Definitions
+# region time
 TIME_STAMP = '%s' % (time.ctime().replace(' ', '-').replace(':', '_'))
 
+# endregion
 
-# functions
+
+# region functions for logging
 def caller_file_and_line():
     """
     This function is used to trace.
@@ -24,8 +26,10 @@ def caller_file_and_line():
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
+# endregion
 
-# functions to add colors
+
+# region functions to add colors
 def red(string, e=0):
     return '\033[%s31m%s\033[m' % ('' if e == 0 else '1;', string)
 
@@ -52,3 +56,5 @@ def cyan(string, e=0):
 
 def white(string, e=0):
     return '\033[%s37m%s\033[m' % ('' if e == 0 else '1;', string)
+
+# endregion
