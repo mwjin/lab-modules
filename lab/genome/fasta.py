@@ -82,8 +82,11 @@ class Fasta:
 
         comp_seq = ''
 
-        for base in seq:
-            comp_seq += base_to_comp[base]
+        try:
+            for base in seq:
+                comp_seq += base_to_comp[base]
+        except KeyError:
+            sys.exit('Exception: there is a invalid base in the sequence')
 
         return comp_seq[::-1]  # reverse
 
