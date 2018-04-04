@@ -1,4 +1,4 @@
-from src.gene.utils import *
+from lab.gene.utils import *
 import pytest
 
 
