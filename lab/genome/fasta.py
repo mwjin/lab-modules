@@ -69,13 +69,13 @@ class Fasta:
         if strand == '+':
             return seq
         elif strand == '-':
-            return self._reverse_complement(seq)
+            return self.reverse_complement(seq)
         else:
             sys.exit('Error: invalid strand')
     # END: fetch_seq
 
     @staticmethod
-    def _reverse_complement(seq):
+    def reverse_complement(seq):
         base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
                         'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
                         'N': 'N', 'n': 'n', '.': '.'}
