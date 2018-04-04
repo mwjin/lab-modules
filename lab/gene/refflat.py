@@ -1,5 +1,5 @@
 from lab.utils import eprint
-from lab.genome.utils import read_partial_seq, reverse_complement
+from lab.genome.utils import get_seq, reverse_complement
 
 
 class RefFlat:
@@ -119,7 +119,7 @@ class RefFlat:
                 eprint("Error in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
                 return False
 
-            seq_exon = read_partial_seq(self.chrom, self.exon_starts[i], self.exon_ends[i])
+            seq_exon = get_seq(self.chrom, self.exon_starts[i], self.exon_ends[i])
 
             seq_exons += seq_exon
             self.exons_size += one_exon_size

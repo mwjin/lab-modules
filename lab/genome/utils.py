@@ -9,33 +9,28 @@ Genome utilities
 
 import sys
 
-from genome.settings import GENOME_FILENAME
-from genome.fasta import Fasta
+from lab.genome.settings import GENOME_FILENAME
+from lab.genome.fasta import Fasta
 
-GENOME = Fasta(GENOME_FILENAME)
+_GENOME = Fasta(GENOME_FILENAME)  # singleton
 
 
 def reverse_complement(seq):
-    base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
-                    'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
-                    'N': 'N', '.': '.'}
+    return _GENOME.reverse_complement(seq)
 
-    comp_seq = ''
-
-    for base in seq:
-        comp_seq += base_to_comp[base]
-
-    return comp_seq[::-1]  # reverse
 # END: reverse_complement
 
 
-def read_partial_seq(chrom, start, end):
+def get_seq(chrom, start, end, upper=True):
     start = int(start)
     end = int(end)
-    seq = GENOME.fetch_seq(chrom, start, end)
+    seq = _GENOME.fetch_seq(chrom, start, end)
 
-    return seq.upper()
-# END: read_partial_seq
+    if upper:
+        return seq.upper()
+    else:
+        return seq
+# END: get_seq
 
 
 def get_chr_sizes():
