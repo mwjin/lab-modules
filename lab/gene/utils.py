@@ -1,7 +1,7 @@
 """
-Gene utilities
-
-1. variables and functions for the gene-based annotation
+Module for gene-based annotation
+1. a list of genic regions we use
+2. variables and functions for the gene-based annotation
 """
 
 GENIC_REGION_LIST = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'intronic', 'ncRNA_intronic', 'intergenic']
@@ -11,7 +11,7 @@ GENIC_REGION_LIST = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'intronic', 'ncRNA_i
 The gene-based annotation of one nucleotide is represented as integer which bit length is 6.
 Each bit of the integer represents a boolean value for one genic region.
 
-1st bit: ORF
+1st bit: ORF (MSB)
 2nd bit: 5'UTR
 3rd bit: 3'UTR
 4th bit: ncRNA exonic
@@ -22,14 +22,7 @@ For example, if a nucleotide is annotated as ORF and intron, an integer value th
 of the nucleotide will be 34 (0b100010). If the integer value is 0, it means that the nucleotide is intergenic.
 """
 
-_region_to_bit_pos = {'ORF': 1,  # MSB
-                      '5UTR': 2,
-                      '3UTR': 3,
-                      'ncRNA_exonic': 4,
-                      'intronic': 5,
-                      'ncRNA_intronic': 6
-                      }
-
+_region_to_bit_pos = {genic_region: (i + 1) for i, genic_region in enumerate(GENIC_REGION_LIST)}
 _bit_pos_to_region = {(i + 1): genic_region for i, genic_region in enumerate(GENIC_REGION_LIST)}
 
 
