@@ -1,4 +1,4 @@
-from gene.utils import *
+from gene.anno import *
 
 
 class NarrowPeak:
