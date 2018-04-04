@@ -1,3 +1,5 @@
+from lab.utils import eprint
+
 import os
 import sys
 import re
@@ -51,7 +53,7 @@ class Fasta:
         try:
             assert (0 <= start) and (start < end) and (end <= self.chrlen_list[chr_idx])
         except AssertionError:
-            print('Fasta fetch assertion error', chrom, start, end)
+            eprint('Fasta fetch assertion error', chrom, start, end)
             sys.exit()
 
         blank_cnt = self.line_len_with_blank_list[chr_idx] - self.line_len_list[chr_idx]
