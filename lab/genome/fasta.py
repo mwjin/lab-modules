@@ -78,7 +78,7 @@ class Fasta:
     def _reverse_complement(seq):
         base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
                         'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
-                        'N': 'N', '.': '.'}
+                        'N': 'N', 'n': 'n', '.': '.'}
 
         comp_seq = ''
 
