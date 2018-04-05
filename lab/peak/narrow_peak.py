@@ -2,7 +2,7 @@ from lab.gene.anno import *
 
 
 class NarrowPeak:
-    """ The object of this class represents one entry of a file that has narrow peaks BED format """
+    """ The object of this class represents one entry of a file that has Narrow Peaks format """
     _genic_regions = genic_regions()  # for the attributes in this class
 
     def __init__(self):
