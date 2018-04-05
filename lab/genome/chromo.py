@@ -1,47 +1,9 @@
 """
-Genome utilities
-1. make reverse complementary sequence for the input sequence
-2. read partial sequence
-3. get the sizes of chromosomes
-4. set the range of bins of chromosomes
+Modules for the functions associated with the chromosome
+1. get the size of the chromosome
+2. bin the length of the chromosome
 """
-
-
-import sys
-
 from lab.genome.settings import GENOME_FILENAME
-from lab.genome.fasta import Fasta
-
-_GENOME = Fasta(GENOME_FILENAME)  # singleton
-
-
-def reverse_complement(seq):
-    """
-    :param seq: a string that consists of deoxy-nucleotides (A, T, G, C, ...)
-    :return: reverse complementary sequence of that input
-    """
-    return _GENOME.reverse_complement(seq)
-
-# END: reverse_complement
-
-
-def get_seq(chrom, start, end, upper=True):
-    """
-    :param chrom: chromosome ID (e.g. chr1, chr2, ...)
-    :param start: a start position on the chromosome (0-based)
-    :param end: an end position on the chromosome
-    :param upper: if True, return a sequence which characters are all capitalized.
-    :return: the corresponding genome sequence
-    """
-    start = int(start)
-    end = int(end)
-    seq = _GENOME.fetch_seq(chrom, start, end)
-
-    if upper:
-        return seq.upper()
-    else:
-        return seq
-# END: get_seq
 
 
 def get_chr_sizes():
@@ -99,19 +61,3 @@ def get_chr_bin_ranges(bin_size):
             chr_to_bin_ranges[chrom].append((bin_start_idx, bin_end_idx))
 
     return chr_to_bin_ranges
-
-
-def main():
-    pass
-# END: main function
-
-if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        main()
-    else:
-        function_name = sys.argv[1]
-        function_parameters = sys.argv[2:]
-        if function_name in locals().keys():
-            locals()[function_name](*function_parameters)
-        else:
-            sys.exit('ERROR: function_name=%s, parameters=%s' % (function_name, function_parameters))
