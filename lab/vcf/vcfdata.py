@@ -3,7 +3,8 @@ import os
 import re
 import gzip
 
-from gene.anno import get_genic_region_val, GENIC_REGION_LIST
+from lab.utils import eprint
+from lab.gene.anno import get_genic_region_val, parse_genic_region_val
 
 
 class VCFData:
@@ -53,11 +54,11 @@ class VCFData:
     def parse_vcf_file(vcf_filename):
 
         if not os.path.isfile(vcf_filename):
-            sys.exit('File Not Found %s' % vcf_filename)
+            raise IOError('%s does not exist' % vcf_filename)
 
         # regex for VCF entries
-        ptn_autosome = re.compile('^[0-9]{1,2}$')
-        ptn_sexchr = re.compile('^[XY]$')
+        ptn_auto = re.compile('^[0-9]{1,2}$')
+        ptn_sex = re.compile('^[XY]$')
         ptn_pos = re.compile('^[0-9]+$')
 
         var_list = []
@@ -89,16 +90,12 @@ class VCFData:
             if line.startswith('#'):  # skip information headers
                 continue
 
-            # check if the variant passed the variant calling filters
-            if 'PASS' not in line:
-                continue
-
             fields = line.strip('\n').split('\t')
 
             chrom = fields[0]
 
             # filters for chrom
-            if ptn_autosome.match(chrom):
+            if ptn_auto.match(chrom):
                 if int(chrom) > 23:  # Wrong chromosome number
                     invalid_chrom = 'chr%s' % chrom
 
@@ -109,7 +106,7 @@ class VCFData:
 
                     continue
 
-            elif not ptn_sexchr.match(chrom):
+            elif not ptn_sex.match(chrom):
                 invalid_chrom = 'chr%s' % chrom
 
                 if invalid_chrom not in invalid_chr_to_cnt:
@@ -123,7 +120,7 @@ class VCFData:
             variant.chrom = 'chr%s' % fields[0]
 
             if not ptn_pos.match(fields[1]):
-                print('Invalid variant position \'%s\'' % fields[1])
+                eprint('Invalid variant position \'%s\'' % fields[1])
                 continue
 
             variant.pos = int(fields[1])  # 1-based
@@ -142,12 +139,12 @@ class VCFData:
         vcf_file.close()
 
         # print the invalid chromosome ID
-        print('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
+        eprint('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
 
         for invalid_chrom in invalid_chr_to_cnt:
-            print('%s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
+            eprint('%s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
 
-        print()
+        eprint()
 
         return var_list
 
@@ -162,9 +159,9 @@ class VCFData:
 
         for gene in genes_same_chr:
             if gene.chrom != self.chrom:
-                print('Different chromosome ID')
-                print('ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
-                print('ChrID of the variant: %s' % self.chrom)
+                eprint('Different chromosome ID')
+                eprint('ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
+                eprint('ChrID of the variant: %s' % self.chrom)
                 sys.exit()
 
             if var_pos < gene.tx_start:
@@ -180,7 +177,7 @@ class VCFData:
                     self._genic_region_dict[strand][gene_sym] = {}
 
                 if gene_id in self._genic_region_dict[strand][gene_sym]:
-                    print('There are RefFlat objects with same id.')
+                    eprint('There are RefFlat objects with same id.')
                     sys.exit()
 
                 self._genic_region_dict[strand][gene_sym][gene_id] = genic_region
@@ -196,8 +193,7 @@ class VCFData:
         makes up _strand_to_region_val
         """
         for strand in ['+', '-']:
-            genic_region_to_bool = {genic_region: False for genic_region in GENIC_REGION_LIST}
-            genic_region_to_bool['intergenic'] = True  # default
+            genic_region_to_bool = parse_genic_region_val(0)  # default (intergenic)
 
             for gene_sym in self._genic_region_dict[strand]:
                 for gene_id in self._genic_region_dict[strand][gene_sym]:
