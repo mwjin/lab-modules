@@ -1,5 +1,5 @@
 from lab.utils import eprint
-from lab.genome.utils import get_seq, reverse_complement
+from lab.genome.seq import get_seq, reverse_complement
 
 
 class RefFlat:
