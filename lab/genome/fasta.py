@@ -9,7 +9,7 @@ class Fasta:
     def __init__(self, genome_filename):
         # V-S Check: File Existence
         if not os.path.isfile(genome_filename):
-            sys.exit('Error: The genome file does not exist.')
+            raise IOError('Error: %s does not exist.' % genome_filename)
         
         self.genome_file = open(genome_filename, 'r')
         self.chrom_list = []
@@ -20,7 +20,7 @@ class Fasta:
 
         # V-S Check: File Existence
         if not os.path.isfile('%s.fai' % genome_filename):
-            sys.exit('.fai file does not exist')
+            raise IOError('%s.fai file does not exist' % genome_filename)
 
         genome_idx_file = open('%s.fai' % genome_filename, 'r')
 
@@ -53,7 +53,7 @@ class Fasta:
         try:
             assert (0 <= start) and (start < end) and (end <= self.chrlen_list[chr_idx])
         except AssertionError:
-            eprint('Fasta fetch assertion error', chrom, start, end)
+            eprint('Fasta fetch assertion error %s:%s-%s' % (chrom, start, end))
             sys.exit()
 
         blank_cnt = self.line_len_with_blank_list[chr_idx] - self.line_len_list[chr_idx]
@@ -71,7 +71,7 @@ class Fasta:
         elif strand == '-':
             return self.reverse_complement(seq)
         else:
-            sys.exit('Error: invalid strand')
+            raise ValueError('Error: invalid strand %s' % strand)
     # END: fetch_seq
 
     @staticmethod
@@ -86,7 +86,7 @@ class Fasta:
             for base in seq:
                 comp_seq += base_to_comp[base]
         except KeyError:
-            sys.exit('Exception: there is a invalid base in the sequence')
+            sys.exit('Error: there is a invalid base in the sequence')
 
         return comp_seq[::-1]  # reverse
 
