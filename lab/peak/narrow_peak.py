@@ -1,8 +1,10 @@
-from gene.anno import *
+from lab.gene.anno import *
 
 
 class NarrowPeak:
     """ The object of this class represents one entry of a file that has narrow peaks BED format """
+    _genic_regions = genic_regions()  # for the attributes in this class
+
     def __init__(self):
         self.chrom = None
         self.start = 0
@@ -17,11 +19,11 @@ class NarrowPeak:
         self.q_val = '-1.0'
         self.point_src = '-1'
 
-        """ attributes for gene-based annotation of the peak """
-        self.genic_region_to_size = {genic_region: 0 for genic_region in GENIC_REGION_LIST}
-        self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in GENIC_REGION_LIST}
+        # attributes for the gene-based annotation of the peak
+        self.genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
+        self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
 
-        """ attributes for seeing a distribution of variants """
+        # attributes for seeing the distribution of variants
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
         self.var_pos_to_region_val = {}  # value: genic region value
 
@@ -123,7 +125,7 @@ class NarrowPeak:
             for region_val in genic_region_val_list:
                 genic_region_to_bool = parse_genic_region_val(region_val)
 
-                for genic_region in GENIC_REGION_LIST:
+                for genic_region in self._genic_regions:
                     if genic_region_to_bool[genic_region]:
                         self.genic_region_to_size[genic_region] += 1
 
@@ -136,7 +138,7 @@ class NarrowPeak:
             for region_val in genic_region_val_list:
                 genic_region_to_bool = parse_genic_region_val(region_val)
 
-                for genic_region in GENIC_REGION_LIST:
+                for genic_region in self._genic_regions:
                     if genic_region_to_bool[genic_region]:
                         self.genic_region_to_size[genic_region] += 1
 
@@ -168,7 +170,7 @@ class NarrowPeak:
             genic_region_to_bool = parse_genic_region_val(var_region_val)
 
             if repr_on:
-                for genic_region in GENIC_REGION_LIST:
+                for genic_region in self._genic_regions:
                     if genic_region_to_bool[genic_region]:
                         self.genic_region_to_var_cnt[genic_region] += 1
 
@@ -177,7 +179,7 @@ class NarrowPeak:
 
                         break
             else:
-                for genic_region in GENIC_REGION_LIST:
+                for genic_region in self._genic_regions:
                     if genic_region_to_bool[genic_region]:
                         self.genic_region_to_var_cnt[genic_region] += 1
 
