@@ -2,10 +2,28 @@
 
 class NarrowPeak:
     """ The object of this class represents one entry of a file that has Narrow Peaks format """
-    def __init__(self):
-        self.chrom = None
-        self.start = 0  # 0-based
-        self.end = 0
+    def __init__(self, *args, **kwargs):
+        """
+        :param args: Its length must be 0 or 3. If the length is 3, args must consist of the following values
+            1. the chromosome ID (string)
+            2. start position (integer)
+            3. end position (integer)
+            If the length is 0, default values will be entered.
+
+        :param kwargs: The key values must be matched with one of the attributes in this class.
+        """
+        argc = len(args)
+        assert argc == 0 or argc == 3
+
+        if argc == 0:
+            self.chrom = None
+            self.start = 0  # 0-based
+            self.end = 0
+        else:
+            self.chrom = args[0]
+            self.start = int(args[1])
+            self.end = int(args[2])
+
         self.name = '.'
         self.score = '0'
         self.strand = '.'
@@ -13,6 +31,12 @@ class NarrowPeak:
         self.p_val = '-1.0'
         self.q_val = '-1.0'
         self.point_src = '-1'
+
+        for attr in kwargs:
+            if hasattr(self, attr):
+                setattr(self, attr, kwargs[attr])
+            else:
+                raise AttributeError('Error: %s has no attribute named as %s.' % (self.__class__, attr))
 
     # END: __init__
 
