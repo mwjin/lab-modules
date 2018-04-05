@@ -52,6 +52,13 @@ def get_genic_region_val(genic_region_to_bool):
 # END: the function 'get_genic_region_val'
 
 
+def genic_regions():
+    """
+    :return: the list of the all the names of regions used for the gene-based annotation
+    """
+    return _GENIC_REGIONS
+
+
 def parse_genic_region_val(region_val):
     """
     parse the genic region value and get information which genic region is used for the annotation
