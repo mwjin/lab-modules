@@ -1,4 +1,4 @@
-from settings import ROOT_DIR
+from lab.settings import ROOT_DIR
 
 # settings for genome
 GENOME_VER = "hg19"
