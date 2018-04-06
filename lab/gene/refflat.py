@@ -2,6 +2,8 @@ from lab.utils import eprint
 from lab.genome.seq import get_seq, reverse_complement
 
 
+__all__ = ['RefFlat']
+
 class RefFlat:
     """ represents each entry of the RefFlat file """
     def __init__(self):

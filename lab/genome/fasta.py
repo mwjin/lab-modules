@@ -4,6 +4,8 @@ import os
 import sys
 import re
 
+__all__ = ['Fasta']
+
 
 class Fasta:
     def __init__(self, genome_filename):

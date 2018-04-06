@@ -6,6 +6,8 @@ import gzip
 from lab.utils import eprint
 from lab.gene.anno import get_genic_region_val, parse_genic_region_val
 
+__all__ = ['VCFData']
+
 
 class VCFData:
     """ The object of this class represents one entry in VCF files (only consider SNV). """

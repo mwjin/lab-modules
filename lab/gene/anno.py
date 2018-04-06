@@ -21,6 +21,8 @@ For example, if a nucleotide is annotated as ORF and intron, an integer value th
 of the nucleotide will be 34 (0b100010). If the integer value is 0, it means that the nucleotide is intergenic.
 """
 
+__all__ = ['genic_region_list', 'get_genic_region_val', 'parse_genic_region_val']
+
 # constants used in this module
 _GENIC_REGIONS = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'intronic', 'ncRNA_intronic', 'intergenic']
 _BIT_LEN = len(_GENIC_REGIONS) - 1

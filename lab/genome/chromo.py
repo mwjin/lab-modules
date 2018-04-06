@@ -3,12 +3,14 @@ Modules for the functions associated with the chromosome
 1. get the size of the chromosome
 2. bin the length of the chromosome
 """
-from lab.genome.settings import GENOME_FILENAME
+from lab.genome.settings import GENOME_FILE_PATH
 
+
+__all__ = ['get_chr_size', 'bin_chr']
 
 _CHR_TO_SIZE = {}  # chromosome ID to its size
 
-with open('%s.fai' % GENOME_FILENAME, 'r') as genome_idx_file:
+with open('%s.fai' % GENOME_FILE_PATH, 'r') as genome_idx_file:
     for line in genome_idx_file.readlines():
         """
         Field 1: chromosome ID e.g. chr1

@@ -1,3 +1,7 @@
+"""
+'NarrowPeak' class that represents one entry of the 'NarrowPeak' BED file
+"""
+__all__ = ['NarrowPeak']
 
 
 class NarrowPeak:

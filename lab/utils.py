@@ -5,14 +5,16 @@ from inspect import getframeinfo, stack
 import sys
 import time
 
+__all__ = ['time_stamp', 'caller_file_and_line', 'eprint', 'green']
 
-# region time
-TIME_STAMP = '%s' % (time.ctime().replace(' ', '-').replace(':', '_'))
-
-# endregion
+_TIME_STAMP = '%s' % (time.ctime().replace(' ', '-').replace(':', '_'))
 
 
 # region functions for logging
+def time_stamp():
+    return _TIME_STAMP
+
+
 def caller_file_and_line():
     """
     This function is used to trace.

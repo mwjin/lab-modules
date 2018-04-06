@@ -4,10 +4,12 @@ Module for the genome sequence
 2. make reverse complementary sequence for the input sequence
 """
 
-from lab.genome.settings import GENOME_FILENAME
+from lab.genome.settings import GENOME_FILE_PATH
 from lab.genome.fasta import Fasta
 
-_GENOME = Fasta(GENOME_FILENAME)  # singleton
+__all__ = ['get_seq', 'reverse_complement']
+
+_GENOME = Fasta(GENOME_FILE_PATH)  # singleton
 
 
 def get_seq(chrom, start, end, upper=True):
