@@ -8,8 +8,8 @@ from lab.genome.settings import GENOME_FILENAME
 
 _CHR_TO_SIZE = {}  # chromosome ID to its size
 
-with open('%s.fai' % GENOME_FILENAME, 'r') as GENOME_IDX_FILE:
-    for line in GENOME_FILENAME.readlines():
+with open('%s.fai' % GENOME_FILENAME, 'r') as genome_idx_file:
+    for line in genome_idx_file.readlines():
         """
         Field 1: chromosome ID e.g. chr1
         Field 2: size of each chromosome without newline characters
