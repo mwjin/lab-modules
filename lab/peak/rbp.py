@@ -1,10 +1,10 @@
 from lab.peak.narrow import NarrowPeak
-from lab.gene.anno import genic_regions, parse_genic_region_val
+from lab.gene.anno import genic_region_list, parse_genic_region_val
 
 
 class RBPPeak(NarrowPeak):
     """ The object in this class represents one peak calling of the binding sites of RNA-binding proteins """
-    _genic_regions = genic_regions()  # for the attributes in this class
+    _genic_regions = genic_region_list()  # for the attributes in this class
 
     def __init__(self):
         super().__init__()

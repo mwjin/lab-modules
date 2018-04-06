@@ -1,7 +1,7 @@
 from lab.gene.anno import *
 import pytest
 
-GENIC_REGIONS = genic_regions()
+GENIC_REGIONS = genic_region_list()
 
 
 def test_get_genic_region_val():

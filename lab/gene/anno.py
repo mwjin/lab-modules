@@ -28,7 +28,7 @@ _REGION_TO_BIT_POS = {genic_region: (i + 1) for i, genic_region in enumerate(_GE
 _BIT_POS_TO_REGION = {(i + 1): genic_region for i, genic_region in enumerate(_GENIC_REGIONS)}
 
 
-def genic_regions():
+def genic_region_list():
     """
     :return: the list of the all the names of regions used for the gene-based annotation
     """
