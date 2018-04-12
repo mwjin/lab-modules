@@ -4,12 +4,12 @@
 - The modules in this package assume that this folder is registered as a ``PYTHON_PATH``.
 
 ## Dependency
-1. pytest
+ `pytest >= 3.2.1`
 
 ## Installation
 ```
 git clone git@github.com:jeongmw/lab-modules.git
-python3 setup.py sdist
+python3 setup.py install
 ```
 
 ## Components
