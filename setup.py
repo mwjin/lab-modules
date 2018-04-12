@@ -1,8 +1,9 @@
 from setuptools import setup
+import lab
 
 setup(
     name='lab-modules',
-    version='1.0.0',
+    version=lab.__version__,
     packages=['lab', 'lab.vcf', 'lab.gene', 'lab.peak', 'lab.genome', 'tests', 'tests.vcf', 'tests.gene', 'tests.peak',
               'tests.genome'],
     url='https://github.com/jeongmw/lab-modules',
