@@ -1,7 +1,12 @@
+# IDE
 .idea/*
+
+# Produced by testing
 .cache/*
 .coverage
 htmlcov/*
+
+# pycache
 lab/__pycache__/*
 lab/gene/__pycache__/*
 lab/genome/__pycache__/*
@@ -13,3 +18,9 @@ tests/gene/__pycache__/*
 tests/genome/__pycache__/*
 tests/vcf/__pycache__/*
 tests/peak/__pycache__/*
+
+# Produced after installation
+build/*
+dist/*
+lab_modules.egg-info/*
+MANIFEST
