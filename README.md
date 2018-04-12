@@ -7,6 +7,9 @@
 1. pytest
 
 ## Installation
+``
+python3 setup.py sdist
+``
 
 ## Components
 ### 1. lab/gene
