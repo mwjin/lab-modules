@@ -7,9 +7,10 @@
 1. pytest
 
 ## Installation
-``
+```
+git clone git@github.com:jeongmw/lab-modules.git
 python3 setup.py sdist
-``
+```
 
 ## Components
 ### 1. lab/gene
