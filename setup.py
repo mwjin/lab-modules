@@ -12,7 +12,7 @@ setup(
     author_email='jmw95217@gmail.com',
     description='Modules for the biological research',
     long_description=open('README.md').read(),
-    setup_requires=[
+    install_requires=[
         "pytest >= 3.2.1",
         "numpy >= 1.13.3",
         "matplotlib >= 2.1.0"
