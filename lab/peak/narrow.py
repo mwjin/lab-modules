@@ -138,8 +138,8 @@ class NarrowPeak:
 
     # END: the function 'parse_peak_entry'
 
-    @staticmethod
-    def parse_peak_file(peak_filename):
+    @classmethod
+    def parse_peak_file(cls, peak_filename):
         """
         :param peak_filename: a file which has a narrow peak bed format
         :return: a list of NarrowPeak objects
@@ -149,7 +149,7 @@ class NarrowPeak:
         peak_list = []
 
         for line in peak_file.readlines():
-            peak = NarrowPeak()
+            peak = cls()
             peak.parse_peak_entry(line.strip())
             peak_list.append(peak)
 
