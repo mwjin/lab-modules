@@ -1,6 +1,25 @@
-# lib-for-projects
-This package contains modules or classes which are commonly used in my projects.
+# lab-modules
+- This project is for my lab works.
+- This package contains modules or classes which are commonly used when processing the biological data.
+- The modules in this package assume that this folder is registered as a ``PYTHON_PATH``.
 
-The modules in this package assume that this folder is registered as a ``PYTHON_PATH``.
-A directory of this package must be named as ``lib`` when you want to use it. 
+## Dependency
+ `pytest >= 3.2.1`
 
+## Installation
+```
+git clone git@github.com:jeongmw/lab-modules.git
+python3 setup.py install
+```
+
+## Components
+### 1. lab/gene
+### 2. lab/genome
+### 3. lab/peak
+### 4. lab/vcf
+### 5. lab/settings
+### 6. lab/utils
+
+## Testing
+- Look at the directory ``tests/``
+- Use ``pytest``
