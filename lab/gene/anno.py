@@ -58,7 +58,14 @@ def get_genic_region_val(genic_region_to_bool):
         assert region_val != 0
         return region_val
 
-# END: the function 'get_genic_region_val'
+
+def get_region_bit_pos(genic_region):
+    """
+    Return the position of the bit corresponding to the input genic region
+    :param genic_region: a string
+    :return: an integer that represents a position of the bit
+    """
+    return _REGION_TO_BIT_POS[genic_region]
 
 
 def parse_genic_region_val(region_val):
@@ -82,5 +89,3 @@ def parse_genic_region_val(region_val):
                 genic_region_dict[genic_region] = True
 
     return genic_region_dict
-
-# END: the function 'parse_genic_region_val'
