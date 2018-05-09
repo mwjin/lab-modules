@@ -137,12 +137,13 @@ class VCFData:
         vcf_file.close()
 
         # print the invalid chromosome ID
-        eprint('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
+        if len(invalid_chr_to_cnt) != 0:
+            eprint('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
 
-        for invalid_chrom in invalid_chr_to_cnt:
-            eprint('%s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
+            for invalid_chrom in invalid_chr_to_cnt:
+                eprint('%s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
 
-        eprint()
+            eprint()
 
         return var_list
 
