@@ -20,8 +20,6 @@ class VCFData:
         self.qual = 0.0
         self.filter = ''
         self.info = ''
-        self.format = ''
-        self.samples = []
 
         """ info from refFlat (in-house rep-isoforms) """
         self._genic_region_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
@@ -132,8 +130,6 @@ class VCFData:
             variant.qual = float(fields[5]) if fields[5] != '.' else fields[5]
             variant.filter = fields[6]
             variant.info = fields[7]
-            variant.format = fields[8]
-            variant.samples = fields[9:]
 
             var_list.append(variant)
         # END: for loop 'line'
