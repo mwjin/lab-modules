@@ -10,21 +10,22 @@ The gene-based annotation of one nucleotide is represented as integer which bit 
 ('intergenic' is excluded).
 Each bit of the integer represents a boolean value for one genic region.
 
-1st bit: ORF (MSB)
-2nd bit: 5'UTR
-3rd bit: 3'UTR
-4th bit: ncRNA exonic
-5th bit: intron
-6th bit: ncRNA intronic
+1st significant bit: ORF (MSB)
+2nd significant bit: 5'UTR
+3rd significant bit: 3'UTR
+.
+.
+.
 
-For example, if a nucleotide is annotated as ORF and intron, an integer value that represents gene-based annotation
-of the nucleotide will be 34 (0b100010). If the integer value is 0, it means that the nucleotide is intergenic.
+If the integer value is 0, it means that the nucleotide is intergenic.
 """
 
 __all__ = ['genic_region_list', 'get_genic_region_val', 'parse_genic_region_val']
 
 # constants used in this module
-_GENIC_REGIONS = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'intronic', 'ncRNA_intronic', 'intergenic']
+_GENIC_REGIONS = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic',
+                  'SS', 'SS-30nt', 'SS-50nt', 'intronic',
+                  'ncRNA_intronic', 'intergenic']
 _BIT_LEN = len(_GENIC_REGIONS) - 1
 _REGION_TO_BIT_POS = {genic_region: (i + 1) for i, genic_region in enumerate(_GENIC_REGIONS)}
 _BIT_POS_TO_REGION = {(i + 1): genic_region for i, genic_region in enumerate(_GENIC_REGIONS)}
