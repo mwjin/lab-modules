@@ -4,7 +4,7 @@ import re
 import gzip
 
 from lab.utils import eprint
-from lab.gene.anno import get_genic_region_val, parse_genic_region_val
+from lab.gene.anno import region_val_by_dict, parse_genic_region_val
 
 __all__ = ['VCFData']
 
@@ -200,7 +200,7 @@ class VCFData:
                     genic_region_to_bool[genic_region] = True
                     genic_region_to_bool['intergenic'] = False
 
-            region_val = get_genic_region_val(genic_region_to_bool)
+            region_val = region_val_by_dict(genic_region_to_bool)
             self._strand_to_region_val[strand] = region_val
 
     # END: the function '_set_genic_region_value'

@@ -3,6 +3,8 @@ Module for gene-based annotation
 1. a list of genic regions we use
 2. variables and functions for the gene-based annotation
 """
+import sys
+from lab.utils import caller_file_and_line, eprint
 
 """
 /* genic region value */
@@ -20,7 +22,7 @@ Each bit of the integer represents a boolean value for one genic region.
 If the integer value is 0, it means that the nucleotide is intergenic.
 """
 
-__all__ = ['genic_region_list', 'get_genic_region_val', 'parse_genic_region_val']
+__all__ = ['genic_region_list', 'region_val_by_dict', 'region_val_by_str', 'parse_genic_region_val']
 
 # constants used in this module
 _GENIC_REGIONS = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic',
@@ -38,7 +40,7 @@ def genic_region_list():
     return _GENIC_REGIONS
 
 
-def get_genic_region_val(genic_region_to_bool):
+def region_val_by_dict(genic_region_to_bool):
     """
     get the genic region value by parsing the input dictionary
     :param genic_region_to_bool: a dictionary
@@ -60,13 +62,18 @@ def get_genic_region_val(genic_region_to_bool):
         return region_val
 
 
-def get_region_bit_pos(genic_region):
+def region_val_by_str(genic_region):
     """
-    Return the position of the bit corresponding to the input genic region
-    :param genic_region: a string
-    :return: an integer that represents a position of the bit
+    get the genic region value of the input genic region (string)
+    :param genic_region: a string that represents the genic region
+    :return: an integer that represents the region value of the input genic region
     """
-    return _REGION_TO_BIT_POS[genic_region]
+    try:
+        bit_pos = _REGION_TO_BIT_POS[genic_region]
+        return 2 ** (_BIT_LEN - bit_pos)
+    except KeyError:
+        eprint("Error in %s: invalid genic region '%s'" % (caller_file_and_line(), genic_region))
+        sys.exit()
 
 
 def parse_genic_region_val(region_val):
