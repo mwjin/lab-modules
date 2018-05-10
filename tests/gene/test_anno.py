@@ -13,7 +13,7 @@ def test_get_genic_region_val():
     genic_region_to_bool['intergenic'] = False
     genic_region_to_bool['ORF'] = True
     genic_region_to_bool['intronic'] = True
-    assert get_genic_region_val(genic_region_to_bool) == 34  # 34 == 0b100010
+    assert get_genic_region_val(genic_region_to_bool) == 258
 
 
 def test_parse_genic_region_val():
@@ -25,7 +25,7 @@ def test_parse_genic_region_val():
         else:
             assert genic_region_to_bool[genic_region] is False
 
-    genic_region_to_bool = parse_genic_region_val(34)
+    genic_region_to_bool = parse_genic_region_val(258)
 
     for genic_region in GENIC_REGIONS:
         if genic_region == 'ORF' or genic_region == 'intronic':
@@ -36,7 +36,7 @@ def test_parse_genic_region_val():
 
 def test_parse_genic_region_val_fail():
     with pytest.raises(AssertionError):
-        parse_genic_region_val(64)
+        parse_genic_region_val(2 ** len(GENIC_REGIONS))
 
     with pytest.raises(AssertionError):
         parse_genic_region_val(-1)
