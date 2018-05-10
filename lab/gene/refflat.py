@@ -4,6 +4,7 @@ from lab.genome.seq import get_seq, reverse_complement
 
 __all__ = ['RefFlat']
 
+
 class RefFlat:
     """ represents each entry of the RefFlat file """
     def __init__(self):
@@ -227,7 +228,7 @@ class RefFlat:
 
         for i in range(self.exon_cnt):
             exon_positions.append(self.exon_starts[i])
-            exon_positions.append(self.exon_ends[i])
+            exon_positions.append(self.exon_ends[i])  # correspond to the start of an intron
 
         index = 0
 
@@ -239,11 +240,26 @@ class RefFlat:
         is_mrna = (self.id[:2] == 'NM')
 
         if index == 0:
-            eprint("Error: position %d is not in the rep-genes %s." % (pos, self.symbol))
+            eprint("Error: the position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
 
         elif index % 2 == 0:
-            return 'intronic' if is_mrna else 'ncRNA_intronic'
+            if is_mrna:
+                intron_start = exon_positions[index - 1]
+                intron_end = exon_positions[index]
+
+                space_from_jct = min((pos - intron_start + 1), (intron_end - pos))
+
+                if space_from_jct <= 2:
+                    return 'SS'  # splicing site
+                elif 2 < space_from_jct <= 30:
+                    return 'SS-30nt'
+                elif 30 < space_from_jct <= 50:
+                    return 'SS-50nt'
+                else:
+                    return 'intronic'
+            else:
+                return 'ncRNA_intronic'
 
         else:
             if is_mrna:
