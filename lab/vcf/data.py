@@ -4,7 +4,7 @@ import re
 import gzip
 
 from lab.utils import eprint
-from lab.gene.anno import region_val_by_dict, parse_genic_region_val
+from lab.gene.anno import get_genic_region_val
 
 __all__ = ['VCFData']
 
@@ -192,16 +192,18 @@ class VCFData:
         makes up _strand_to_region_val
         """
         for strand in ['+', '-']:
-            genic_region_to_bool = parse_genic_region_val(0)  # default (intergenic)
+            strand_region_val = 0  # default (intergenic)
 
             for gene_sym in self._genic_region_dict[strand]:
                 for gene_id in self._genic_region_dict[strand][gene_sym]:
                     genic_region = str(self._genic_region_dict[strand][gene_sym][gene_id])
-                    genic_region_to_bool[genic_region] = True
-                    genic_region_to_bool['intergenic'] = False
+                    genic_region_val = get_genic_region_val(genic_region)
+                    region_bit = int(strand_region_val / genic_region_val) % 2
 
-            region_val = region_val_by_dict(genic_region_to_bool)
-            self._strand_to_region_val[strand] = region_val
+                    if region_bit == 0:  # same genic region value is not added yet.
+                        strand_region_val += genic_region_val
+
+            self._strand_to_region_val[strand] = strand_region_val
 
     # END: the function '_set_genic_region_value'
 # END: class 'VCFData'

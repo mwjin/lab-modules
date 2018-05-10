@@ -4,18 +4,6 @@ import pytest
 GENIC_REGIONS = genic_region_list()
 
 
-def test_get_genic_region_val():
-    genic_region_to_bool = {genic_region: False for genic_region in GENIC_REGIONS}
-
-    genic_region_to_bool['intergenic'] = True
-    assert region_val_by_dict(genic_region_to_bool) == 0
-
-    genic_region_to_bool['intergenic'] = False
-    genic_region_to_bool['ORF'] = True
-    genic_region_to_bool['intronic'] = True
-    assert region_val_by_dict(genic_region_to_bool) == 258
-
-
 def test_parse_genic_region_val():
     genic_region_to_bool = parse_genic_region_val(0)
 
