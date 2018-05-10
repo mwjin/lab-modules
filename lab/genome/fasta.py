@@ -43,7 +43,7 @@ class Fasta:
         self.genome_file.close()
 
     def fetch_seq(self, chrom, start=None, end=None, strand='+'):
-        assert chrom in self.chrom_list, chrom
+        assert chrom in self.chrom_list
         chr_idx = self.chrom_list.index(chrom)
 
         if start is None:
