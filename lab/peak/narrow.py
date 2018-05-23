@@ -124,17 +124,23 @@ class NarrowPeak:
         # Example:       1.29065      | 0.198802  | -1       | -1
 
         fields = peak_entry.split('\t')
+        field_num = len(fields)
+        assert field_num == 6 or field_num == 10
 
+        # default
         self.chrom = fields[0]
         self.start = int(fields[1])
         self.end = int(fields[2])
         self.name = fields[3]
         self.score = fields[4]
         self.strand = fields[5]
-        self.sig_val = fields[6]
-        self.p_val = fields[7]
-        self.q_val = fields[8]
-        self.point_src = fields[9]
+
+        # optional
+        if field_num == 10:
+            self.sig_val = fields[6]
+            self.p_val = fields[7]
+            self.q_val = fields[8]
+            self.point_src = fields[9]
 
     # END: the function 'parse_peak_entry'
 
