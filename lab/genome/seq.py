@@ -29,8 +29,6 @@ def get_seq(chrom, start, end, upper=True):
     else:
         return seq
 
-# END: get_seq
-
 
 def reverse_complement(seq):
     """
@@ -39,4 +37,3 @@ def reverse_complement(seq):
     """
     return _GENOME.reverse_complement(seq)
 
-# END: reverse_complement

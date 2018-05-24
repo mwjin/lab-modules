@@ -25,8 +25,6 @@ class VCFData:
         self._genic_region_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
         self._strand_to_region_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
 
-    # END: __init__
-
     def get_assigned_strand(self):
         """
         * Notice: there is no strand for variants actually. However, to determine the transcript (+ or -)
@@ -39,7 +37,6 @@ class VCFData:
             return '+'
         else:
             return '-'
-    # END: the function 'get_assigned_strand'
 
     def get_strand_region_val(self, strand):
         """
@@ -47,8 +44,6 @@ class VCFData:
         :return: the genic region value on the input strand
         """
         return self._strand_to_region_val[strand]
-
-    # END: the function 'get_strand_region_val'
 
     @staticmethod
     def parse_vcf_file(vcf_filename):
@@ -132,7 +127,6 @@ class VCFData:
             variant.info = fields[7]
 
             var_list.append(variant)
-        # END: for loop 'line'
 
         vcf_file.close()
 
@@ -146,8 +140,6 @@ class VCFData:
             eprint()
 
         return var_list
-
-    # END: the function 'parse_vcf_file'
 
     def set_genic_region(self, genes_same_chr):
         """
@@ -181,11 +173,7 @@ class VCFData:
 
                 self._genic_region_dict[strand][gene_sym][gene_id] = genic_region
 
-        # END: for loop 'gene'
-
         self._set_genic_region_value()
-
-    # END: the function 'find_genic_region'
 
     def _set_genic_region_value(self):
         """
@@ -204,6 +192,3 @@ class VCFData:
                         strand_region_val += genic_region_val
 
             self._strand_to_region_val[strand] = strand_region_val
-
-    # END: the function '_set_genic_region_value'
-# END: class 'VCFData'

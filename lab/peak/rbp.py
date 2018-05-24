@@ -19,8 +19,6 @@ class RBPPeak(NarrowPeak):
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
         self.var_pos_to_region_val = {}  # positions of variants to their genic region values
 
-    # END: __init__
-
     def combine(self, other):
         """
         Combine the distribution of variants on other peak with this peak.
@@ -40,8 +38,6 @@ class RBPPeak(NarrowPeak):
                 assert self.var_pos_to_region_val[var_pos] == region_val
                 self.var_pos_to_cnt[var_pos] += var_cnt
 
-    # END: the function 'combine'
-
     def get_genic_region_to_size(self):
         """
         :return: a dictionary that documents the size of each genic region on this peak.
@@ -49,16 +45,12 @@ class RBPPeak(NarrowPeak):
         """
         return self.genic_region_to_size
 
-    # END: the function 'get_genic_region_to_size'
-
     def get_genic_region_to_var_cnt(self):
         """
         :return: a dictionary that documents the number of variants of each genic region on this peak.
                  (key: a genic region, value: the number of variants on the genic region (integer))
         """
         return self.genic_region_to_var_cnt
-
-    # END: the function 'get_genic_region_to_var_cnt'
 
     def set_genic_region_size(self, genic_region_val_list, repr_only=False):
         """
@@ -90,8 +82,6 @@ class RBPPeak(NarrowPeak):
                 for genic_region in self._genic_regions:
                     if genic_region_to_bool[genic_region]:
                         self.genic_region_to_size[genic_region] += 1
-
-    # END: the function 'set_genic_region_size'
 
     def put_variant(self, variant, repr_only=False):
         """
@@ -134,7 +124,3 @@ class RBPPeak(NarrowPeak):
 
         else:
             assert self.var_pos_to_region_val[var_pos] == variant.get_var_genic_region(self.strand)
-
-    # END: the function 'put_variant'
-
-# END: the definition of the class 'RBPPeak'

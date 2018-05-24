@@ -93,8 +93,6 @@ class NarrowPeak:
         else:
             return NarrowPeak(self.chrom, pos_list[0][0], pos_list[1][1], self.strand)
 
-    # END: the function 'merge'
-
     def intersect(self, peak):
         """
         intersect the position of this peak with the input peak and return the peak which has the intersected position
@@ -116,8 +114,6 @@ class NarrowPeak:
             return None
         else:
             return NarrowPeak(self.chrom, pos_list[1][0], pos_list[0][1], self.strand)
-
-    # END: the function 'intersect'
 
     def parse_peak_entry(self, peak_entry):
         """
@@ -150,8 +146,6 @@ class NarrowPeak:
             self.q_val = fields[8]
             self.point_src = fields[9]
 
-    # END: the function 'parse_peak_entry'
-
     @classmethod
     def parse_peak_file(cls, peak_filename):
         """
@@ -170,7 +164,5 @@ class NarrowPeak:
         peak_file.close()
 
         return peak_list
-
-    # END: the function 'parse_peak_file'
 
 # END: the definition of the class 'NarrowPeak'

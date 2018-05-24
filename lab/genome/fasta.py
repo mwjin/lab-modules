@@ -34,10 +34,8 @@ class Fasta:
             self.offset_list.append(int(fields[2]))
             self.line_len_list.append(int(fields[3]))
             self.line_len_with_blank_list.append(int(fields[4]))
-        # END: for loop 'line'
 
         genome_idx_file.close()
-    # END: __init__
 
     def __del__(self):
         self.genome_file.close()
@@ -74,7 +72,6 @@ class Fasta:
             return self.reverse_complement(seq)
         else:
             raise ValueError('Error: invalid strand %s' % strand)
-    # END: fetch_seq
 
     @staticmethod
     def reverse_complement(seq):
@@ -91,6 +88,3 @@ class Fasta:
             sys.exit('Error: there is a invalid base in the sequence')
 
         return comp_seq[::-1]  # reverse
-
-    # END: _reverse_complement
-# END: 'Fasta' class
