@@ -21,6 +21,27 @@ class RBPPeak(NarrowPeak):
 
     # END: __init__
 
+    def combine(self, other):
+        """
+        Combine the distribution of variants on other peak with this peak.
+        :param other: an object of 'RBPPeak'
+        """
+        assert other.__class__.__name__ == self.__class__.__name__
+        assert other == self
+
+        for var_pos in other.var_pos_to_cnt:
+            var_cnt = other.var_pos_to_cnt[var_pos]
+            region_val = other.var_pos_to_region_val[var_pos]
+
+            if var_pos not in self.var_pos_to_cnt:
+                self.var_pos_to_region_val[var_pos] = region_val
+                self.var_pos_to_cnt[var_pos] = var_cnt
+            else:
+                assert self.var_pos_to_region_val[var_pos] == region_val
+                self.var_pos_to_cnt[var_pos] += var_cnt
+
+    # END: the function 'combine'
+
     def get_genic_region_to_size(self):
         """
         :return: a dictionary that documents the size of each genic region on this peak.
