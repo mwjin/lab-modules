@@ -55,6 +55,14 @@ class NarrowPeak:
 
     # END: __str__
 
+    def __eq__(self, other):
+        self_info = (self.chrom, self.start, self.end, self.name, self.score, self.strand)
+        other_info = (other.chrom, other.start, other.end, other.name, other.score, other.strand)
+
+        return self_info == other_info
+
+    # END: __eq__
+
     def get_position(self):
         """
         :return: a tuple (start, end)
