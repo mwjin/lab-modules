@@ -123,4 +123,4 @@ class RBPPeak(NarrowPeak):
                         self.genic_region_to_var_cnt[genic_region] += 1
 
         else:
-            assert self.var_pos_to_region_val[var_pos] == variant.get_var_genic_region(self.strand)
+            assert self.var_pos_to_region_val[var_pos] == variant.get_strand_region_val(self.strand)
