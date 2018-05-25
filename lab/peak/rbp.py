@@ -52,6 +52,32 @@ class RBPPeak(NarrowPeak):
         """
         return self.genic_region_to_var_cnt
 
+    def get_var_pos_list(self):
+        """
+        :return: a list of the positions (0-based) of all variants on this peak
+        """
+        return list(self.var_pos_to_cnt.keys()).sort()
+
+    def get_var_cnt_in_pos(self, var_pos):
+        """
+        :param var_pos: a variant position (0-based) inside the peak
+        :return: the number of variants on the position
+        """
+        var_cnt = self.var_pos_to_cnt.get(var_pos)
+        assert var_cnt is not None
+
+        return var_cnt
+
+    def get_region_val_in_pos(self, var_pos):
+        """
+        :param var_pos: a variant position (0-based) inside the peak
+        :return: a genic region value of the position
+        """
+        region_val = self.var_pos_to_region_val.get(var_pos)
+        assert region_val is not None
+
+        return region_val
+
     def set_genic_region_size(self, genic_region_val_list, repr_only=False):
         """
         This code makes up the 'genic_region_to_size' attribute.
