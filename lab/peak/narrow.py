@@ -46,14 +46,10 @@ class NarrowPeak:
             else:
                 raise AttributeError('Error: %s has no attribute named as %s.' % (self.__class__.__name__, attr))
 
-    # END: __init__
-
     def __str__(self):
         return '%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % \
                (self.chrom, self.start, self.end, self.name, self.score,
                 self.strand, self.sig_val, self.p_val, self.q_val, self.point_src)
-
-    # END: __str__
 
     def __eq__(self, other):
         self_info = (self.chrom, self.start, self.end, self.name, self.score, self.strand)
@@ -61,16 +57,12 @@ class NarrowPeak:
 
         return self_info == other_info
 
-    # END: __eq__
-
     def get_position(self):
         """
         :return: a tuple (start, end)
         """
         return self.start, self.end
 
-    # END: the function 'get_position'
-    
     def get_size(self):
         """
         :return: a size of the peak
@@ -170,5 +162,3 @@ class NarrowPeak:
         peak_file.close()
 
         return peak_list
-
-# END: the definition of the class 'NarrowPeak'
