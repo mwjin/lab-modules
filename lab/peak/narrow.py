@@ -70,6 +70,12 @@ class NarrowPeak:
         return self.start, self.end
 
     # END: the function 'get_position'
+    
+    def get_size(self):
+        """
+        :return: a size of the peak
+        """
+        return self.end - self.start
 
     def merge(self, peak):
         """
