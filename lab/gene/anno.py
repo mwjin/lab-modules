@@ -58,7 +58,7 @@ def parse_genic_region_val(region_val):
     """
     parse the genic region value and get information which genic region is used for the annotation
     :param region_val: an integer that represents a genic region value
-    :return: a dictionary (key: genic region, value: boolean (whether the region ios used for the annotation)
+    :return: a dictionary (key: genic region, value: boolean (whether the region is used for the annotation)
     """
     assert 0 <= region_val < (2 ** _BIT_LEN)  # the maximum bit length of the genic region value is 6
 
