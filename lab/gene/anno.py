@@ -37,7 +37,7 @@ def genic_region_list():
     """
     :return: the list of the all the names of regions used for the gene-based annotation
     """
-    return _GENIC_REGIONS
+    return list(_GENIC_REGIONS)
 
 
 def get_genic_region_val(genic_region):
