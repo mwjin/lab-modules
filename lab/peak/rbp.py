@@ -58,6 +58,17 @@ class RBPPeak(NarrowPeak):
         """
         return sorted(list(self.var_pos_to_cnt.keys()))
 
+    def get_var_cnt(self):
+        """
+        :return: the number of variants in this peak
+        """
+        var_cnt = 0
+
+        for var_pos in self.var_pos_to_cnt:
+            var_cnt += self.var_pos_to_cnt[var_pos]
+
+        return var_cnt
+
     def get_var_cnt_in_pos(self, var_pos):
         """
         :param var_pos: a variant position (0-based) inside the peak
