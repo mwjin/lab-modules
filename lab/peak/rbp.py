@@ -18,7 +18,7 @@ class RBPPeak(NarrowPeak):
         # attributes for the variants on this peak
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
         self.var_pos_to_region_val = {}  # positions of variants to their genic region values
-        self.var_pos_to_genes = {}  # positions of variants to their associated genes
+        self.var_pos_to_genes = {}  # positions of variants to their associated genes (type: dictionary)
 
     def combine(self, other):
         """
@@ -89,6 +89,13 @@ class RBPPeak(NarrowPeak):
         assert region_val is not None
 
         return region_val
+
+    def get_genes_in_pos(self, var_pos):
+        """
+        :param var_pos: a variant position (0-based) inside the peak
+        :return: a dictionary (mapping route: gene symbol -> ID -> genic region)
+        """
+        return self.var_pos_to_genes[var_pos]
 
     def set_genic_region_size(self, genic_region_val_list, repr_only=False):
         """
