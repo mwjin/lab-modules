@@ -18,6 +18,7 @@ class RBPPeak(NarrowPeak):
         # attributes for the variants on this peak
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
         self.var_pos_to_region_val = {}  # positions of variants to their genic region values
+        self.var_pos_to_genes = {}  # positions of variants to their associated genes
 
     def combine(self, other):
         """
@@ -134,11 +135,13 @@ class RBPPeak(NarrowPeak):
 
         var_pos = variant.pos - 1  # 1-based -> 0-based
 
+        # variant counting
         if var_pos not in self.var_pos_to_cnt:
-            self.var_pos_to_cnt[var_pos] = 0
+            self.var_pos_to_cnt[var_pos] = 1
+        else:
+            self.var_pos_to_cnt[var_pos] += 1
 
-        self.var_pos_to_cnt[var_pos] += 1
-
+        # gene-based annotation of the variants
         if var_pos not in self.var_pos_to_region_val:
             var_region_val = variant.get_strand_region_val(self.strand)
             self.var_pos_to_region_val[var_pos] = var_region_val
@@ -161,3 +164,10 @@ class RBPPeak(NarrowPeak):
 
         else:
             assert self.var_pos_to_region_val[var_pos] == variant.get_strand_region_val(self.strand)
+
+        # save the information of the variant-associated genes
+        if var_pos not in self.var_pos_to_genes:
+            assoc_genes = variant.get_assoc_genes(self.strand)
+            self.var_pos_to_genes[var_pos] = assoc_genes
+        else:
+            assert self.var_pos_to_genes[var_pos] == variant.get_assoc_genes(self.strand)
