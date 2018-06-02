@@ -22,7 +22,8 @@ class VCFData:
         self.info = ''
 
         """ info from refFlat (in-house rep-isoforms) """
-        self._genic_region_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
+        # Dictionary for the information of genes associated with this variant
+        self._gene_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
         self._strand_to_region_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
 
     def get_assigned_strand(self):
@@ -164,14 +165,14 @@ class VCFData:
                 gene_id = gene.id
                 genic_region = gene.find_genic_region(var_pos)
 
-                if gene_sym not in self._genic_region_dict[strand]:
-                    self._genic_region_dict[strand][gene_sym] = {}
+                if gene_sym not in self._gene_dict[strand]:
+                    self._gene_dict[strand][gene_sym] = {}
 
-                if gene_id in self._genic_region_dict[strand][gene_sym]:
+                if gene_id in self._gene_dict[strand][gene_sym]:
                     eprint('There are RefFlat objects with same id.')
                     sys.exit()
 
-                self._genic_region_dict[strand][gene_sym][gene_id] = genic_region
+                self._gene_dict[strand][gene_sym][gene_id] = genic_region
 
         self._set_genic_region_value()
 
@@ -182,9 +183,9 @@ class VCFData:
         for strand in ['+', '-']:
             strand_region_val = 0  # default (intergenic)
 
-            for gene_sym in self._genic_region_dict[strand]:
-                for gene_id in self._genic_region_dict[strand][gene_sym]:
-                    genic_region = str(self._genic_region_dict[strand][gene_sym][gene_id])
+            for gene_sym in self._gene_dict[strand]:
+                for gene_id in self._gene_dict[strand][gene_sym]:
+                    genic_region = str(self._gene_dict[strand][gene_sym][gene_id])
                     genic_region_val = get_genic_region_val(genic_region)
                     region_bit = int(strand_region_val / genic_region_val) % 2
 
