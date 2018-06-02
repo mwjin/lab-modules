@@ -39,6 +39,14 @@ class VCFData:
         else:
             return '-'
 
+    def get_assoc_genes(self, strand):
+        """
+        Return the dictionary that contains the information of the strand-specific genes associated with this variants
+        :param strand: '+' or '-'
+        :return: a dictionary (mapping route: gene symbol -> ID -> genic region)
+        """
+        return self._gene_dict[strand]
+
     def get_strand_region_val(self, strand):
         """
         :param strand: '+' or '-'
