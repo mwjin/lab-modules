@@ -29,14 +29,17 @@ class RBPPeak(NarrowPeak):
         assert other == self
 
         for var_pos in other.var_pos_to_cnt:
-            var_cnt = other.var_pos_to_cnt[var_pos]
-            region_val = other.var_pos_to_region_val[var_pos]
+            var_cnt = other.get_var_cnt_in_pos(var_pos)
+            region_val = other.get_region_val_in_pos(var_pos)
+            genes = other.get_genes_in_pos(var_pos)
 
             if var_pos not in self.var_pos_to_cnt:
                 self.var_pos_to_region_val[var_pos] = region_val
+                self.var_pos_to_genes[var_pos] = genes
                 self.var_pos_to_cnt[var_pos] = var_cnt
             else:
                 assert self.var_pos_to_region_val[var_pos] == region_val
+                assert self.var_pos_to_genes[var_pos] == genes
                 self.var_pos_to_cnt[var_pos] += var_cnt
 
     def get_genic_region_to_size(self):
