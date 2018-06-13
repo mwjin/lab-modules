@@ -1,6 +1,6 @@
 from lab.utils import eprint
 from lab.genome.seq import get_seq, reverse_complement
-
+from lab.gene.anno import genic_region_list
 
 __all__ = ['RefFlat']
 
@@ -235,6 +235,8 @@ class RefFlat:
                 else:
                     idx = 2 * i + 1
 
+            assert idx != -1 and idx < 2 * self.exon_cnt - 1
+
             is_mrna = (self.id[:2] == 'NM')
 
             if idx % 2 == 1:
@@ -278,7 +280,117 @@ class RefFlat:
         :return: a dictionary (key: genic region, value: size)
         """
         if self.tx_start <= start < end <= self.tx_end:
+            # even number (include 0): exonic, odd number: intronic
+            start_idx = -1
+            end_idx = -1
 
-            pass
+            for i in range(self.exon_cnt):
+                if start < self.exon_starts[i]:
+                    break
+                elif self.exon_starts[i] < start < self.exon_ends[i]:
+                    start_idx = 2 * i
+                else:
+                    start_idx = 2 * i + 1
+
+                if end < self.exon_starts[i]:
+                    break
+                elif self.exon_starts[i] < end < self.exon_ends[i]:
+                    end_idx = 2 * i
+                else:
+                    end_idx = 2 * i + 1
+
+            assert start_idx != -1 and start_idx < 2 * self.exon_cnt - 1
+            assert end_idx != -1 and end_idx < 2 * self.exon_cnt - 1
+
+            is_mrna = (self.id[:2] == 'NM')
+            is_top_strand = (self.strand == '+')
+
+            # initialization
+            region_to_size = {genic_region: 0 for genic_region in genic_region_list()}
+
+            for i in range(start_idx, end_idx + 1):
+                if i % 2 == 0:  # exon
+                    exon_idx = int(i / 2)
+                    start_pos = self.exon_starts[exon_idx]
+                    end_pos = self.exon_ends[exon_idx]
+
+                    if start_pos < start:
+                        start_pos = start
+
+                    if end_pos > end:
+                        end_pos = end
+
+                    if is_mrna:
+                        if start_pos < self.tx_start:
+                            left_utr = self.tx_start - start_pos
+
+                            if is_top_strand:
+                                region_to_size['5UTR'] += left_utr
+                            else:
+                                region_to_size['3UTR'] += left_utr
+
+                            start_pos = self.tx_start
+
+                        if end_pos > self.tx_end:
+                            right_utr = end_pos - self.tx_end
+
+                            if is_top_strand:
+                                region_to_size['3UTR'] += right_utr
+                            else:
+                                region_to_size['5UTR'] += right_utr
+
+                            end_pos = self.tx_end
+
+                        region_to_size['ORF'] += (end_pos - start_pos)
+
+                    else:
+                        region_to_size['ncRNA_exonic'] += (end_pos - start_pos)
+
+                else:  # intron
+                    intron_idx = int(i / 2)
+                    intron_start = self.exon_ends[intron_idx]
+                    intron_end = self.exon_starts[intron_idx + 1]
+
+                    start_pos = intron_start
+                    end_pos = intron_end
+
+                    if start_pos < start:
+                        start_pos = start
+
+                    if end_pos > end:
+                        end_pos = end
+
+                    intron_size = (end_pos - start_pos)
+
+                    if is_mrna:
+                        region_to_size['intronic'] += intron_size
+
+                        # for splicing sites
+                        ss_site_dict = {2: 'SS', 30: 'SS-30nt', 50: 'SS-50nt'}  # key: bp, value: genic region
+
+                        for n in ss_site_dict.keys():
+                            left_ss_end = intron_start + n
+                            right_ss_start = intron_end - n
+                            overlap = left_ss_end - right_ss_start
+
+                            left_ss_size = left_ss_end - start_pos
+                            right_ss_size = end_pos - right_ss_start
+
+                            if left_ss_size < 0:
+                                left_ss_size = 0
+
+                            if right_ss_size < 0:
+                                right_ss_size = 0
+
+                            if overlap < 0:
+                                overlap = 0
+
+                            region_to_size[ss_site_dict[n]] += (left_ss_size + right_ss_size - overlap)
+
+                    else:
+                        region_to_size['ncRNA_intronic'] += intron_size
+
+            return region_to_size
+
         else:
             return None
