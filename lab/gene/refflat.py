@@ -222,31 +222,30 @@ class RefFlat:
     def find_genic_region(self, pos):
         """
         :param pos: 0-based position
-        :return: genic region (intronic, 5utr, exonic(orf), 3utr). if intergenic, return None
+        :return: a genic region. if intergenic, return None
         """
-        exon_positions = []
+        idx = -1  # even number (include 0): exonic, odd number: intronic
+        max_idx = 2 * (self.exon_cnt - 1)  # last exon
 
         for i in range(self.exon_cnt):
-            exon_positions.append(self.exon_starts[i])
-            exon_positions.append(self.exon_ends[i])  # correspond to the start of an intron
-
-        index = 0
-
-        for i in range(self.exon_cnt * 2):
-            if exon_positions[i] > pos:
-                index = i
+            if pos < self.exon_starts[i]:
                 break
+            elif self.exon_starts[i] < pos < self.exon_ends[i]:
+                idx = 2 * i
+            else:
+                idx = 2 * i + 1
 
         is_mrna = (self.id[:2] == 'NM')
 
-        if index == 0:
+        if idx == -1 or idx > max_idx:
             eprint("Error: the position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
 
-        elif index % 2 == 0:
+        elif idx % 2 == 1:
             if is_mrna:
-                intron_start = exon_positions[index - 1]
-                intron_end = exon_positions[index]
+                exon_end_idx = int(idx / 2)
+                intron_start = self.exon_ends[exon_end_idx]
+                intron_end = self.exon_starts[exon_end_idx + 1]
 
                 space_from_jct = min((pos - intron_start + 1), (intron_end - pos))
 
