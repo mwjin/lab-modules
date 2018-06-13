@@ -224,49 +224,61 @@ class RefFlat:
         :param pos: 0-based position
         :return: a genic region. if intergenic, return None
         """
-        idx = -1  # even number (include 0): exonic, odd number: intronic
-        max_idx = 2 * (self.exon_cnt - 1)  # last exon
+        if self.tx_start <= pos < self.tx_end:
+            idx = -1  # even number (include 0): exonic, odd number: intronic
 
-        for i in range(self.exon_cnt):
-            if pos < self.exon_starts[i]:
-                break
-            elif self.exon_starts[i] < pos < self.exon_ends[i]:
-                idx = 2 * i
+            for i in range(self.exon_cnt):
+                if pos < self.exon_starts[i]:
+                    break
+                elif self.exon_starts[i] < pos < self.exon_ends[i]:
+                    idx = 2 * i
+                else:
+                    idx = 2 * i + 1
+
+            is_mrna = (self.id[:2] == 'NM')
+
+            if idx % 2 == 1:
+                if is_mrna:
+                    exon_end_idx = int(idx / 2)
+                    intron_start = self.exon_ends[exon_end_idx]
+                    intron_end = self.exon_starts[exon_end_idx + 1]
+
+                    space_from_jct = min((pos - intron_start + 1), (intron_end - pos))
+
+                    if space_from_jct <= 2:
+                        return 'SS'  # splicing site
+                    elif 2 < space_from_jct <= 30:
+                        return 'SS-30nt'
+                    elif 30 < space_from_jct <= 50:
+                        return 'SS-50nt'
+                    else:
+                        return 'intronic'
+                else:
+                    return 'ncRNA_intronic'
+
             else:
-                idx = 2 * i + 1
-
-        is_mrna = (self.id[:2] == 'NM')
-
-        if idx == -1 or idx > max_idx:
+                if is_mrna:
+                    if pos < self.cds_start:
+                        return '5UTR' if self.strand == '+' else '3UTR'
+                    elif pos >= self.cds_end:
+                        return '3UTR' if self.strand == '+' else '5UTR'
+                    else:
+                        return 'ORF'
+                else:
+                    return 'ncRNA_exonic'
+        else:
             eprint("Error: the position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
 
-        elif idx % 2 == 1:
-            if is_mrna:
-                exon_end_idx = int(idx / 2)
-                intron_start = self.exon_ends[exon_end_idx]
-                intron_end = self.exon_starts[exon_end_idx + 1]
+    def get_genic_region_dist(self, start, end):
+        """
+        Return the dictionary that contains the size of each genic region in the region (start, end)
+        :param start: an integer (0-based)
+        :param end: an integer
+        :return: a dictionary (key: genic region, value: size)
+        """
+        if self.tx_start <= start < end <= self.tx_end:
 
-                space_from_jct = min((pos - intron_start + 1), (intron_end - pos))
-
-                if space_from_jct <= 2:
-                    return 'SS'  # splicing site
-                elif 2 < space_from_jct <= 30:
-                    return 'SS-30nt'
-                elif 30 < space_from_jct <= 50:
-                    return 'SS-50nt'
-                else:
-                    return 'intronic'
-            else:
-                return 'ncRNA_intronic'
-
+            pass
         else:
-            if is_mrna:
-                if pos < self.cds_start:
-                    return '5UTR' if self.strand == '+' else '3UTR'
-                elif pos >= self.cds_end:
-                    return '3UTR' if self.strand == '+' else '5UTR'
-                else:
-                    return 'ORF'
-            else:
-                return 'ncRNA_exonic'
+            return None
