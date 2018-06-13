@@ -287,14 +287,14 @@ class RefFlat:
             for i in range(self.exon_cnt):
                 if start < self.exon_starts[i]:
                     break
-                elif self.exon_starts[i] < start < self.exon_ends[i]:
+                elif self.exon_starts[i] <= start < self.exon_ends[i]:
                     start_idx = 2 * i
                 else:
                     start_idx = 2 * i + 1
 
-                if end < self.exon_starts[i]:
+                if end <= self.exon_starts[i]:
                     break
-                elif self.exon_starts[i] < end < self.exon_ends[i]:
+                elif self.exon_starts[i] < end <= self.exon_ends[i]:
                     end_idx = 2 * i
                 else:
                     end_idx = 2 * i + 1
