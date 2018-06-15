@@ -31,26 +31,31 @@ def get_chr_size(chrom):
     return _CHR_TO_SIZE[chrom]
 
 
-def bin_chr(chrom, bin_size):
+def bin_chr(chrom, bin_size, overlap=0):
     """
     :param chrom: the chromosome ID (e.g. chr1, chr2, chr3, ..., chrX, chrY)
     :param bin_size: (integer) the size of each bin
+    :param overlap: a size of the overlap between two tandem bins
     :return: the list of tuples each of which represents the range (start, end) of each bin
 
              e.g. if a size of a chromosome is 2550 and the bin size is 1000,
                   then the list of tuples of the chromosome will be [(0, 1000), (1000, 2000), (2000, 2550)].
     """
+    assert bin_size > overlap
+
     chr_size = _CHR_TO_SIZE[chrom]
-    bin_cnt = int(chr_size / bin_size) + 1
     chr_bins = []
 
-    for i in range(bin_cnt):
-        bin_start_idx = i * bin_size
-        bin_end_idx = bin_start_idx + bin_size
+    bin_start = 0
+    bin_end = bin_size
 
-        if bin_end_idx > chr_size:
-            bin_end_idx = chr_size
+    while bin_start < chr_size:
+        chr_bins.append((bin_start, bin_end))
 
-        chr_bins.append((bin_start_idx, bin_end_idx))
+        bin_start += (bin_size - overlap)
+        bin_end = bin_start + bin_size
+
+        if bin_end > chr_size:
+            bin_end = chr_size
 
     return chr_bins
