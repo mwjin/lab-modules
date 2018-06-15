@@ -302,7 +302,7 @@ class RefFlat:
             assert start_idx != -1 and start_idx < 2 * self.exon_cnt - 1
             assert end_idx != -1 and end_idx < 2 * self.exon_cnt - 1
 
-            is_mrna = (self.id[:2] == 'NM')
+            is_mrna = (self.id.startswith('NM'))
             is_top_strand = (self.strand == '+')
 
             # initialization
@@ -314,32 +314,34 @@ class RefFlat:
                     start_pos = self.exon_starts[exon_idx]
                     end_pos = self.exon_ends[exon_idx]
 
+                    # consider the input region
                     if start_pos < start:
                         start_pos = start
 
                     if end_pos > end:
                         end_pos = end
 
+                    # consider the coding region
                     if is_mrna:
-                        if start_pos < self.tx_start:
-                            left_utr = self.tx_start - start_pos
+                        if start_pos < self.cds_start:
+                            left_utr = self.cds_start - start_pos
 
                             if is_top_strand:
                                 region_to_size['5UTR'] += left_utr
                             else:
                                 region_to_size['3UTR'] += left_utr
 
-                            start_pos = self.tx_start
+                            start_pos = self.cds_start
 
-                        if end_pos > self.tx_end:
-                            right_utr = end_pos - self.tx_end
+                        if end_pos > self.cds_end:
+                            right_utr = end_pos - self.cds_end
 
                             if is_top_strand:
                                 region_to_size['3UTR'] += right_utr
                             else:
                                 region_to_size['5UTR'] += right_utr
 
-                            end_pos = self.tx_end
+                            end_pos = self.cds_end
 
                         region_to_size['ORF'] += (end_pos - start_pos)
 
