@@ -292,6 +292,7 @@ class RefFlat:
                 else:
                     start_idx = 2 * i + 1
 
+            for i in range(self.exon_cnt):
                 if end <= self.exon_starts[i]:
                     break
                 elif self.exon_starts[i] < end <= self.exon_ends[i]:
@@ -323,28 +324,33 @@ class RefFlat:
 
                     # consider the coding region
                     if is_mrna:
-                        if start_pos < self.cds_start:
-                            left_utr = self.cds_start - start_pos
+                        left_utr = 0
+                        orf = 0
+                        right_utr = 0
 
-                            if is_top_strand:
-                                region_to_size['5UTR'] += left_utr
-                            else:
-                                region_to_size['3UTR'] += left_utr
+                        if end_pos <= self.cds_start:
+                            left_utr = end_pos - start_pos
+                        elif start_pos >= self.cds_end:
+                            right_utr = end_pos - start_pos
+                        else:
+                            if start_pos < self.cds_start:
+                                left_utr = self.cds_start - start_pos
+                                start_pos = self.cds_start
 
-                            start_pos = self.cds_start
+                            if end_pos > self.cds_end:
+                                right_utr = end_pos - self.cds_end
+                                end_pos = self.cds_end
 
-                        if end_pos > self.cds_end:
-                            right_utr = end_pos - self.cds_end
+                            orf = end_pos - start_pos
 
-                            if is_top_strand:
-                                region_to_size['3UTR'] += right_utr
-                            else:
-                                region_to_size['5UTR'] += right_utr
+                        if is_top_strand:
+                            region_to_size['5UTR'] += left_utr
+                            region_to_size['3UTR'] += right_utr
+                        else:
+                            region_to_size['5UTR'] += right_utr
+                            region_to_size['3UTR'] += left_utr
 
-                            end_pos = self.cds_end
-
-                        region_to_size['ORF'] += (end_pos - start_pos)
-
+                        region_to_size['ORF'] += orf
                     else:
                         region_to_size['ncRNA_exonic'] += (end_pos - start_pos)
 
