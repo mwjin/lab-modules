@@ -113,6 +113,18 @@ class NarrowPeak:
         else:
             return NarrowPeak(self.chrom, pos_list[1][0], pos_list[0][1], self.strand)
 
+    def cut(self, start, end):
+        """
+        cut the peak and return new object
+        :param start: a start position of the new object
+        :param end: an end position of the new object
+        :return: a 'RBPPeak' object
+        """
+        assert self.start <= start < end <= self.end
+        new_peak = NarrowPeak(self.chrom, self.start, self.end, self.strand)
+
+        return new_peak
+
     def parse_peak_entry(self, peak_entry):
         """
         :param peak_entry: an entry from a narrow peak bed file
