@@ -9,7 +9,7 @@ class RBPPeak(NarrowPeak):
     _genic_regions = genic_region_list()  # for the attributes in this class
 
     def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
+        super().__init__(*args, **kwargs)
 
         # attributes for the gene-based annotation of the peak
         self.genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
@@ -41,6 +41,38 @@ class RBPPeak(NarrowPeak):
                 assert self.var_pos_to_region_val[var_pos] == region_val
                 assert self.var_pos_to_genes[var_pos] == genes
                 self.var_pos_to_cnt[var_pos] += var_cnt
+
+    def cut(self, start, end):
+        """
+        cut the peak and return new object
+        :param start: a start position of the new object
+        :param end: an end position of the new object
+        :return: a 'RBPPeak' object
+        """
+        assert self.start <= start < end <= self.end
+        new_peak = RBPPeak(self.chrom, self.start, self.end, self.strand)
+
+        var_pos_list = self.get_var_pos_list()
+
+        for var_pos in var_pos_list:
+            if start <= var_pos < end:
+                var_cnt = self.var_pos_to_cnt[var_pos]
+                var_region_val = self.var_pos_to_region_val[var_pos]
+                assoc_genes = self.var_pos_to_genes[var_pos]
+
+                new_peak.var_pos_to_cnt[var_pos] = var_cnt
+                new_peak.var_pos_to_region_val[var_pos] = var_region_val
+                new_peak.var_pos_to_genes[var_pos] = assoc_genes
+
+                genic_region_dict = parse_genic_region_val(var_region_val)
+
+                for genic_region in genic_region_dict:
+                    if genic_region_dict[genic_region]:
+                        new_peak.genic_region_to_var_cnt[genic_region] += var_cnt
+            else:
+                break
+
+        return new_peak
 
     def get_genic_region_to_size(self):
         """
