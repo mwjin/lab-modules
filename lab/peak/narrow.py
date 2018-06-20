@@ -118,7 +118,7 @@ class NarrowPeak:
         cut the peak and return new object
         :param start: a start position of the new object
         :param end: an end position of the new object
-        :return: a 'RBPPeak' object
+        :return: a 'NarrowPeak' object
         """
         assert self.start <= start < end <= self.end
         new_peak = NarrowPeak(self.chrom, self.start, self.end, self.strand)
