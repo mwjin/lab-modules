@@ -8,8 +8,8 @@ class RBPPeak(NarrowPeak):
     """ The object in this class represents one peak calling of the binding sites of RNA-binding proteins """
     _genic_regions = genic_region_list()  # for the attributes in this class
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
 
         # attributes for the gene-based annotation of the peak
         self.genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
