@@ -379,7 +379,6 @@ class RefFlat:
                         for n in ss_site_dict.keys():
                             left_ss_end = intron_start + n
                             right_ss_start = intron_end - n
-                            overlap = left_ss_end - right_ss_start
 
                             left_ss_size = left_ss_end - start_pos
                             right_ss_size = end_pos - right_ss_start
@@ -390,10 +389,12 @@ class RefFlat:
                             if right_ss_size < 0:
                                 right_ss_size = 0
 
-                            if overlap < 0:
-                                overlap = 0
+                            ss_size = left_ss_size + right_ss_size
 
-                            region_to_size[ss_site_dict[n]] += (left_ss_size + right_ss_size - overlap)
+                            if ss_size > intron_size:
+                                ss_size = intron_size
+
+                            region_to_size[ss_site_dict[n]] += ss_size
 
                     else:
                         region_to_size['ncRNA_intronic'] += intron_size
