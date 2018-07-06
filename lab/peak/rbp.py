@@ -187,25 +187,24 @@ class RBPPeak(NarrowPeak):
         if var_pos not in self.var_pos_to_region_val:
             var_region_val = variant.get_strand_region_val(self.strand)
             self.var_pos_to_region_val[var_pos] = var_region_val
-
-            genic_region_to_bool = parse_genic_region_val(var_region_val)
-
-            if repr_only:
-                for genic_region in self._genic_regions:
-                    if genic_region_to_bool[genic_region]:
-                        self.genic_region_to_var_cnt[genic_region] += 1
-
-                        if genic_region.startswith('5') and genic_region_to_bool['3UTR'] is True:
-                            self.genic_region_to_var_cnt['3UTR'] += 1
-
-                        break
-            else:
-                for genic_region in self._genic_regions:
-                    if genic_region_to_bool[genic_region]:
-                        self.genic_region_to_var_cnt[genic_region] += 1
-
         else:
             assert self.var_pos_to_region_val[var_pos] == variant.get_strand_region_val(self.strand)
+
+        genic_region_to_bool = parse_genic_region_val(self.var_pos_to_region_val[var_pos])
+
+        if repr_only:
+            for genic_region in self._genic_regions:
+                if genic_region_to_bool[genic_region]:
+                    self.genic_region_to_var_cnt[genic_region] += 1
+
+                    if genic_region.startswith('5') and genic_region_to_bool['3UTR'] is True:
+                        self.genic_region_to_var_cnt['3UTR'] += 1
+
+                    break
+        else:
+            for genic_region in self._genic_regions:
+                if genic_region_to_bool[genic_region]:
+                    self.genic_region_to_var_cnt[genic_region] += 1
 
         # save the information of the variant-associated genes
         if var_pos not in self.var_pos_to_genes:
