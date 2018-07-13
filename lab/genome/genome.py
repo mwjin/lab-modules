@@ -1,7 +1,16 @@
+"""
+Useful functions associated with human genome
+1. Get a reverse complement sequence
+2. Get a sequence of the arbitrary region
+3. Get a size of the chromosome
+4. Bin the chromosome
+
+For using them except 1, we must call the function 'set_genome'
+"""
 import os
 import re
 
-__all__ = ['set_genome']
+__all__ = ['set_genome', 'reverse_complement', 'get_seq', 'get_chr_size', 'bin_chrom']
 
 
 class _Genome:
@@ -150,7 +159,7 @@ def get_chr_size(chrom):
     return _GENOME.get_chr_size(chrom)
 
 
-def bin_chr(chrom, bin_size, overlap=0):
+def bin_chrom(chrom, bin_size, overlap=0):
     """
     :param chrom: the chromosome ID (e.g. chr1, chr2, chr3, ..., chrX, chrY)
     :param bin_size: (integer) the size of each bin
