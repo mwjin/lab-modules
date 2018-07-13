@@ -1,5 +1,4 @@
 import os
-import sys
 import re
 
 __all__ = ['Fasta']
@@ -46,6 +45,13 @@ class Fasta:
         self.genome_file.close()
 
     def fetch_seq(self, chrom, start=None, end=None, strand='+'):
+        """
+        :param chrom: a chromosome ID
+        :param start: a start position of the region
+        :param end: an end position of the region
+        :param strand: '+' if the region is on the top strand, else '-'
+        :return: the sequence of the input region
+        """
         if chrom not in self.chroms:
             raise ValueError('ERROR: invalid chromosome ID \'%s\'' % chrom)
 
