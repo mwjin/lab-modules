@@ -260,7 +260,8 @@ class RefFlat:
             is_top_strand = (self.strand == '+')
 
             # initialization
-            region_to_size = {genic_region: 0 for genic_region in genic_region_list()}
+            genic_regions = genic_region_list()
+            region_to_size = {genic_region: 0 for genic_region in genic_regions}
 
             for i in range(start_idx, end_idx + 1):
                 if i % 2 == 0:  # exon
@@ -268,14 +269,12 @@ class RefFlat:
                     start_pos = self.exon_starts[exon_idx]
                     end_pos = self.exon_ends[exon_idx]
 
-                    # consider the input region
                     if start_pos < start:
                         start_pos = start
 
                     if end_pos > end:
                         end_pos = end
 
-                    # consider the coding region
                     if is_mrna:
                         left_utr = 0
                         orf = 0
@@ -326,28 +325,25 @@ class RefFlat:
                     if is_mrna:
                         region_to_size['intronic'] += intron_size
 
-                        # for splicing sites
-                        ss_site_dict = {2: 'SS', 30: 'SS-30nt', 50: 'SS-50nt'}  # key: bp, value: genic region
+                        left_ss_end = intron_start + 30
+                        right_ss_start = intron_end - 30
 
-                        for n in ss_site_dict.keys():
-                            left_ss_end = intron_start + n
-                            right_ss_start = intron_end - n
+                        left_ss_size = left_ss_end - start_pos
+                        right_ss_size = end_pos - right_ss_start
 
-                            left_ss_size = left_ss_end - start_pos
-                            right_ss_size = end_pos - right_ss_start
+                        if left_ss_size < 0:
+                            left_ss_size = 0
 
-                            if left_ss_size < 0:
-                                left_ss_size = 0
+                        if right_ss_size < 0:
+                            right_ss_size = 0
 
-                            if right_ss_size < 0:
-                                right_ss_size = 0
+                        ss_size = left_ss_size + right_ss_size
 
-                            ss_size = left_ss_size + right_ss_size
+                        if ss_size > intron_size:
+                            ss_size = intron_size
 
-                            if ss_size > intron_size:
-                                ss_size = intron_size
-
-                            region_to_size[ss_site_dict[n]] += ss_size
+                        region_to_size['SS'] += ss_size
+                        region_to_size['intron'] -= ss_size
 
                     else:
                         region_to_size['ncRNA_intronic'] += intron_size
