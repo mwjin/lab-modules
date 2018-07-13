@@ -39,14 +39,16 @@ class _Genome:
 
         genome_idx_file.close()
 
-    def fetch_seq(self, chrom, start=None, end=None, strand='+'):
+    def fetch_seq(self, chrom, start=None, end=None):
         """
         :param chrom: a chromosome ID
         :param start: a start position of the region
         :param end: an end position of the region
-        :param strand: '+' if the region is on the top strand, else '-'
         :return: the sequence of the input region
         """
+        if self.genome_file is None:
+            raise AssertionError('ERROR: the genome data does not exist. call \'parse_file\' first.')
+
         if chrom not in self.chroms:
             raise ValueError('ERROR: invalid chromosome ID \'%s\'' % chrom)
 
@@ -74,25 +76,7 @@ class _Genome:
         re_nonchr = re.compile('[^a-zA-Z]')
         seq = re.sub(re_nonchr, '', self.genome_file.read(end - start))
 
-        if strand == '+':
-            return seq
-        elif strand == '-':
-            return self.reverse_complement(seq)
-        else:
-            raise ValueError('ERROR: invalid strand %s' % strand)
-
-    @staticmethod
-    def reverse_complement(seq):
-        base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
-                        'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
-                        'N': 'N', 'n': 'n', '.': '.'}
-
-        comp_seq = ''
-
-        for base in seq:
-            comp_seq += base_to_comp[base]
-
-        return comp_seq[::-1]  # reverse
+        return seq
 
 
 _GENOME = _Genome()
@@ -118,11 +102,25 @@ def set_genome(genome_file_path):
     _GENOME.parse_file(genome_file_path)
 
 
-def get_seq(chrom, start, end, upper=True):
+def reverse_complement(seq):
+    base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
+                    'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
+                    'N': 'N', 'n': 'n', '.': '.'}
+
+    comp_seq = ''
+
+    for base in seq:
+        comp_seq += base_to_comp[base]
+
+    return comp_seq[::-1]  # reverse
+
+
+def get_seq(chrom, start, end, strand='+', upper=True):
     """
     :param chrom: chromosome ID (e.g. chr1, chr2, ...)
     :param start: a start position on the chromosome (0-based)
     :param end: an end position on the chromosome
+    :param strand: '+' if you want top strand, else '-'
     :param upper: if True, return a sequence which characters are all capitalized.
     :return: the corresponding genome sequence
     """
@@ -130,10 +128,14 @@ def get_seq(chrom, start, end, upper=True):
     end = int(end)
     seq = _GENOME.fetch_seq(chrom, start, end)
 
+    if strand == '-':
+        seq = reverse_complement(seq)
     if upper:
         return seq.upper()
     else:
         return seq
+
+
 
 
 
