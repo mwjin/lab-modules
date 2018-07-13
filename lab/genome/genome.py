@@ -1,10 +1,34 @@
 import os
 import re
 
-__all__ = ['Fasta']
+__all__ = ['set_genome']
+
+_GENOME_FILE_PATH = None
+_GENOME = None
 
 
-class Fasta:
+def set_genome(genome_file_path):
+    """
+    Make _Fasta object
+
+    It is essential to execute this function for using this module.
+    'genome_file_path' must be '.fa' format and there must be index file (.fai) in the same directory.
+    If the 'genome_file_path' is wrong, AssertionError occur.
+    """
+    # Sanity check
+    if not os.path.isfile(genome_file_path):
+        raise AssertionError('ERROR: the genome file \'%s\' does not exist.' % genome_file_path)
+
+    genome_idx_file_path = '%s.fai' % genome_file_path
+
+    if not os.path.isfile(genome_idx_file_path):
+        raise AssertionError('ERROR: the genome index file \'%s.fa\' does not exist' % genome_file_path)
+
+    _GENOME_FILE_PATH = genome_file_path
+    _GENOME = _Fasta(genome_file_path)
+
+
+class _Fasta:
     def __init__(self, genome_file_path):
         """
         :param genome_file_path: a path of the genome (.fa)
