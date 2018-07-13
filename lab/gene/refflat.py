@@ -205,17 +205,12 @@ class RefFlat:
 
                     space_from_jct = min((pos - intron_start + 1), (intron_end - pos))
 
-                    if space_from_jct <= 2:
-                        return 'SS'  # splicing site
-                    elif 2 < space_from_jct <= 30:
-                        return 'SS-30nt'
-                    elif 30 < space_from_jct <= 50:
-                        return 'SS-50nt'
+                    if space_from_jct <= 30:
+                        return 'SS'
                     else:
                         return 'intronic'
                 else:
                     return 'ncRNA_intronic'
-
             else:
                 if is_mrna:
                     if pos < self.cds_start:
