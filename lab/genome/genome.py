@@ -5,7 +5,7 @@ Useful functions associated with human genome
 3. Get a size of the chromosome
 4. Bin the chromosome
 
-For using them except 1, we must call the function 'set_genome'
+For using them except 1, we must call the function 'set_genome' first.
 """
 import os
 import re
@@ -31,6 +31,9 @@ class _Genome:
         :param genome_file_path: a path of the genome (.fa)
                                  we suppose that this path is entered through the function 'set_genome'
         """
+        if self.genome_file is not None and self.genome_file.name == genome_file_path:
+            return
+
         self.genome_file = open(genome_file_path, 'r')
 
         # Parse the index file
