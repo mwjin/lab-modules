@@ -8,32 +8,39 @@ __all__ = ['Fasta']
 
 
 class Fasta:
-    def __init__(self, genome_filename):
-        # V-S Check: File Existence
-        if not os.path.isfile(genome_filename):
-            raise IOError('Error: %s does not exist.' % genome_filename)
+    def __init__(self, genome_file_path):
+        """
+        :param genome_file_path: a path of the genome (.fa)
+        """
+        if genome_file_path is None:
+            raise AssertionError('ERROR: the argument for the path of the genome file is necessary.')
+
+        if not os.path.isfile(genome_file_path):
+            raise IOError('ERROR: the genome file \'%s\' does not exist.' % genome_file_path)
         
-        self.genome_file = open(genome_filename, 'r')
-        self.chrom_list = []
-        self.chrlen_list = []
-        self.offset_list = []
-        self.line_len_list = []
-        self.line_len_with_blank_list = []
+        self.genome_file = open(genome_file_path, 'r')
+        self.chroms = []
+        self.chr_lens = []
+        self.offsets = []
+        self.line_lens = []
+        self.line_lens_with_blank = []
 
-        # V-S Check: File Existence
-        if not os.path.isfile('%s.fai' % genome_filename):
-            raise IOError('%s.fai file does not exist' % genome_filename)
+        genome_idx_file_path = '%s.fai' % genome_file_path
 
-        genome_idx_file = open('%s.fai' % genome_filename, 'r')
+        if not os.path.isfile(genome_idx_file_path):
+            raise IOError('ERROR: the genome index file \'%s.fa\' does not exist' % genome_file_path)
+
+        # Parse the index file
+        genome_idx_file = open('%s.fai' % genome_file_path, 'r')
 
         for line in genome_idx_file:
             fields = line.strip('\n').split()  # Goes backwards, -1 skips the new line character
 
-            self.chrom_list.append(fields[0])
-            self.chrlen_list.append(int(fields[1]))
-            self.offset_list.append(int(fields[2]))
-            self.line_len_list.append(int(fields[3]))
-            self.line_len_with_blank_list.append(int(fields[4]))
+            self.chroms.append(fields[0])
+            self.chr_lens.append(int(fields[1]))
+            self.offsets.append(int(fields[2]))
+            self.line_lens.append(int(fields[3]))
+            self.line_lens_with_blank.append(int(fields[4]))
 
         genome_idx_file.close()
 
@@ -41,27 +48,27 @@ class Fasta:
         self.genome_file.close()
 
     def fetch_seq(self, chrom, start=None, end=None, strand='+'):
-        assert chrom in self.chrom_list
-        chr_idx = self.chrom_list.index(chrom)
+        assert chrom in self.chroms
+        chr_idx = self.chroms.index(chrom)
 
         if start is None:
             start = 0
 
         if end is None:
-            end = self.chrlen_list[chr_idx]
+            end = self.chr_lens[chr_idx]
 
         try:
-            assert (0 <= start) and (start < end) and (end <= self.chrlen_list[chr_idx])
+            assert (0 <= start) and (start < end) and (end <= self.chr_lens[chr_idx])
         except AssertionError:
             eprint('Fasta fetch assertion error %s:%s-%s' % (chrom, start, end))
             sys.exit()
 
-        blank_cnt = self.line_len_with_blank_list[chr_idx] - self.line_len_list[chr_idx]
+        blank_cnt = self.line_lens_with_blank[chr_idx] - self.line_lens[chr_idx]
 
-        start = int(start + (start / self.line_len_list[chr_idx]) * blank_cnt)  # Start Fetch Position
-        end = int(end + (end / self.line_len_list[chr_idx]) * blank_cnt)  # End Fetch Position
+        start = int(start + (start / self.line_lens[chr_idx]) * blank_cnt)  # Start Fetch Position
+        end = int(end + (end / self.line_lens[chr_idx]) * blank_cnt)  # End Fetch Position
 
-        self.genome_file.seek(self.offset_list[chr_idx] + start)            # Get Sequence
+        self.genome_file.seek(self.offsets[chr_idx] + start)            # Get Sequence
 
         re_nonchr = re.compile('[^a-zA-Z]')
         seq = re.sub(re_nonchr, '', self.genome_file.read(end - start))
