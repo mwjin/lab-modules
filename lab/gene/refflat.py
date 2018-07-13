@@ -1,5 +1,5 @@
 from lab.utils import eprint
-from lab.genome.seq import get_seq, reverse_complement
+from lab.genome.genome import get_seq, reverse_complement
 from lab.gene.anno import genic_region_list
 
 __all__ = ['RefFlat']
