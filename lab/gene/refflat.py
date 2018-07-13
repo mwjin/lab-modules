@@ -91,22 +91,6 @@ class RefFlat:
         if not valid_exon:
             return
 
-    def _check_exon_overlap(self):
-        exon_positions = []
-
-        for i in range(self.exon_cnt):
-            exon_positions.append(self.exon_starts[i])
-            exon_positions.append(self.exon_ends[i])
-
-        num_iter = 2 * self.exon_cnt - 1
-
-        for i in range(num_iter):
-            if exon_positions[i] > exon_positions[i + 1]:
-                eprint("Error: %s has a exon overlap." % self.symbol)
-                return False
-
-        return True
-
     def parse_exon_seq(self):
         """
         By parsing the default information from RefFlat,
@@ -173,32 +157,6 @@ class RefFlat:
 
         if self._has_internal_stop_codon():
             return True
-
-        return False
-
-    def _has_start_codon(self):
-        if self.seq_orf[:3] == 'ATG':
-            return True
-        else:
-            return False
-
-    def _has_stop_codon(self):
-        stop_codons = ['TAA', 'TAG', 'TGA']
-
-        if self.seq_orf[-3:] in stop_codons:
-            return True
-        else:
-            return False
-
-    def _has_internal_stop_codon(self):
-        stop_codons = ['TAA', 'TAG', 'TGA']
-        orf_size = len(self.seq_orf)
-
-        for i in range(0, orf_size - 3, 3):
-            codon = self.seq_orf[i:i + 3]
-
-            if codon in stop_codons:
-                return True
 
         return False
 
@@ -403,3 +361,45 @@ class RefFlat:
 
         else:
             return None
+
+    def _check_exon_overlap(self):
+        exon_positions = []
+
+        for i in range(self.exon_cnt):
+            exon_positions.append(self.exon_starts[i])
+            exon_positions.append(self.exon_ends[i])
+
+        num_iter = 2 * self.exon_cnt - 1
+
+        for i in range(num_iter):
+            if exon_positions[i] > exon_positions[i + 1]:
+                eprint("Error: %s has a exon overlap." % self.symbol)
+                return False
+
+        return True
+
+    def _has_start_codon(self):
+        if self.seq_orf[:3] == 'ATG':
+            return True
+        else:
+            return False
+
+    def _has_stop_codon(self):
+        stop_codons = ['TAA', 'TAG', 'TGA']
+
+        if self.seq_orf[-3:] in stop_codons:
+            return True
+        else:
+            return False
+
+    def _has_internal_stop_codon(self):
+        stop_codons = ['TAA', 'TAG', 'TGA']
+        orf_size = len(self.seq_orf)
+
+        for i in range(0, orf_size - 3, 3):
+            codon = self.seq_orf[i:i + 3]
+
+            if codon in stop_codons:
+                return True
+
+        return False
