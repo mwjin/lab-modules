@@ -1,5 +1,3 @@
-from lab.utils import eprint
-
 import os
 import sys
 import re
@@ -48,7 +46,9 @@ class Fasta:
         self.genome_file.close()
 
     def fetch_seq(self, chrom, start=None, end=None, strand='+'):
-        assert chrom in self.chroms
+        if chrom not in self.chroms:
+            raise ValueError('ERROR: invalid chromosome ID \'%s\'' % chrom)
+
         chr_idx = self.chroms.index(chrom)
 
         if start is None:
@@ -57,11 +57,8 @@ class Fasta:
         if end is None:
             end = self.chr_lens[chr_idx]
 
-        try:
-            assert (0 <= start) and (start < end) and (end <= self.chr_lens[chr_idx])
-        except AssertionError:
-            eprint('Fasta fetch assertion error %s:%s-%s' % (chrom, start, end))
-            sys.exit()
+        if not ((0 <= start) and (start < end) and (end <= self.chr_lens[chr_idx])):
+            raise AssertionError('ERROR: invalid region %s:%s-%s' % (chrom, start, end))
 
         blank_cnt = self.line_lens_with_blank[chr_idx] - self.line_lens[chr_idx]
 
@@ -78,7 +75,7 @@ class Fasta:
         elif strand == '-':
             return self.reverse_complement(seq)
         else:
-            raise ValueError('Error: invalid strand %s' % strand)
+            raise ValueError('ERROR: invalid strand %s' % strand)
 
     @staticmethod
     def reverse_complement(seq):
@@ -88,10 +85,7 @@ class Fasta:
 
         comp_seq = ''
 
-        try:
-            for base in seq:
-                comp_seq += base_to_comp[base]
-        except KeyError:
-            sys.exit('Error: there is a invalid base in the sequence')
+        for base in seq:
+            comp_seq += base_to_comp[base]
 
         return comp_seq[::-1]  # reverse
