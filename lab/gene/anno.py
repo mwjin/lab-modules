@@ -40,6 +40,13 @@ def genic_region_list():
     return list(_GENIC_REGIONS)
 
 
+def get_anno_priority(genic_region):
+    """
+    :return: an integer, priority of the genic region
+    """
+    return _REGION_TO_BIT_POS[genic_region]
+
+
 def get_genic_region_val(genic_region):
     """
     get the genic region value of the input genic region (string)
