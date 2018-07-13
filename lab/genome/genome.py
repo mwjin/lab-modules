@@ -78,6 +78,12 @@ class _Genome:
 
         return seq
 
+    def get_chr_size(self, chrom):
+        """
+        Return the size of the chromosome
+        """
+        return self.chrom_to_size[chrom]
+
 
 _GENOME = _Genome()
 
