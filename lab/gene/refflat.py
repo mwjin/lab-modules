@@ -188,12 +188,12 @@ class RefFlat:
             for i in range(self.exon_cnt):
                 if pos < self.exon_starts[i]:
                     break
-                elif self.exon_starts[i] < pos < self.exon_ends[i]:
+                elif self.exon_starts[i] <= pos < self.exon_ends[i]:
                     idx = 2 * i
                 else:
                     idx = 2 * i + 1
 
-            assert idx != -1 and idx < 2 * self.exon_cnt - 1
+            assert idx != -1 and idx < 2 * self.exon_cnt - 1  # not the outside of the gene
 
             is_mrna = (self.id[:2] == 'NM')
 
