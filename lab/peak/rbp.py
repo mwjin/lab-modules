@@ -1,5 +1,5 @@
 from lab.peak.narrow import NarrowPeak
-from lab.gene.anno import genic_region_list, parse_genic_region_val
+from lab.gene.anno import genic_region_list, parse_anno_val
 
 __all__ = ['RBPPeak']
 
@@ -64,7 +64,7 @@ class RBPPeak(NarrowPeak):
                 new_peak.var_pos_to_region_val[var_pos] = var_region_val
                 new_peak.var_pos_to_genes[var_pos] = assoc_genes
 
-                genic_region_dict = parse_genic_region_val(var_region_val)
+                genic_region_dict = parse_anno_val(var_region_val)
 
                 for genic_region in genic_region_dict:
                     if genic_region_dict[genic_region]:
@@ -132,10 +132,10 @@ class RBPPeak(NarrowPeak):
         """
         return self.var_pos_to_genes[var_pos]
 
-    def set_genic_region_size(self, genic_region_val_list, repr_only=False):
+    def set_genic_region_size(self, anno_val_list, repr_only=False):
         """
         This code makes up the 'genic_region_to_size' attribute.
-        :param genic_region_val_list: a list of genic region values (see gene.utils)
+        :param anno_val_list: a list of genic region values (see gene.utils)
         :param repr_only: if it is true, consider only the representative genic region
                         when making up the self.genic_region_to_size.
 
@@ -143,24 +143,24 @@ class RBPPeak(NarrowPeak):
         """
         # make a statistics for genic regions
         if repr_only:
-            for region_val in genic_region_val_list:
-                genic_region_to_bool = parse_genic_region_val(region_val)
+            for region_val in anno_val_list:
+                anno_dict = parse_anno_val(region_val)
 
                 for genic_region in self._genic_regions:
-                    if genic_region_to_bool[genic_region]:
+                    if anno_dict[genic_region]:
                         self.genic_region_to_size[genic_region] += 1
 
                         # 5UTR and 3UTR have same priority.
-                        if genic_region.startswith('5') and genic_region_to_bool['3UTR'] is True:
+                        if genic_region.startswith('5') and anno_dict['3UTR'] is True:
                             self.genic_region_to_size['3UTR'] += 1
 
                         break
         else:
-            for region_val in genic_region_val_list:
-                genic_region_to_bool = parse_genic_region_val(region_val)
+            for region_val in anno_val_list:
+                anno_dict = parse_anno_val(region_val)
 
                 for genic_region in self._genic_regions:
-                    if genic_region_to_bool[genic_region]:
+                    if anno_dict[genic_region]:
                         self.genic_region_to_size[genic_region] += 1
 
     def put_variant(self, variant, repr_only=False):
@@ -190,20 +190,20 @@ class RBPPeak(NarrowPeak):
         else:
             assert self.var_pos_to_region_val[var_pos] == variant.get_strand_region_val(self.strand)
 
-        genic_region_to_bool = parse_genic_region_val(self.var_pos_to_region_val[var_pos])
+        anno_dict = parse_anno_val(self.var_pos_to_region_val[var_pos])
 
         if repr_only:
             for genic_region in self._genic_regions:
-                if genic_region_to_bool[genic_region]:
+                if anno_dict[genic_region]:
                     self.genic_region_to_var_cnt[genic_region] += 1
 
-                    if genic_region.startswith('5') and genic_region_to_bool['3UTR'] is True:
+                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:
                         self.genic_region_to_var_cnt['3UTR'] += 1
 
                     break
         else:
             for genic_region in self._genic_regions:
-                if genic_region_to_bool[genic_region]:
+                if anno_dict[genic_region]:
                     self.genic_region_to_var_cnt[genic_region] += 1
 
         # save the information of the variant-associated genes
