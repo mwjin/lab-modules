@@ -47,7 +47,7 @@ class VCFData:
         """
         return self._gene_dict[strand]
 
-    def get_strand_region_val(self, strand):
+    def get_anno_val(self, strand):
         """
         :param strand: '+' or '-'
         :return: the genic region value on the input strand
@@ -124,7 +124,7 @@ class VCFData:
             variant.chrom = 'chr%s' % fields[0]
 
             if not ptn_pos.match(fields[1]):
-                eprint('Invalid variant position \'%s\'' % fields[1])
+                eprint('[LOG] Invalid variant position \'%s\'' % fields[1])
                 continue
 
             variant.pos = int(fields[1])  # 1-based
@@ -141,10 +141,10 @@ class VCFData:
 
         # print the invalid chromosome ID
         if len(invalid_chr_to_cnt) != 0:
-            eprint('\nInvalid chromosome ID of the variants in %s' % vcf_filename)
+            eprint('\n[LOG] Invalid chromosome ID of the variants in %s' % vcf_filename)
 
             for invalid_chrom in invalid_chr_to_cnt:
-                eprint('%s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
+                eprint('--- %s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
 
             eprint()
 
