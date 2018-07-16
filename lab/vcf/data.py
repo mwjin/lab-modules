@@ -71,6 +71,23 @@ class VCFData:
         return self._strand_to_anno_val[strand]
 
     @staticmethod
+    def parse_repr_str(repr_str):
+        """
+        Parse the representative string of the 'VCFData' object and return a 'VCFData' object
+        There is less of information.
+        """
+        variant = VCFData()
+
+        fields = repr_str.split('\t')
+        variant.chrom = fields[0]
+        variant.pos = int(fields[1]) - 1  # 1-based -> 0-based
+        variant.dbSNP_id = fields[2]
+        variant.ref_nuc = fields[3]
+        variant.alt_nuc = fields[4]
+
+        return variant
+
+    @staticmethod
     def parse_vcf_file(vcf_filename):
 
         if not os.path.isfile(vcf_filename):
