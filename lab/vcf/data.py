@@ -4,7 +4,7 @@ import re
 import gzip
 
 from lab.utils import eprint
-from lab.gene.anno import get_genic_region_val
+from lab.gene.anno import get_anno_val
 
 __all__ = ['VCFData']
 
@@ -24,7 +24,7 @@ class VCFData:
         """ info from refFlat (in-house rep-isoforms) """
         # Dictionary for the information of genes associated with this variant
         self._gene_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
-        self._strand_to_region_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
+        self._strand_to_anno_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
 
     def get_assigned_strand(self):
         """
@@ -34,7 +34,7 @@ class VCFData:
         :return: a strand where this variant was more likely to be assigned.
         """
 
-        if self._strand_to_region_val['+'] >= self._strand_to_region_val['-']:
+        if self._strand_to_anno_val['+'] >= self._strand_to_anno_val['-']:
             return '+'
         else:
             return '-'
@@ -52,7 +52,7 @@ class VCFData:
         :param strand: '+' or '-'
         :return: the genic region value on the input strand
         """
-        return self._strand_to_region_val[strand]
+        return self._strand_to_anno_val[strand]
 
     @staticmethod
     def parse_vcf_file(vcf_filename):
@@ -186,7 +186,7 @@ class VCFData:
 
     def _set_genic_region_value(self):
         """
-        makes up _strand_to_region_val
+        makes up _strand_to_anno_val
         """
         for strand in ['+', '-']:
             strand_region_val = 0  # default (intergenic)
@@ -200,4 +200,4 @@ class VCFData:
                     if region_bit == 0:  # same genic region value is not added yet.
                         strand_region_val += genic_region_val
 
-            self._strand_to_region_val[strand] = strand_region_val
+            self._strand_to_anno_val[strand] = strand_region_val
