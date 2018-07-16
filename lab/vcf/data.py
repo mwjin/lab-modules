@@ -3,7 +3,7 @@ import os
 import re
 import gzip
 
-from lab.utils import eprint
+from lab.utils import eprint, caller_file_and_line
 from lab.gene.anno import get_anno_val
 
 __all__ = ['VCFData']
@@ -150,8 +150,9 @@ class VCFData:
 
         return var_list
 
-    def set_genic_region(self, genes_same_chr):
+    def gene_based_anno(self, genes_same_chr):
         """
+        Make up the '_gene_dict' and set up the anno_val
         :param genes_same_chr: the list of 'RefFlat' object in the same chromosome with this variant
         """
         var_pos = self.pos - 1  # 1-base -> 0-base
@@ -159,9 +160,10 @@ class VCFData:
 
         for gene in genes_same_chr:
             if gene.chrom != self.chrom:
-                eprint('Different chromosome ID')
-                eprint('ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
-                eprint('ChrID of the variant: %s' % self.chrom)
+                eprint('[ERROR]: in %s' % caller_file_and_line())
+                eprint('--- Different chromosome ID')
+                eprint('--- ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
+                eprint('--- ChrID of the variant: %s' % self.chrom)
                 sys.exit()
 
             if var_pos < gene.tx_start:
@@ -182,22 +184,22 @@ class VCFData:
 
                 self._gene_dict[strand][gene_sym][gene_id] = genic_region
 
-        self._set_genic_region_value()
+        self._set_anno_val()
 
-    def _set_genic_region_value(self):
+    def _set_anno_val(self):
         """
         makes up _strand_to_anno_val
         """
         for strand in ['+', '-']:
-            strand_region_val = 0  # default (intergenic)
+            strand_anno_val = 0  # default (intergenic)
 
             for gene_sym in self._gene_dict[strand]:
                 for gene_id in self._gene_dict[strand][gene_sym]:
                     genic_region = str(self._gene_dict[strand][gene_sym][gene_id])
-                    genic_region_val = get_genic_region_val(genic_region)
-                    region_bit = int(strand_region_val / genic_region_val) % 2
+                    anno_val = get_anno_val(genic_region)
+                    region_bit = int(strand_anno_val / anno_val) % 2
 
                     if region_bit == 0:  # same genic region value is not added yet.
-                        strand_region_val += genic_region_val
+                        strand_anno_val += anno_val
 
-            self._strand_to_anno_val[strand] = strand_region_val
+            self._strand_to_anno_val[strand] = strand_anno_val
