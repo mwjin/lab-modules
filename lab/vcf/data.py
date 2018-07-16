@@ -13,7 +13,7 @@ class VCFData:
     """ The object of this class represents one entry in VCF files (only consider SNV). """
     def __init__(self):
         self.chrom = ''
-        self.pos = 0  # 1-base
+        self.pos = 0  # 0-base
         self.dbSNP_id = ''
         self.ref_nuc = ''
         self.alt_nuc = ''
@@ -25,6 +25,22 @@ class VCFData:
         # Dictionary for the information of genes associated with this variant
         self._gene_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
         self._strand_to_anno_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
+
+    def __repr__(self):
+        """
+        Essential information for the variants
+        * Notice: the position will be 1-based
+        """
+        return '%s\t%d\t%s\t%s\t%s' % (self.chrom, self.pos + 1, self.dbSNP_id, self.ref_nuc, self.alt_nuc)
+
+    def __eq__(self, other):
+        """
+        Compare the essential characteristics between two 'VCFData' objects
+        """
+        self_info = (self.chrom, self.pos, self.ref_nuc, self.alt_nuc)
+        other_info = (other.chrom, other.pos, other.ref_nuc, other.alt_nuc)
+
+        return self_info == other_info
 
     def get_assigned_strand(self):
         """
@@ -127,7 +143,7 @@ class VCFData:
                 eprint('[LOG] Invalid variant position \'%s\'' % fields[1])
                 continue
 
-            variant.pos = int(fields[1])  # 1-based
+            variant.pos = int(fields[1]) - 1  # 1-based -> 0-based
             variant.dbSNP_id = fields[2]
             variant.ref_nuc = fields[3]
             variant.alt_nuc = fields[4]
@@ -155,7 +171,6 @@ class VCFData:
         Make up the '_gene_dict' and set up the anno_val
         :param genes_same_chr: the list of 'RefFlat' object in the same chromosome with this variant
         """
-        var_pos = self.pos - 1  # 1-base -> 0-base
         genes_same_chr.sort(key=lambda chr_gene: (chr_gene.tx_start, chr_gene.tx_end))
 
         for gene in genes_same_chr:
@@ -166,14 +181,14 @@ class VCFData:
                 eprint('--- ChrID of the variant: %s' % self.chrom)
                 sys.exit()
 
-            if var_pos < gene.tx_start:
+            if self.pos < gene.tx_start:
                 break
 
-            elif gene.tx_start <= var_pos < gene.tx_end:
+            elif gene.tx_start <= self.pos < gene.tx_end:
                 strand = gene.strand
                 gene_sym = gene.symbol
                 gene_id = gene.id
-                genic_region = gene.find_genic_region(var_pos)
+                genic_region = gene.find_genic_region(self.pos)
 
                 if gene_sym not in self._gene_dict[strand]:
                     self._gene_dict[strand][gene_sym] = {}
