@@ -185,10 +185,10 @@ class RBPPeak(NarrowPeak):
 
         # gene-based annotation of the variants
         if var_pos not in self.var_pos_to_region_val:
-            var_region_val = variant.get_strand_region_val(self.strand)
+            var_region_val = variant.get_anno_val(self.strand)
             self.var_pos_to_region_val[var_pos] = var_region_val
         else:
-            assert self.var_pos_to_region_val[var_pos] == variant.get_strand_region_val(self.strand)
+            assert self.var_pos_to_region_val[var_pos] == variant.get_anno_val(self.strand)
 
         anno_dict = parse_anno_val(self.var_pos_to_region_val[var_pos])
 
