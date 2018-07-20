@@ -69,7 +69,7 @@ class RBPPeak(NarrowPeak):
                 for genic_region in genic_region_dict:
                     if genic_region_dict[genic_region]:
                         new_peak.genic_region_to_var_cnt[genic_region] += var_cnt
-            else:
+            elif var_pos >= end:
                 break
 
         return new_peak
