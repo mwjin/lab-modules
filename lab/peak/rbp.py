@@ -173,9 +173,9 @@ class RBPPeak(NarrowPeak):
         """
 
         assert variant.__class__.__name__ == 'VCFData'
-        assert self.start <= (variant.pos - 1) < self.end
+        assert self.start <= variant.pos < self.end
 
-        var_pos = variant.pos - 1  # 1-based -> 0-based
+        var_pos = variant.pos
 
         # variant counting
         if var_pos not in self.var_pos_to_cnt:
