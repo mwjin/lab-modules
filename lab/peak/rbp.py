@@ -17,7 +17,7 @@ class RBPPeak(NarrowPeak):
 
         # attributes for the variants on this peak
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
-        self.var_pos_to_region_val = {}  # positions of variants to their genic region values
+        self.var_pos_to_anno_val = {}  # positions of variants to their genic region values
         self.var_pos_to_genes = {}  # positions of variants to their associated genes (type: dictionary)
 
     def combine(self, other):
@@ -30,15 +30,15 @@ class RBPPeak(NarrowPeak):
 
         for var_pos in other.var_pos_to_cnt:
             var_cnt = other.get_var_cnt_in_pos(var_pos)
-            region_val = other.get_region_val_in_pos(var_pos)
+            anno_val = other.get_anno_val_in_pos(var_pos)
             genes = other.get_genes_in_pos(var_pos)
 
             if var_pos not in self.var_pos_to_cnt:
-                self.var_pos_to_region_val[var_pos] = region_val
+                self.var_pos_to_anno_val[var_pos] = anno_val
                 self.var_pos_to_genes[var_pos] = genes
                 self.var_pos_to_cnt[var_pos] = var_cnt
             else:
-                assert self.var_pos_to_region_val[var_pos] == region_val
+                assert self.var_pos_to_anno_val[var_pos] == anno_val
                 assert self.var_pos_to_genes[var_pos] == genes
                 self.var_pos_to_cnt[var_pos] += var_cnt
 
@@ -57,14 +57,14 @@ class RBPPeak(NarrowPeak):
         for var_pos in var_pos_list:
             if start <= var_pos < end:
                 var_cnt = self.var_pos_to_cnt[var_pos]
-                var_region_val = self.var_pos_to_region_val[var_pos]
+                var_anno_val = self.var_pos_to_anno_val[var_pos]
                 assoc_genes = self.var_pos_to_genes[var_pos]
 
                 new_peak.var_pos_to_cnt[var_pos] = var_cnt
-                new_peak.var_pos_to_region_val[var_pos] = var_region_val
+                new_peak.var_pos_to_anno_val[var_pos] = var_anno_val
                 new_peak.var_pos_to_genes[var_pos] = assoc_genes
 
-                genic_region_dict = parse_anno_val(var_region_val)
+                genic_region_dict = parse_anno_val(var_anno_val)
 
                 for genic_region in genic_region_dict:
                     if genic_region_dict[genic_region]:
@@ -115,15 +115,15 @@ class RBPPeak(NarrowPeak):
 
         return var_cnt
 
-    def get_region_val_in_pos(self, var_pos):
+    def get_anno_val_in_pos(self, var_pos):
         """
         :param var_pos: a variant position (0-based) inside the peak
         :return: a genic region value of the position
         """
-        region_val = self.var_pos_to_region_val.get(var_pos)
-        assert region_val is not None
+        anno_val = self.var_pos_to_anno_val.get(var_pos)
+        assert anno_val is not None
 
-        return region_val
+        return anno_val
 
     def get_genes_in_pos(self, var_pos):
         """
@@ -143,8 +143,8 @@ class RBPPeak(NarrowPeak):
         """
         # make a statistics for genic regions
         if repr_only:
-            for region_val in anno_val_list:
-                anno_dict = parse_anno_val(region_val)
+            for anno_val in anno_val_list:
+                anno_dict = parse_anno_val(anno_val)
 
                 for genic_region in self._genic_regions:
                     if anno_dict[genic_region]:
@@ -156,8 +156,8 @@ class RBPPeak(NarrowPeak):
 
                         break
         else:
-            for region_val in anno_val_list:
-                anno_dict = parse_anno_val(region_val)
+            for anno_val in anno_val_list:
+                anno_dict = parse_anno_val(anno_val)
 
                 for genic_region in self._genic_regions:
                     if anno_dict[genic_region]:
@@ -184,13 +184,13 @@ class RBPPeak(NarrowPeak):
             self.var_pos_to_cnt[var_pos] += 1
 
         # gene-based annotation of the variants
-        if var_pos not in self.var_pos_to_region_val:
-            var_region_val = variant.get_anno_val(self.strand)
-            self.var_pos_to_region_val[var_pos] = var_region_val
+        if var_pos not in self.var_pos_to_anno_val:
+            var_anno_val = variant.get_anno_val(self.strand)
+            self.var_pos_to_anno_val[var_pos] = var_anno_val
         else:
-            assert self.var_pos_to_region_val[var_pos] == variant.get_anno_val(self.strand)
+            assert self.var_pos_to_anno_val[var_pos] == variant.get_anno_val(self.strand)
 
-        anno_dict = parse_anno_val(self.var_pos_to_region_val[var_pos])
+        anno_dict = parse_anno_val(self.var_pos_to_anno_val[var_pos])
 
         if repr_only:
             for genic_region in self._genic_regions:
