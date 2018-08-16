@@ -343,7 +343,7 @@ class RefFlat:
                             ss_size = intron_size
 
                         region_to_size['SS'] += ss_size
-                        region_to_size['intron'] -= ss_size
+                        region_to_size['intronic'] -= ss_size
 
                     else:
                         region_to_size['ncRNA_intronic'] += intron_size
