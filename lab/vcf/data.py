@@ -31,7 +31,7 @@ class VCFData:
         Essential information for the variants
         * Notice: the position will be 1-based
         """
-        return '%s\t%d\t%s\t%s\t%s' % (self.chrom, self.pos + 1, self.dbSNP_id, self.ref_nuc, self.alt_nuc)
+        return '%s\t%d\t%s\t%s' % (self.chrom, self.pos + 1, self.ref_nuc, self.alt_nuc)
 
     def __eq__(self, other):
         """
