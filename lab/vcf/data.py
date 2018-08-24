@@ -205,6 +205,14 @@ class VCFData:
                 strand = gene.strand
                 gene_sym = gene.symbol
                 gene_id = gene.id
+
+                if gene_sym not in self._gene_dict[strand]:
+                    self._gene_dict[strand][gene_sym] = {}
+
+                if gene_id in self._gene_dict[strand][gene_sym]:
+                    eprint('[ERROR] in %s' % caller_file_and_line())
+                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
+
                 self._gene_dict[strand][gene_sym][gene_id] = 'promoter'
 
             elif gene.tx_start <= self.pos < gene.tx_end:
@@ -217,8 +225,8 @@ class VCFData:
                     self._gene_dict[strand][gene_sym] = {}
 
                 if gene_id in self._gene_dict[strand][gene_sym]:
-                    eprint('There are RefFlat objects with same id.')
-                    sys.exit()
+                    eprint('[ERROR] in %s' % caller_file_and_line())
+                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
 
                 self._gene_dict[strand][gene_sym][gene_id] = genic_region
 
