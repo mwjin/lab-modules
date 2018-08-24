@@ -198,8 +198,14 @@ class VCFData:
                 eprint('--- ChrID of the variant: %s' % self.chrom)
                 sys.exit()
 
-            if self.pos < gene.tx_start:
+            if self.pos < gene.tx_start - 300:  # there will be no overlap in the next genes
                 break
+
+            elif self.pos < gene.tx_start:  # promoter
+                strand = gene.strand
+                gene_sym = gene.symbol
+                gene_id = gene.id
+                self._gene_dict[strand][gene_sym][gene_id] = 'promoter'
 
             elif gene.tx_start <= self.pos < gene.tx_end:
                 strand = gene.strand
