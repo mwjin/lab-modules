@@ -70,6 +70,55 @@ class VCFData:
         """
         return self._strand_to_anno_val[strand]
 
+    def gene_based_anno(self, genes_same_chr):
+        """
+        Make up the '_gene_dict' and set up the anno_val
+        :param genes_same_chr: the list of 'RefFlat' object in the same chromosome with this variant
+        """
+        genes_same_chr.sort(key=lambda chr_gene: (chr_gene.tx_start, chr_gene.tx_end))
+
+        for gene in genes_same_chr:
+            if gene.chrom != self.chrom:
+                eprint('[ERROR]: in %s' % caller_file_and_line())
+                eprint('--- Different chromosome ID')
+                eprint('--- ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
+                eprint('--- ChrID of the variant: %s' % self.chrom)
+                sys.exit()
+
+            if self.pos < gene.tx_start - 300:  # there will be no overlap in the next genes
+                break
+
+            elif self.pos < gene.tx_start:  # promoter
+                strand = gene.strand
+                gene_sym = gene.symbol
+                gene_id = gene.id
+
+                if gene_sym not in self._gene_dict[strand]:
+                    self._gene_dict[strand][gene_sym] = {}
+
+                if gene_id in self._gene_dict[strand][gene_sym]:
+                    eprint('[ERROR] in %s' % caller_file_and_line())
+                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
+
+                self._gene_dict[strand][gene_sym][gene_id] = 'promoter'
+
+            elif gene.tx_start <= self.pos < gene.tx_end:
+                strand = gene.strand
+                gene_sym = gene.symbol
+                gene_id = gene.id
+                genic_region = gene.find_genic_region(self.pos)
+
+                if gene_sym not in self._gene_dict[strand]:
+                    self._gene_dict[strand][gene_sym] = {}
+
+                if gene_id in self._gene_dict[strand][gene_sym]:
+                    eprint('[ERROR] in %s' % caller_file_and_line())
+                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
+
+                self._gene_dict[strand][gene_sym][gene_id] = genic_region
+
+        self._set_anno_val()
+
     @staticmethod
     def parse_repr_str(repr_str):
         """
@@ -182,55 +231,6 @@ class VCFData:
             eprint()
 
         return var_list
-
-    def gene_based_anno(self, genes_same_chr):
-        """
-        Make up the '_gene_dict' and set up the anno_val
-        :param genes_same_chr: the list of 'RefFlat' object in the same chromosome with this variant
-        """
-        genes_same_chr.sort(key=lambda chr_gene: (chr_gene.tx_start, chr_gene.tx_end))
-
-        for gene in genes_same_chr:
-            if gene.chrom != self.chrom:
-                eprint('[ERROR]: in %s' % caller_file_and_line())
-                eprint('--- Different chromosome ID')
-                eprint('--- ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
-                eprint('--- ChrID of the variant: %s' % self.chrom)
-                sys.exit()
-
-            if self.pos < gene.tx_start - 300:  # there will be no overlap in the next genes
-                break
-
-            elif self.pos < gene.tx_start:  # promoter
-                strand = gene.strand
-                gene_sym = gene.symbol
-                gene_id = gene.id
-
-                if gene_sym not in self._gene_dict[strand]:
-                    self._gene_dict[strand][gene_sym] = {}
-
-                if gene_id in self._gene_dict[strand][gene_sym]:
-                    eprint('[ERROR] in %s' % caller_file_and_line())
-                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
-
-                self._gene_dict[strand][gene_sym][gene_id] = 'promoter'
-
-            elif gene.tx_start <= self.pos < gene.tx_end:
-                strand = gene.strand
-                gene_sym = gene.symbol
-                gene_id = gene.id
-                genic_region = gene.find_genic_region(self.pos)
-
-                if gene_sym not in self._gene_dict[strand]:
-                    self._gene_dict[strand][gene_sym] = {}
-
-                if gene_id in self._gene_dict[strand][gene_sym]:
-                    eprint('[ERROR] in %s' % caller_file_and_line())
-                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
-
-                self._gene_dict[strand][gene_sym][gene_id] = genic_region
-
-        self._set_anno_val()
 
     def _set_anno_val(self):
         """
