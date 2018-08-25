@@ -58,8 +58,8 @@ def get_anno_val(genic_region):
         bit_pos = _REGION_TO_BIT_POS[genic_region]
         return 2 ** (_BIT_LEN - bit_pos)
     except KeyError:
-        eprint("Error in %s: invalid genic region '%s'" % (caller_file_and_line(), genic_region))
-        sys.exit()
+        eprint("[ERROR] in %s" % caller_file_and_line())
+        sys.exit("\tInvalid genic region \'%s\'" % genic_region)
 
 
 def parse_anno_val(anno_val):
@@ -89,7 +89,7 @@ def get_repr_anno(anno_val):
     """
     Return the genic region that has top priority among possible annotations
     :param anno_val: an integer
-    :return: two element
+    :return: two elements
         1. is_multiple: a boolean. if true, there are multiple representative genic regions
         2. genic region: a string. if multiple is true, the genic regions are joined by ';'.
     """
