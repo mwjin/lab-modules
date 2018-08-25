@@ -83,3 +83,29 @@ def parse_anno_val(anno_val):
                 anno_dict[genic_region] = True
 
     return anno_dict
+
+
+def get_repr_anno(anno_val):
+    """
+    Return the genic region that has top priority among possible annotations
+    :param anno_val: an integer
+    :return: two element
+        1. is_multiple: a boolean. if true, there are multiple representative genic regions
+        2. genic region: a string. if multiple is true, the genic regions are joined by ';'.
+    """
+    assert 0 <= anno_val < (2 ** _BIT_LEN)  # the maximum bit length of the genic region value is 6
+
+    anno_dict = parse_anno_val(anno_val)
+    repr_genic_region = None
+
+    for genic_region in _GENIC_REGIONS:
+        if anno_dict[genic_region]:
+            repr_genic_region = genic_region
+            break
+
+    assert repr_genic_region is not None
+
+    if repr_genic_region == '5UTR' and anno_dict['3UTR'] is True:
+        return True, '5UTR;3UTR'
+    else:
+        return False, repr_genic_region
