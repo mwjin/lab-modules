@@ -22,7 +22,7 @@ Each bit of the integer represents a boolean value for one genic region.
 If the integer value is 0, it means that the nucleotide is intergenic.
 """
 
-__all__ = ['genic_region_list', 'get_anno_priority', 'get_anno_val', 'parse_anno_val']
+__all__ = ['genic_region_list', 'get_anno_priority', 'get_anno_val', 'parse_anno_val', 'get_repr_anno']
 
 # constants used in this module
 # SS: Splice site, 30nt at the each end of the intron
