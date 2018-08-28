@@ -182,7 +182,9 @@ class RefFlat:
         :param pos: 0-based position
         :return: a genic region. if intergenic, return None
         """
-        if self.tx_start <= pos < self.tx_end:
+        if self.tx_start - 300 <= pos < self.tx_end:
+            return 'promoter'
+        elif self.tx_start <= pos < self.tx_end:
             idx = -1  # even number (include 0): exonic, odd number: intronic
 
             for i in range(self.exon_cnt):
