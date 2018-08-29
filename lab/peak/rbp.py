@@ -14,6 +14,7 @@ class RBPPeak(NarrowPeak):
         # attributes for the gene-based annotation of the peak
         self.genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
         self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
+        self.repr_genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
 
         # attributes for the variants on this peak
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
@@ -132,36 +133,32 @@ class RBPPeak(NarrowPeak):
         """
         return self.var_pos_to_genes[var_pos]
 
-    def set_genic_region_size(self, anno_val_list, repr_only=False):
+    def set_genic_region_size(self, anno_val_list):
         """
-        This code makes up the 'genic_region_to_size' attribute.
-        :param anno_val_list: a list of genic region values (see gene.utils)
-        :param repr_only: if it is true, consider only the representative genic region
-                        when making up the self.genic_region_to_size.
-
+        This code makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
         * representative genic region: a genic region which has the highest priority among genic region candidates
+        :param anno_val_list: a list of genic region values (see gene.utils)
         """
         # make a statistics for genic regions
-        if repr_only:
-            for anno_val in anno_val_list:
-                anno_dict = parse_anno_val(anno_val)
+        for anno_val in anno_val_list:
+            anno_dict = parse_anno_val(anno_val)
 
-                for genic_region in self._genic_regions:
-                    if anno_dict[genic_region]:
-                        self.genic_region_to_size[genic_region] += 1
+            for genic_region in self._genic_regions:
+                if anno_dict[genic_region]:
+                    self.genic_region_to_size[genic_region] += 1
 
-                        # 5UTR and 3UTR have same priority.
-                        if genic_region.startswith('5') and anno_dict['3UTR'] is True:
-                            self.genic_region_to_size['3UTR'] += 1
+        # make a statistics for representative genic regions
+        for anno_val in anno_val_list:
+            anno_dict = parse_anno_val(anno_val)
 
-                        break
-        else:
-            for anno_val in anno_val_list:
-                anno_dict = parse_anno_val(anno_val)
+            for genic_region in self._genic_regions:
+                if anno_dict[genic_region]:
+                    self.repr_genic_region_to_size[genic_region] += 1
 
-                for genic_region in self._genic_regions:
-                    if anno_dict[genic_region]:
-                        self.genic_region_to_size[genic_region] += 1
+                    # 5UTR and 3UTR have same priority.
+                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:
+                        self.repr_genic_region_to_size['3UTR'] += 1
+                    break
 
     def put_variant(self, variant, repr_only=False):
         """
