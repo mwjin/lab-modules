@@ -75,12 +75,16 @@ class RBPPeak(NarrowPeak):
 
         return new_peak
 
-    def get_genic_region_to_size(self):
+    def get_genic_region_to_size(self, only_repr=False):
         """
+        :param: if True, then return repr_genic_region_to_size
         :return: a dictionary that documents the size of each genic region on this peak.
                  (key: a genic region, value: a size of the genic region (integer))
         """
-        return self.genic_region_to_size
+        if only_repr:
+            return self.repr_genic_region_to_size
+        else:
+            return self.genic_region_to_size
 
     def get_genic_region_to_var_cnt(self):
         """
@@ -160,10 +164,10 @@ class RBPPeak(NarrowPeak):
                         self.repr_genic_region_to_size['3UTR'] += 1
                     break
 
-    def put_variant(self, variant, repr_only=False):
+    def put_variant(self, variant, only_repr=False):
         """
         :param variant: an object of the class 'VCFData'
-        :param repr_only: if it is true, consider only the representative genic region
+        :param only_repr: if it is true, consider only the representative genic region
                         when making up the self.genic_region_to_var_cnt.
 
         * representative genic region: a genic region which has the highest priority among genic region candidates
@@ -189,7 +193,7 @@ class RBPPeak(NarrowPeak):
 
         anno_dict = parse_anno_val(self.var_pos_to_anno_val[var_pos])
 
-        if repr_only:
+        if only_repr:
             for genic_region in self._genic_regions:
                 if anno_dict[genic_region]:
                     self.genic_region_to_var_cnt[genic_region] += 1
