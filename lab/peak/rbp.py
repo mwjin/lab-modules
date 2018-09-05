@@ -12,6 +12,7 @@ class RBPPeak(NarrowPeak):
         super().__init__(*args, **kwargs)
 
         # attributes for the gene-based annotation of the peak
+        self.anno_vals = []
         self.genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
         self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
         self.repr_genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
@@ -137,12 +138,21 @@ class RBPPeak(NarrowPeak):
         """
         return self.var_pos_to_genes[var_pos]
 
+    def get_anno_vals(self):
+        """
+        Return the annotation values of this peak (each element corresponds to each nucleotide on this peak).
+        If it is not set, return an empty list.
+        """
+        return self.anno_vals
+
     def set_genic_region_size(self, anno_val_list):
         """
         This code makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
         * representative genic region: a genic region which has the highest priority among genic region candidates
         :param anno_val_list: a list of genic region values (see gene.utils)
         """
+        self.anno_vals = anno_val_list
+
         # make a statistics for genic regions
         for anno_val in anno_val_list:
             anno_dict = parse_anno_val(anno_val)
