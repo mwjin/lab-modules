@@ -25,7 +25,7 @@ class VarPeak(NarrowPeak):
     def combine(self, other):
         """
         Combine the distribution of variants on other peak with this peak.
-        :param other: an object of 'RBPPeak'
+        :param other: an object of 'VarPeak'
         """
         assert other.__class__.__name__ == self.__class__.__name__
         assert other == self
@@ -49,10 +49,10 @@ class VarPeak(NarrowPeak):
         cut the peak and return new object
         :param start: a start position of the new object
         :param end: an end position of the new object
-        :return: a 'RBPPeak' object
+        :return: a 'VarPeak' object
         """
         assert self.start <= start < end <= self.end
-        new_peak = VarPeak(self.chrom, self.start, self.end, self.strand)
+        new_peak = VarPeak(self.chrom, start, end, self.strand)
 
         var_pos_list = self.get_var_pos_list()
 
@@ -149,8 +149,9 @@ class VarPeak(NarrowPeak):
         """
         This code makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
         * representative genic region: a genic region which has the highest priority among genic region candidates
-        :param anno_val_list: a list of genic region values (see gene.utils)
+        :param anno_val_list: a list of anntation values corresponding to this peak (see gene.utils)
         """
+        assert len(anno_val_list) == self.get_size()
         self.anno_vals = anno_val_list
 
         # make a statistics for genic regions
@@ -208,7 +209,7 @@ class VarPeak(NarrowPeak):
                 if anno_dict[genic_region]:
                     self.genic_region_to_var_cnt[genic_region] += 1
 
-                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:
+                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:  # both UTRs have same priority
                         self.genic_region_to_var_cnt['3UTR'] += 1
 
                     break
