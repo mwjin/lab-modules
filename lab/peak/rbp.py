@@ -1,11 +1,11 @@
 from lab.peak.narrow import NarrowPeak
 from lab.gene.anno import genic_region_list, parse_anno_val
 
-__all__ = ['RBPPeak']
+__all__ = ['VarPeak']
 
 
-class RBPPeak(NarrowPeak):
-    """ The object in this class represents one peak calling of the binding sites of RNA-binding proteins """
+class VarPeak(NarrowPeak):
+    """ The object of this class is a NarrowPeak's child class that can contain mutations """
     _genic_regions = genic_region_list()  # for the attributes in this class
 
     def __init__(self, *args, **kwargs):
@@ -52,7 +52,7 @@ class RBPPeak(NarrowPeak):
         :return: a 'RBPPeak' object
         """
         assert self.start <= start < end <= self.end
-        new_peak = RBPPeak(self.chrom, self.start, self.end, self.strand)
+        new_peak = VarPeak(self.chrom, self.start, self.end, self.strand)
 
         var_pos_list = self.get_var_pos_list()
 
