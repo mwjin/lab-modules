@@ -44,7 +44,7 @@ class NarrowPeak:
             if hasattr(self, attr):
                 setattr(self, attr, kwargs[attr])
             else:
-                raise AttributeError('Error: %s has no attribute named as %s.' % (self.__class__.__name__, attr))
+                raise AttributeError('[ERROR] %s has no attribute named as %s.' % (self.__class__.__name__, attr))
 
     def __str__(self):
         return '%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % \
@@ -121,7 +121,7 @@ class NarrowPeak:
         :return: a 'NarrowPeak' object
         """
         assert self.start <= start < end <= self.end
-        new_peak = NarrowPeak(self.chrom, self.start, self.end, self.strand)
+        new_peak = NarrowPeak(self.chrom, start, end, self.strand)
 
         return new_peak
 
