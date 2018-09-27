@@ -145,9 +145,10 @@ class VarPeak(NarrowPeak):
         """
         return self.anno_vals
 
-    def set_genic_region_size(self, anno_val_list):
+    def gene_based_annotation(self, anno_val_list):
         """
-        This code makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
+        This function enters the value of the attribute 'anno_vals' and
+        makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
         * representative genic region: a genic region which has the highest priority among genic region candidates
         :param anno_val_list: a list of anntation values corresponding to this peak (see gene.utils)
         """
