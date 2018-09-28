@@ -6,11 +6,14 @@ import gzip
 from lab.utils import eprint, caller_file_and_line
 from lab.gene.anno import get_anno_val
 
-__all__ = ['VCFData']
+__all__ = ['SNV']
 
 
-class VCFData:
-    """ The object of this class represents one entry in VCF files (only consider SNV). """
+class SNV:
+    """
+    The object of this class represents one SNV entry in VCF files
+    (SNV: Single nucleotide variant)
+    """
     def __init__(self):
         self.chrom = ''
         self.pos = 0  # 0-base
@@ -125,7 +128,7 @@ class VCFData:
         Parse the representative string of the 'VCFData' object and return a 'VCFData' object
         There is less of information.
         """
-        variant = VCFData()
+        variant = SNV()
 
         fields = repr_str.split('\t')
         variant.chrom = fields[0]
@@ -202,7 +205,7 @@ class VCFData:
 
                 continue
 
-            variant = VCFData()
+            variant = SNV()
             variant.chrom = 'chr%s' % fields[0]
 
             if not regex_pos.match(fields[1]):
