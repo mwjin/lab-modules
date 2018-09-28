@@ -74,7 +74,7 @@ class MutPeak(NarrowPeak):
 
         cut_peak = MutPeak(self.chrom, start, end, self.strand)
         cut_anno_vals = self.anno_vals[rel_start:rel_end]
-        cut_peak.gene_based_annotation(cut_anno_vals)
+        cut_peak.gene_based_anno(cut_anno_vals)
 
         var_pos_list = self.get_var_pos_list()
 
@@ -183,7 +183,7 @@ class MutPeak(NarrowPeak):
         """
         return self.anno_vals
 
-    def gene_based_annotation(self, anno_val_list):
+    def gene_based_anno(self, anno_val_list):
         """
         This function enters the value of the attribute 'anno_vals' and
         makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
