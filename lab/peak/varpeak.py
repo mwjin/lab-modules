@@ -52,13 +52,13 @@ class VarPeak(NarrowPeak):
 
             for genic_region in self._genic_regions:
                 if anno_dict[genic_region]:
-                    self.genic_region_to_var_cnt[genic_region] += 1
+                    self.genic_region_to_var_cnt[genic_region] += var_cnt
 
             if repr_is_multi:
-                self.repr_genic_region_to_var_cnt['5UTR'] += 1
-                self.repr_genic_region_to_var_cnt['3UTR'] += 1
+                self.repr_genic_region_to_var_cnt['5UTR'] += var_cnt
+                self.repr_genic_region_to_var_cnt['3UTR'] += var_cnt
             else:
-                self.repr_genic_region_to_var_cnt[repr_genic_region] += 1
+                self.repr_genic_region_to_var_cnt[repr_genic_region] += var_cnt
 
     def cut(self, start, end):
         """
