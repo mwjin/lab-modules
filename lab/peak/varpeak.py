@@ -1,5 +1,5 @@
 from lab.peak.narrow import NarrowPeak
-from lab.gene.anno import genic_region_list, parse_anno_val
+from lab.gene.anno import genic_region_list, parse_anno_val, get_repr_anno
 
 __all__ = ['VarPeak']
 
@@ -48,18 +48,17 @@ class VarPeak(NarrowPeak):
 
             # combine the attributes for the gene-based annotation of this peak
             anno_dict = parse_anno_val(anno_val)
+            repr_is_multi, repr_genic_region = get_repr_anno(anno_val)
 
             for genic_region in self._genic_regions:
                 if anno_dict[genic_region]:
                     self.genic_region_to_var_cnt[genic_region] += 1
 
-            for genic_region in self._genic_regions:
-                if anno_dict[genic_region]:
-                    self.repr_genic_region_to_var_cnt[genic_region] += 1
-
-                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:  # both UTRs have same priority
-                        self.repr_genic_region_to_var_cnt['3UTR'] += 1
-                    break
+            if repr_is_multi:
+                self.repr_genic_region_to_var_cnt['5UTR'] += 1
+                self.repr_genic_region_to_var_cnt['3UTR'] += 1
+            else:
+                self.repr_genic_region_to_var_cnt[repr_genic_region] += 1
 
     def cut(self, start, end):
         """
@@ -192,19 +191,17 @@ class VarPeak(NarrowPeak):
 
         # make a statistics for representative genic regions
         for anno_val in anno_val_list:
-            anno_dict = parse_anno_val(anno_val)
+            repr_is_multi, repr_genic_region = get_repr_anno(anno_val)
 
-            for genic_region in self._genic_regions:
-                if anno_dict[genic_region]:
-                    self.repr_genic_region_to_size[genic_region] += 1
-
-                    # 5UTR and 3UTR have same priority.
-                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:
-                        self.repr_genic_region_to_size['3UTR'] += 1
-                    break
+            if repr_is_multi:
+                self.repr_genic_region_to_size['5UTR'] += 1
+                self.repr_genic_region_to_size['3UTR'] += 1
+            else:
+                self.repr_genic_region_to_size[repr_genic_region] += 1
 
     def put_variant(self, variant):
         """
+        Make up the distribution of variants on this peak
         :param variant: an object of the class 'VCFData'
         * representative genic region: a genic region which has the highest priority among genic region candidates
         """
@@ -236,16 +233,14 @@ class VarPeak(NarrowPeak):
 
         # make up the attributes for the gene-based annotation
         anno_dict = parse_anno_val(self.var_pos_to_anno_val[var_pos])
+        repr_is_multi, repr_genic_region = get_repr_anno(self.var_pos_to_anno_val[var_pos])
 
         for genic_region in self._genic_regions:
             if anno_dict[genic_region]:
                 self.genic_region_to_var_cnt[genic_region] += 1
 
-        for genic_region in self._genic_regions:
-            if anno_dict[genic_region]:
-                self.repr_genic_region_to_var_cnt[genic_region] += 1
-
-                if genic_region.startswith('5') and anno_dict['3UTR'] is True:  # both UTRs have same priority
-                    self.repr_genic_region_to_var_cnt['3UTR'] += 1
-                break
-
+        if repr_is_multi:
+            self.repr_genic_region_to_var_cnt['5UTR'] += 1
+            self.repr_genic_region_to_var_cnt['3UTR'] += 1
+        else:
+            self.repr_genic_region_to_var_cnt[repr_genic_region] += 1
