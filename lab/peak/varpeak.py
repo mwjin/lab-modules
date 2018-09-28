@@ -79,7 +79,7 @@ class VarPeak(NarrowPeak):
 
     def get_genic_region_to_size(self, only_repr=False):
         """
-        :param: if True, then return repr_genic_region_to_size
+        :param only_repr: if True, then return repr_genic_region_to_size
         :return: a dictionary that documents the size of each genic region on this peak.
                  (key: a genic region, value: a size of the genic region (integer))
         """
@@ -88,12 +88,16 @@ class VarPeak(NarrowPeak):
         else:
             return self.genic_region_to_size
 
-    def get_genic_region_to_var_cnt(self):
+    def get_genic_region_to_var_cnt(self, only_repr=False):
         """
+        :param only_repr: if True, then return repr_genic_region_to_var_cnt
         :return: a dictionary that documents the number of variants of each genic region on this peak.
                  (key: a genic region, value: the number of variants on the genic region (integer))
         """
-        return self.genic_region_to_var_cnt
+        if only_repr:
+            return self.repr_genic_region_to_var_cnt
+        else:
+            return self.genic_region_to_var_cnt
 
     def get_var_pos_list(self):
         """
