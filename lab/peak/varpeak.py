@@ -15,6 +15,7 @@ class VarPeak(NarrowPeak):
         self.anno_vals = []
         self.genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
         self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
+        self.repr_genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
         self.repr_genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
 
         # attributes for the variants on this peak
@@ -176,12 +177,9 @@ class VarPeak(NarrowPeak):
                         self.repr_genic_region_to_size['3UTR'] += 1
                     break
 
-    def put_variant(self, variant, only_repr=False):
+    def put_variant(self, variant):
         """
         :param variant: an object of the class 'VCFData'
-        :param only_repr: if it is true, consider only the representative genic region
-                        when making up the self.genic_region_to_var_cnt.
-
         * representative genic region: a genic region which has the highest priority among genic region candidates
         """
 
@@ -205,19 +203,19 @@ class VarPeak(NarrowPeak):
 
         anno_dict = parse_anno_val(self.var_pos_to_anno_val[var_pos])
 
-        if only_repr:
-            for genic_region in self._genic_regions:
-                if anno_dict[genic_region]:
-                    self.genic_region_to_var_cnt[genic_region] += 1
+        # for all genic regions
+        for genic_region in self._genic_regions:
+            if anno_dict[genic_region]:
+                self.genic_region_to_var_cnt[genic_region] += 1
 
-                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:  # both UTRs have same priority
-                        self.genic_region_to_var_cnt['3UTR'] += 1
+        # for a representative genic region
+        for genic_region in self._genic_regions:
+            if anno_dict[genic_region]:
+                self.repr_genic_region_to_var_cnt[genic_region] += 1
 
-                    break
-        else:
-            for genic_region in self._genic_regions:
-                if anno_dict[genic_region]:
-                    self.genic_region_to_var_cnt[genic_region] += 1
+                if genic_region.startswith('5') and anno_dict['3UTR'] is True:  # both UTRs have same priority
+                    self.repr_genic_region_to_var_cnt['3UTR'] += 1
+                break
 
         # save the information of the variant-associated genes
         if var_pos not in self.var_pos_to_genes:
