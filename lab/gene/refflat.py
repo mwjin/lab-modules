@@ -53,14 +53,14 @@ class RefFlat:
         self.tx_end = int(refflat_fields[5])
 
         if self.tx_start > self.tx_end:
-            eprint("Error in %s: tx end point is ahead of tx start." % self.symbol)
+            eprint("[ERROR] in %s: Tx end point is ahead of tx start." % self.symbol)
             return
 
         self.cds_start = int(refflat_fields[6])
         self.cds_end = int(refflat_fields[7])
 
         if self.cds_start > self.cds_end:
-            eprint("Error in %s: cds end point is ahead of cds start." % self.symbol)
+            eprint("[ERROR] in %s: CDS end point is ahead of CDS start." % self.symbol)
             return
 
         self.exon_cnt = int(refflat_fields[8])
@@ -68,22 +68,22 @@ class RefFlat:
         self.exon_starts.sort()
 
         if self.tx_start != self.exon_starts[0]:
-            eprint("Error in %s: Tx start point is different with exon start point." % self.symbol)
+            eprint("[ERROR] in %s: Tx start point is different with exon start point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_starts):
-            eprint("Error in %s: Exon count is different with the number of exon starts." % self.symbol)
+            eprint("[ERROR] in %s: Exon count is different with the number of exon starts." % self.symbol)
             return
 
         self.exon_ends = [int(exon_end) for exon_end in refflat_fields[10].strip(',').split(',')]
         self.exon_ends.sort()
 
         if self.tx_end != self.exon_ends[-1]:
-            eprint("Error in %s: Tx end point is different with exon end point." % self.symbol)
+            eprint("[ERROR] in %s: Tx end point is different with exon end point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_ends):
-            eprint("Error in %s: Exon count is different with the number of exon ends." % self.symbol)
+            eprint("[ERROR] in %s: Exon count is different with the number of exon ends." % self.symbol)
             return
 
         valid_exon = self._check_exon_overlap()
@@ -103,7 +103,7 @@ class RefFlat:
             one_exon_size = self.exon_ends[i] - self.exon_starts[i]
 
             if one_exon_size < 0:
-                eprint("Error in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
+                eprint("[ERROR] in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
                 return False
 
             seq_exon = get_seq(self.chrom, self.exon_starts[i], self.exon_ends[i])
@@ -140,7 +140,7 @@ class RefFlat:
             self.seq_3utr = reverse_complement(seq_exons[0:cds_start_offset])
 
         else:
-            eprint("Error: invalid strand %s" % self.strand)
+            eprint("[ERROR] Invalid strand %s" % self.strand)
             return False
 
         return True
@@ -224,7 +224,7 @@ class RefFlat:
                 else:
                     return 'ncRNA_exonic'
         else:
-            eprint("Error: the position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
+            eprint("[ERROR] The position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
 
     def get_genic_region_dist(self, start, end):
@@ -366,7 +366,7 @@ class RefFlat:
 
         for i in range(num_iter):
             if exon_positions[i] > exon_positions[i + 1]:
-                eprint("Error: %s has a exon overlap." % self.symbol)
+                eprint("[ERROR] %s has a exon overlap." % self.symbol)
                 return False
 
         return True
