@@ -227,6 +227,45 @@ class RefFlat:
             eprint("[ERROR] The position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
 
+    def is_non_synonymous(self, pos, ref_nuc, alt_nuc):
+        """
+        Determine whether the variant on this gene is non-synonymous or not.
+        (It is assumed that the variant is on a same chromosome with this gene)
+        :param pos: 0-based position on the genome
+        :param ref_nuc: a reference nucleotide of this variant
+        :param alt_nuc: a alternative nucleotide of this variants
+        :return: a boolean value. If True, this variant is non-synonymous.
+        """
+        genic_region = self.find_genic_region(pos)
+
+        if genic_region is not None and genic_region == 'ORF':
+            exon_idx = -1
+
+            for i in range(self.exon_cnt):
+                if self.exon_starts[i] <= pos < self.exon_ends[i]:
+                    exon_idx = i
+                    break
+
+            assert exon_idx != -1
+
+            # find the relative position of the variant on mRNA
+            rel_pos = pos
+
+            for j in range(exon_idx):
+                intron_size = self.exon_starts[j + 1] - self.exon_ends[j]
+                rel_pos -= intron_size
+
+            # find the relative position of the variant on CDS of mRNA
+            if self.strand == '+':
+                cds_rel_pos = rel_pos - len(self.seq_5utr)
+            else:  # self.strand == '-'
+                cds_rel_pos = rel_pos - len(self.seq_3utr)
+                cds_rel_pos = len(self.seq_orf) - cds_rel_pos -1  # reverse complement
+
+            # TODO: Implementation of codes for checking the modification of AA
+        else:
+            return False
+
     def get_genic_region_dist(self, start, end):
         """
         Return the dictionary that contains the size of each genic region in the region (start, end)
