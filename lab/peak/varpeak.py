@@ -68,29 +68,45 @@ class VarPeak(NarrowPeak):
         :return: a 'VarPeak' object
         """
         assert self.start <= start < end <= self.end
-        new_peak = VarPeak(self.chrom, start, end, self.strand)
+
+        rel_start = start - self.start
+        rel_end = end - self.start
+
+        cut_peak = VarPeak(self.chrom, start, end, self.strand)
+        cut_anno_vals = self.anno_vals[rel_start:rel_end]
+        cut_peak.gene_based_annotation(cut_anno_vals)
 
         var_pos_list = self.get_var_pos_list()
 
         for var_pos in var_pos_list:
             if start <= var_pos < end:
+                # make up the attributes for the variant distribution of this peak
                 var_cnt = self.var_pos_to_cnt[var_pos]
                 var_anno_val = self.var_pos_to_anno_val[var_pos]
                 assoc_genes = self.var_pos_to_genes[var_pos]
 
-                new_peak.var_pos_to_cnt[var_pos] = var_cnt
-                new_peak.var_pos_to_anno_val[var_pos] = var_anno_val
-                new_peak.var_pos_to_genes[var_pos] = assoc_genes
+                cut_peak.var_pos_to_cnt[var_pos] = var_cnt
+                cut_peak.var_pos_to_anno_val[var_pos] = var_anno_val
+                cut_peak.var_pos_to_genes[var_pos] = assoc_genes
 
-                genic_region_dict = parse_anno_val(var_anno_val)
+                # make up the attributes for the gene-based annotation of this peak
+                anno_dict = parse_anno_val(var_anno_val)
+                repr_is_multi, repr_genic_region = get_repr_anno(var_anno_val)
 
-                for genic_region in genic_region_dict:
-                    if genic_region_dict[genic_region]:
-                        new_peak.genic_region_to_var_cnt[genic_region] += var_cnt
+                for genic_region in anno_dict:
+                    if anno_dict[genic_region]:
+                        cut_peak.genic_region_to_var_cnt[genic_region] += var_cnt
+
+                if repr_is_multi:
+                    cut_peak.repr_genic_region_to_var_cnt['5UTR'] += var_cnt
+                    cut_peak.repr_genic_region_to_var_cnt['3UTR'] += var_cnt
+                else:
+                    cut_peak.repr_genic_region_to_var_cnt[repr_genic_region] += var_cnt
+
             elif var_pos >= end:
                 break
 
-        return new_peak
+        return cut_peak
 
     def merge(self, peak):
         pass
