@@ -214,11 +214,11 @@ class MutPeak(NarrowPeak):
     def put_variant(self, variant):
         """
         Make up the distribution of variants on this bed
-        :param variant: an object of the class 'VCFData'
+        :param variant: an object of the class 'SNV'
         * representative genic region: a genic region which has the highest priority among genic region candidates
         """
 
-        assert variant.__class__.__name__ == 'VCFData'
+        assert variant.__class__.__name__ == 'SNV'
         assert self.start <= variant.pos < self.end
 
         var_pos = variant.pos
