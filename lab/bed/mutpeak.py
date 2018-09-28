@@ -1,10 +1,10 @@
 from lab.bed.narrow import NarrowPeak
 from lab.gene.anno import genic_region_list, parse_anno_val, get_repr_anno
 
-__all__ = ['VarPeak']
+__all__ = ['MutPeak']
 
 
-class VarPeak(NarrowPeak):
+class MutPeak(NarrowPeak):
     """ The object of this class is a NarrowPeak's child class that can contain mutations """
     _genic_regions = genic_region_list()  # for the attributes in this class
 
@@ -72,7 +72,7 @@ class VarPeak(NarrowPeak):
         rel_start = start - self.start
         rel_end = end - self.start
 
-        cut_peak = VarPeak(self.chrom, start, end, self.strand)
+        cut_peak = MutPeak(self.chrom, start, end, self.strand)
         cut_anno_vals = self.anno_vals[rel_start:rel_end]
         cut_peak.gene_based_annotation(cut_anno_vals)
 
