@@ -11,17 +11,17 @@ class VarPeak(NarrowPeak):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # attributes for the variants on this peak
+        self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
+        self.var_pos_to_anno_val = {}  # positions of variants to their annotation values
+        self.var_pos_to_genes = {}  # positions of variants to their associated genes (type: dictionary)
+
         # attributes for the gene-based annotation of the peak
         self.anno_vals = []
         self.genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
         self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
-        self.repr_genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
         self.repr_genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
-
-        # attributes for the variants on this peak
-        self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
-        self.var_pos_to_anno_val = {}  # positions of variants to their genic region values
-        self.var_pos_to_genes = {}  # positions of variants to their associated genes (type: dictionary)
+        self.repr_genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
 
     def combine(self, other):
         """
@@ -32,6 +32,7 @@ class VarPeak(NarrowPeak):
         assert other == self
 
         for var_pos in other.var_pos_to_cnt:
+            # combine the attributes for the variants on this peak
             var_cnt = other.get_var_cnt_in_pos(var_pos)
             anno_val = other.get_anno_val_in_pos(var_pos)
             genes = other.get_genes_in_pos(var_pos)
@@ -44,6 +45,21 @@ class VarPeak(NarrowPeak):
                 assert self.var_pos_to_anno_val[var_pos] == anno_val
                 assert self.var_pos_to_genes[var_pos] == genes
                 self.var_pos_to_cnt[var_pos] += var_cnt
+
+            # combine the attributes for the gene-based annotation of this peak
+            anno_dict = parse_anno_val(anno_val)
+
+            for genic_region in self._genic_regions:
+                if anno_dict[genic_region]:
+                    self.genic_region_to_var_cnt[genic_region] += 1
+
+            for genic_region in self._genic_regions:
+                if anno_dict[genic_region]:
+                    self.repr_genic_region_to_var_cnt[genic_region] += 1
+
+                    if genic_region.startswith('5') and anno_dict['3UTR'] is True:  # both UTRs have same priority
+                        self.repr_genic_region_to_var_cnt['3UTR'] += 1
+                    break
 
     def cut(self, start, end):
         """
@@ -76,6 +92,12 @@ class VarPeak(NarrowPeak):
                 break
 
         return new_peak
+
+    def merge(self, peak):
+        pass
+
+    def intersect(self, peak):
+        pass
 
     def get_genic_region_to_size(self, only_repr=False):
         """
@@ -205,14 +227,20 @@ class VarPeak(NarrowPeak):
         else:
             assert self.var_pos_to_anno_val[var_pos] == variant.get_anno_val(self.strand)
 
+        # save the information of the variant-associated genes
+        if var_pos not in self.var_pos_to_genes:
+            assoc_genes = variant.get_assoc_genes(self.strand)
+            self.var_pos_to_genes[var_pos] = assoc_genes
+        else:
+            assert self.var_pos_to_genes[var_pos] == variant.get_assoc_genes(self.strand)
+
+        # make up the attributes for the gene-based annotation
         anno_dict = parse_anno_val(self.var_pos_to_anno_val[var_pos])
 
-        # for all genic regions
         for genic_region in self._genic_regions:
             if anno_dict[genic_region]:
                 self.genic_region_to_var_cnt[genic_region] += 1
 
-        # for a representative genic region
         for genic_region in self._genic_regions:
             if anno_dict[genic_region]:
                 self.repr_genic_region_to_var_cnt[genic_region] += 1
@@ -221,9 +249,3 @@ class VarPeak(NarrowPeak):
                     self.repr_genic_region_to_var_cnt['3UTR'] += 1
                 break
 
-        # save the information of the variant-associated genes
-        if var_pos not in self.var_pos_to_genes:
-            assoc_genes = variant.get_assoc_genes(self.strand)
-            self.var_pos_to_genes[var_pos] = assoc_genes
-        else:
-            assert self.var_pos_to_genes[var_pos] == variant.get_assoc_genes(self.strand)
