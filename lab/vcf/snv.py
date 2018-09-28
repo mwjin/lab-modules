@@ -38,7 +38,7 @@ class SNV:
 
     def __eq__(self, other):
         """
-        Compare the essential characteristics between two 'VCFData' objects
+        Compare the essential characteristics between two 'SNV' objects
         """
         self_info = (self.chrom, self.pos, self.ref_nuc, self.alt_nuc)
         other_info = (other.chrom, other.pos, other.ref_nuc, other.alt_nuc)
@@ -75,17 +75,18 @@ class SNV:
 
     def gene_based_anno(self, genes_same_chr):
         """
-        Make up the '_gene_dict' and set up the anno_val
-        :param genes_same_chr: the list of 'RefFlat' object in the same chromosome with this variant
+        Make up the '_gene_dict' attribute and set up the annotation values of this variant
+        For the gene-based annotation, this method uses a list of genes.
+        :param genes_same_chr: a list of 'RefFlat' objects in the same chromosome with this variant
         """
         genes_same_chr.sort(key=lambda chr_gene: (chr_gene.tx_start, chr_gene.tx_end))
 
         for gene in genes_same_chr:
             if gene.chrom != self.chrom:
-                eprint('[ERROR]: in %s' % caller_file_and_line())
-                eprint('--- Different chromosome ID')
-                eprint('--- ChrID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
-                eprint('--- ChrID of the variant: %s' % self.chrom)
+                eprint('[ERROR] in %s' % caller_file_and_line())
+                eprint('\tThere is a gene with the different chromosome ID')
+                eprint('\tChromosome ID of %s (%s): %s' % gene.symbol, gene.id, gene.chrom)
+                eprint('\tChromosome ID of the variant: %s' % self.chrom)
                 sys.exit()
 
             if self.pos < gene.tx_start - 300:  # there will be no overlap in the next genes
@@ -125,7 +126,7 @@ class SNV:
     @staticmethod
     def parse_repr_str(repr_str):
         """
-        Parse the representative string of the 'VCFData' object and return a 'VCFData' object
+        Parse the representative string of the 'SNV' object and return a 'SNV' object
         There is less of information.
         """
         variant = SNV()
@@ -159,16 +160,16 @@ class SNV:
             vcf_file = open(vcf_filename, 'r')
 
         for line in vcf_file:
-            # File Format
-            # Column Number:     | 0       | 1        | 2          | 3       | 4
-            # Column Description:| chrom   | pos      | dbSNP_id   | ref_nuc | alt_nuc
-            # Column Example:    | 13      | 32906558 | rs79483201 | T       | A
-            # Column Number:     | 5       | 6        | 7          | 8              | 9./..
-            # Column Description:| qual    | filter   | info       | format         | SampleIDs
-            # Column Example:    | 5645.6  | PASS     | .          | GT:AD:DP:GQ:PL | Scores corresponding to format
-
             """
-            Examples of the formats
+            <File Format>
+             Column Number:     | 0       | 1        | 2          | 3       | 4
+             Column Description:| chrom   | pos      | dbSNP_id   | ref_nuc | alt_nuc
+             Column Example:    | 13      | 32906558 | rs79483201 | T       | A
+             Column Number:     | 5       | 6        | 7          | 8              | 9./..
+             Column Description:| qual    | filter   | info       | format         | SampleIDs
+             Column Example:    | 5645.6  | PASS     | .          | GT:AD:DP:GQ:PL | Scores corresponding to format
+
+            <Examples of the formats>
             ##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths">
             ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth">
             ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
