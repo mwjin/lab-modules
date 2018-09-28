@@ -108,11 +108,7 @@ class VarPeak(NarrowPeak):
 
         return cut_peak
 
-    def merge(self, peak):
-        pass
-
-    def intersect(self, peak):
-        pass
+    # TODO: implementation of the overrided methods 'merge' and 'cut'
 
     def get_genic_region_to_size(self, only_repr=False):
         """
