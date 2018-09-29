@@ -10,7 +10,8 @@ For using them except 1, we must call the function 'set_genome' first.
 import os
 import re
 
-__all__ = ['set_genome', 'reverse_complement', 'get_seq', 'get_chr_size', 'bin_chrom']
+__all__ = ['set_genome', 'get_seq', 'get_chr_size', 'bin_chrom',
+           'reverse_complement', 'complementary_base']
 
 
 class _Genome:
@@ -184,15 +185,28 @@ def bin_chrom(chrom, bin_size, overlap=0):
     return chr_bins
 
 
-# Functions for convenience
-def reverse_complement(seq):
-    base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
-                    'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
-                    'N': 'N', 'n': 'n', '.': '.'}
+# Functions not to access the class
+_COMPLEMENTARY_BASE = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
+                       'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
+                       'N': 'N', 'n': 'n', '.': '.'}
 
+
+def reverse_complement(seq):
+    """
+    :param seq: a sequence consists of DNA nucleotides
+    :return: the reverse complement sequence of that sequence
+    """
     comp_seq = ''
 
     for base in seq:
-        comp_seq += base_to_comp[base]
+        comp_seq += _COMPLEMENTARY_BASE[base]
 
     return comp_seq[::-1]  # reverse
+
+
+def complementary_base(base):
+    """
+    :param base: a base of a nucleotide
+    :return: the complementary base of that base
+    """
+    return _COMPLEMENTARY_BASE[base]
