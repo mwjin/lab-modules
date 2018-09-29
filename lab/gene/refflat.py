@@ -1,5 +1,5 @@
 from lab.utils import eprint
-from lab.genome.genome import get_seq, reverse_complement
+from lab.genome.genome import get_seq, reverse_complement, complementary_base, get_amino_acid
 from lab.gene.anno import genic_region_list
 
 __all__ = ['RefFlat']
@@ -229,7 +229,7 @@ class RefFlat:
 
     def is_non_synonymous(self, pos, ref_nuc, alt_nuc):
         """
-        Determine whether the variant on this gene is non-synonymous or not.
+        Determine whether the point mutation on this gene is non-synonymous or not.
         (It is assumed that the variant is on a same chromosome with this gene)
         :param pos: 0-based position on the genome
         :param ref_nuc: a reference nucleotide of this variant
@@ -260,9 +260,31 @@ class RefFlat:
                 cds_rel_pos = rel_pos - len(self.seq_5utr)
             else:  # self.strand == '-'
                 cds_rel_pos = rel_pos - len(self.seq_3utr)
-                cds_rel_pos = len(self.seq_orf) - cds_rel_pos -1  # reverse complement
+                cds_rel_pos = len(self.seq_orf) - cds_rel_pos - 1  # reverse complement
 
-            # TODO: Implementation of codes for checking the modification of AA
+                ref_nuc = complementary_base(ref_nuc)
+                alt_nuc = complementary_base(alt_nuc)
+
+            assert ref_nuc == self.seq_orf[cds_rel_pos]
+
+            # check the change of an amino acid
+            if cds_rel_pos % 3 == 0:
+                ref_codon = self.seq_orf[cds_rel_pos:cds_rel_pos + 3]
+                alt_codon = alt_nuc + self.seq_orf[cds_rel_pos + 1:cds_rel_pos + 3]
+            elif cds_rel_pos % 3 == 1:
+                ref_codon = self.seq_orf[cds_rel_pos - 1:cds_rel_pos + 2]
+                alt_codon = self.seq_orf[cds_rel_pos - 1] + alt_nuc + self.seq_orf[cds_rel_pos + 1]
+            else:  # cds_rel_pos % 3 == 2
+                ref_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos + 1]
+                alt_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos] + alt_nuc
+
+            ref_amino_acid = get_amino_acid(ref_codon)
+            alt_amino_acid = get_amino_acid(alt_codon)
+
+            if ref_amino_acid == alt_amino_acid:
+                return False
+            else:
+                return True
         else:
             return False
 
