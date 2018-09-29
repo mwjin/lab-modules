@@ -24,10 +24,20 @@ class SNV:
         self.filter = ''
         self.info = ''
 
-        """ info from refFlat (in-house rep-isoforms) """
+        """ INFO not in a VCF file """
+        self.is_non_synonymous = False  # If this variant is non-synonymous for at least one gene, it is true.
+
         # Dictionary for the information of genes associated with this variant
-        self._gene_dict = {'+': {}, '-': {}}  # Mapping route: strand -> gene symbol -> ID -> genic region
-        self._strand_to_anno_val = {'+': 0, '-': 0}  # value: genic region value (see gene.utils)
+        # Mapping route: strand -> gene symbol -> ID -> genic region
+        self._gene_dict = {'+': {}, '-': {}}
+
+        # For gene-based annotation of this variant
+        # Annotation value: see lab.gene.anno.py
+        self._strand_to_anno_val = {'+': 0, '-': 0}
+
+        # Dictionary of mutation types of variant for all genes associated with this variant
+        # Mapping route: strand -> gene symbol -> ID -> (is_non_synonymous, mutation type)
+        self._mut_type_dict = {'+': {}, '-': {}}
 
     def __repr__(self):
         """
