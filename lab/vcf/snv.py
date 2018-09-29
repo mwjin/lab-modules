@@ -15,14 +15,15 @@ class SNV:
     (SNV: Single nucleotide variant)
     """
     def __init__(self):
-        self.chrom = ''
+        """ Essential fields of a VCF file"""
+        self.chrom = '.'
         self.pos = 0  # 0-base
-        self.dbSNP_id = ''
-        self.ref_nuc = ''
-        self.alt_nuc = ''
+        self.dbSNP_id = '.'
+        self.ref_nuc = '.'
+        self.alt_nuc = '.'
         self.qual = 0.0
-        self.filter = ''
-        self.info = ''
+        self.filter = '.'
+        self.info = '.'
 
         """ INFO not in a VCF file """
         self._is_non_synonymous = False  # If this variant is non-synonymous for at least one gene, it is true.
@@ -41,10 +42,18 @@ class SNV:
 
     def __repr__(self):
         """
-        Essential information for the variants
-        * Notice: the position will be 1-based
+        Essential information for the variants which is represented as an dictionary
+        This can be used to make a new 'SNV' object through the built-in 'eval' function
         """
-        return '%s\t%d\t%s\t%s' % (self.chrom, self.pos + 1, self.ref_nuc, self.alt_nuc)
+        return "{chrom: '%s', pos: %d, ref_nuc: '%s', alt_nuc: '%s'}" % \
+               (self.chrom, self.pos, self.ref_nuc, self.alt_nuc)
+
+    def __str__(self):
+        """
+        Return an entry for a VCF file. It only contains essential fields.
+        """
+        return '%s\t%d\t%s\t%s\t%s\t%.1f\t%s\t%s' % (self.chrom, self.pos + 1, self.dbSNP_id, self.ref_nuc,
+                                                     self.alt_nuc, self.qual, self.filter, self.info)
 
     def __eq__(self, other):
         """
@@ -155,13 +164,10 @@ class SNV:
         There is less of information.
         """
         variant = SNV()
+        attr_dict = eval(repr_str)
 
-        fields = repr_str.split('\t')
-        variant.chrom = fields[0]
-        variant.pos = int(fields[1]) - 1  # 1-based -> 0-based
-        variant.dbSNP_id = fields[2]
-        variant.ref_nuc = fields[3]
-        variant.alt_nuc = fields[4]
+        for snv_attr in attr_dict:
+            setattr(variant, snv_attr, attr_dict[snv_attr])
 
         return variant
 
