@@ -25,7 +25,7 @@ class SNV:
         self.info = ''
 
         """ INFO not in a VCF file """
-        self.is_non_synonymous = False  # If this variant is non-synonymous for at least one gene, it is true.
+        self._is_non_synonymous = False  # If this variant is non-synonymous for at least one gene, it is true.
 
         # Dictionary for the information of genes associated with this variant
         # Mapping route: strand -> gene symbol -> ID -> genic region
@@ -132,6 +132,12 @@ class SNV:
                 self._gene_dict[strand][gene_sym][gene_id] = genic_region
 
         self._set_anno_val()
+
+    def is_non_synonymous(self):
+        """
+        Return a boolean value that represents whether this SNV is non-synonymous or not
+        """
+        return self._is_non_synonymous
 
     @staticmethod
     def parse_repr_str(repr_str):
