@@ -14,6 +14,10 @@ __all__ = ['set_genome', 'reverse_complement', 'get_seq', 'get_chr_size', 'bin_c
 
 
 class _Genome:
+    """
+    This class represents one genome.
+    The methods in this class can be accessed by the outer functions in the same script.
+    """
     def __init__(self):
         self.genome_file = None
         self.chroms = []
@@ -54,15 +58,15 @@ class _Genome:
     def fetch_seq(self, chrom, start=None, end=None):
         """
         :param chrom: a chromosome ID
-        :param start: a start position of the region
+        :param start: a start position of the region (0-based)
         :param end: an end position of the region
         :return: the sequence of the input region
         """
         if self.genome_file is None:
-            raise AssertionError('ERROR: the genome data does not exist. call \'parse_file\' first.')
+            raise AssertionError('[ERROR] The genome file does not be entered. call \'parse_file\' first.')
 
         if chrom not in self.chroms:
-            raise ValueError('ERROR: invalid chromosome ID \'%s\'' % chrom)
+            raise ValueError('[ERROR] Invalid chromosome ID \'%s\'' % chrom)
 
         chr_size = self.chrom_to_size[chrom]
         offset = self.chrom_to_offset[chrom]
@@ -76,7 +80,7 @@ class _Genome:
             end = chr_size
 
         if not (0 <= start < end <= chr_size):
-            raise AssertionError('ERROR: invalid region %s:%s-%s' % (chrom, start, end))
+            raise AssertionError('[ERROR] Invalid region %s:%s-%s' % (chrom, start, end))
 
         blank_cnt = line_len_with_blk - line_len
 
@@ -100,9 +104,10 @@ class _Genome:
 _GENOME = _Genome()
 
 
+# Functions to access the methods of the class '_Genome'
 def set_genome(genome_file_path):
     """
-    Make _Fasta object
+    Make _Genome object
 
     It is essential to execute this function for using this module.
     'genome_file_path' must be '.fa' format and there must be index file (.fai) in the same directory.
@@ -110,27 +115,14 @@ def set_genome(genome_file_path):
     """
     # Sanity check
     if not os.path.isfile(genome_file_path):
-        raise AssertionError('ERROR: the genome file \'%s\' does not exist.' % genome_file_path)
+        raise AssertionError('[ERROR] the genome file \'%s\' does not exist.' % genome_file_path)
 
     genome_idx_file_path = '%s.fai' % genome_file_path
 
     if not os.path.isfile(genome_idx_file_path):
-        raise AssertionError('ERROR: the genome index file \'%s.fa\' does not exist' % genome_file_path)
+        raise AssertionError('[ERROR] the genome index file \'%s.fa\' does not exist' % genome_file_path)
 
     _GENOME.parse_file(genome_file_path)
-
-
-def reverse_complement(seq):
-    base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
-                    'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
-                    'N': 'N', 'n': 'n', '.': '.'}
-
-    comp_seq = ''
-
-    for base in seq:
-        comp_seq += base_to_comp[base]
-
-    return comp_seq[::-1]  # reverse
 
 
 def get_seq(chrom, start, end, strand='+', upper=True):
@@ -190,3 +182,17 @@ def bin_chrom(chrom, bin_size, overlap=0):
             bin_end = chr_size
 
     return chr_bins
+
+
+# Functions for convenience
+def reverse_complement(seq):
+    base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
+                    'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
+                    'N': 'N', 'n': 'n', '.': '.'}
+
+    comp_seq = ''
+
+    for base in seq:
+        comp_seq += base_to_comp[base]
+
+    return comp_seq[::-1]  # reverse
