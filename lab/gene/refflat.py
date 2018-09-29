@@ -234,7 +234,11 @@ class RefFlat:
         :param pos: 0-based position on the genome
         :param ref_nuc: a reference nucleotide of this variant
         :param alt_nuc: a alternative nucleotide of this variants
-        :return: a boolean value. If True, this variant is non-synonymous.
+        :return:
+            1. a boolean value: If True, this variant is non-synonymous.
+            2. a type of the point mutation:
+                If the mutation is on CDS, return 'nonsense', 'missence', or 'silent'.
+                else return None
         """
         genic_region = self.find_genic_region(pos)
 
@@ -282,11 +286,13 @@ class RefFlat:
             alt_amino_acid = get_amino_acid(alt_codon)
 
             if ref_amino_acid == alt_amino_acid:
-                return False
+                return False, 'silent'
+            elif alt_amino_acid == 'STOP':
+                return True, 'nonsense'
             else:
-                return True
+                return True, 'missense'
         else:
-            return False
+            return False, None
 
     def get_genic_region_dist(self, start, end):
         """
