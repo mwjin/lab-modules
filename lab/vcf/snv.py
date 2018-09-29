@@ -83,6 +83,12 @@ class SNV:
         """
         return self._strand_to_anno_val[strand]
 
+    def is_non_synonymous(self):
+        """
+        Return a boolean value that represents whether this SNV is non-synonymous or not
+        """
+        return self._is_non_synonymous
+
     def gene_based_anno(self, genes_same_chr):
         """
         Make up the '_gene_dict' attribute and set up the annotation values of this variant
@@ -115,6 +121,7 @@ class SNV:
                     sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
 
                 self._gene_dict[strand][gene_sym][gene_id] = 'promoter'
+                self._mut_type_dict[strand][gene_sym][gene_id] = (False, None)
 
             elif gene.tx_start <= self.pos < gene.tx_end:
                 strand = gene.strand
@@ -131,13 +138,15 @@ class SNV:
 
                 self._gene_dict[strand][gene_sym][gene_id] = genic_region
 
-        self._set_anno_val()
+                # check the mutation type of this variant
+                if genic_region == 'ORF':
+                    is_non_synonymous, mut_type = gene.is_non_synymous()
+                    self._mut_type_dict[strand][gene_sym][gene_id] = (is_non_synonymous, mut_type)
 
-    def is_non_synonymous(self):
-        """
-        Return a boolean value that represents whether this SNV is non-synonymous or not
-        """
-        return self._is_non_synonymous
+                    if is_non_synonymous:
+                        self._is_non_synonymous = True
+
+        self._set_anno_val()
 
     @staticmethod
     def parse_repr_str(repr_str):
