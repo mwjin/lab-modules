@@ -11,7 +11,7 @@ import os
 import re
 
 __all__ = ['set_genome', 'get_seq', 'get_chr_size', 'bin_chrom',
-           'reverse_complement', 'complementary_base']
+           'reverse_complement', 'complementary_base', 'get_amino_acid']
 
 
 class _Genome:
@@ -190,6 +190,20 @@ _COMPLEMENTARY_BASE = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
                        'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
                        'N': 'N', 'n': 'n', '.': '.'}
 
+# For convenience, the key value is a DNA triplet.
+# Types of amino acids
+# F: Phenylalanine, L: Leucine, S: Serine, Y: Tyrosine, C: Cystein, W: Tryptophan, P: Proline, H: Histidine,
+# Q: Glutamine, R: Arginine, I: Isoleucine, M: Methionine, T: Threonine, N: Asparagine, K: Lysine, V: Valine,
+# A: Alanine, D: Aspartic acid, E: Glutamic acid, G: Glycine
+_CODON_TABLE = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S', 'TCC': 'S', 'TCA': 'S', 'TCG': 'S',
+                'TAT': 'Y', 'TAC': 'Y', 'TAA': 'STOP', 'TAG': 'STOP', 'TGT': 'C', 'TGC': 'C', 'TGA': 'STOP', 'TGG': 'W',
+                'CTT': 'L', 'CTC': 'L', 'CTA': 'L', 'CTG': 'L', 'CCT': 'P', 'CCC': 'P', 'CCA': 'P', 'CCG': 'P',
+                'CAT': 'H', 'CAC': 'H', 'CAA': 'Q', 'CAG': 'Q', 'CGT': 'R', 'CGC': 'R', 'CGA': 'R', 'CGG': 'R',
+                'ATT': 'I', 'ATC': 'I', 'ATA': 'I', 'ATG': 'M', 'ACT': 'T', 'ACC': 'T', 'ACA': 'T', 'ACG': 'T',
+                'AAT': 'N', 'AAC': 'N', 'AAA': 'K', 'AAG': 'K', 'AGT': 'S', 'AGC': 'S', 'AGA': 'R', 'AGG': 'R',
+                'GTT': 'V', 'GTC': 'V', 'GTA': 'V', 'GTG': 'V', 'GCT': 'A', 'GCC': 'A', 'GCA': 'A', 'GCG': 'A',
+                'GAT': 'D', 'GAC': 'D', 'GAA': 'E', 'GAG': 'E', 'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'}
+
 
 def reverse_complement(seq):
     """
@@ -207,6 +221,14 @@ def reverse_complement(seq):
 def complementary_base(base):
     """
     :param base: a base of a nucleotide
-    :return: the complementary base of that base
+    :return: the complementary base of that base. If the base is wrong, return None
     """
-    return _COMPLEMENTARY_BASE[base]
+    return _COMPLEMENTARY_BASE.get(base)
+
+
+def get_amino_acid(codon):
+    """
+    :param codon: a DNA triplet
+    :return: an amino acid represented as a character or 'STOP'. If the codon is wrong, return None.
+    """
+    return _CODON_TABLE.get(codon)
