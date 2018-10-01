@@ -125,12 +125,19 @@ class MutPeak(NarrowPeak):
         assert self.start <= variant.pos < self.end
 
         var_pos = variant.pos
+        var_repr = repr(variant)
 
         # variant counting
         if var_pos not in self.var_pos_to_cnt:
             self.var_pos_to_cnt[var_pos] = 1
         else:
             self.var_pos_to_cnt[var_pos] += 1
+
+        # save the variant repr strings
+        if var_pos not in self.var_pos_to_var_set:
+            self.var_pos_to_var_set[var_pos] = set()
+
+        self.var_pos_to_var_set[var_pos].add(var_repr)
 
         # gene-based annotation of the variants
         if var_pos not in self.var_pos_to_anno_val:
@@ -159,6 +166,17 @@ class MutPeak(NarrowPeak):
             self.repr_genic_region_to_var_cnt['3UTR'] += 1
         else:
             self.repr_genic_region_to_var_cnt[repr_genic_region] += 1
+
+        # make up the attributes for the mutation types of the variants on this peak
+        if var_repr not in self.var_is_non_synonymous_dict:
+            self.var_is_non_synonymous_dict[var_repr] = variant.is_non_synonymous()
+        else:
+            assert self.var_is_non_synonymous_dict[var_repr] == variant.is_non_synonymous()
+
+        if var_repr not in self.var_to_mut_type_dict:
+            self.var_to_mut_type_dict[var_repr] = variant.get_mut_type_dict(self.strand)
+        else:
+            assert self.var_to_mut_type_dict[var_repr] == variant.get_mut_type_dict(self.strand)
 
     def gene_based_anno(self, anno_val_list):
         """
