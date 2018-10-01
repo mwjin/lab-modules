@@ -275,3 +275,22 @@ class MutPeak(NarrowPeak):
             return self.repr_genic_region_to_var_cnt
         else:
             return self.genic_region_to_var_cnt
+
+    def var_is_non_synonymous(self, var_repr):
+        """
+        :param var_repr: a repr string of a SNV object
+        :return: a boolean value
+                 If the variant is non-synonymous, return True.
+                 If the var_repr is unavailable on this peak, return None
+        """
+        return self.var_is_non_synonymous_dict.get(var_repr)
+
+    def get_mut_type_dict(self, var_repr):
+        """
+        Return a dictionary to check the mutation type of the variant for each gene associated with this variant
+        :param var_repr: a repr string of a SNV object
+        :return: a dictionary
+                 :Mapping route: strand -> gene symbol -> ID -> (is_non_synonymous, mutation type)
+                 If the var_repr is unavailable on this peak, return None
+        """
+        return self.var_to_mut_type_dict.get(var_repr)
