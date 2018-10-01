@@ -13,6 +13,7 @@ class MutPeak(NarrowPeak):
 
         # attributes for the variants on this bed
         self.var_pos_to_cnt = {}  # positions of variants (0-based) to their counts
+        self.var_pos_to_var_set = {}  # positions of variants to a set of their repr strings
         self.var_pos_to_anno_val = {}  # positions of variants to their annotation values
         self.var_pos_to_genes = {}  # positions of variants to their associated genes (type: dictionary)
 
@@ -22,6 +23,10 @@ class MutPeak(NarrowPeak):
         self.genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
         self.repr_genic_region_to_size = {genic_region: 0 for genic_region in self._genic_regions}
         self.repr_genic_region_to_var_cnt = {genic_region: 0 for genic_region in self._genic_regions}
+
+        # attributes for the mutation types of the variants on this peak
+        self.var_is_non_synonymous_dict = {}  # key: a repr string of a SNV object, value: is_non_synonymous (a boolean)
+        self.var_to_mut_type_dict = {}  # key: a repr string of a SNV object, value: '_mut_type_dict' attr of the 'SNV'
 
     def combine(self, other):
         """
