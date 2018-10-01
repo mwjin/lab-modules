@@ -115,27 +115,78 @@ class MutPeak(NarrowPeak):
 
     # TODO: implementation of the overrided methods 'merge' and 'cut'
 
-    def get_genic_region_to_size(self, only_repr=False):
+    def put_variant(self, variant):
         """
-        :param only_repr: if True, then return repr_genic_region_to_size
-        :return: a dictionary that documents the size of each genic region on this bed.
-                 (key: a genic region, value: a size of the genic region (integer))
+        Make up the distribution of variants on this bed
+        :param variant: an object of the class 'SNV'
+        * representative genic region: a genic region which has the highest priority among genic region candidates
         """
-        if only_repr:
-            return self.repr_genic_region_to_size
-        else:
-            return self.genic_region_to_size
+        assert variant.__class__.__name__ == 'SNV'
+        assert self.start <= variant.pos < self.end
 
-    def get_genic_region_to_var_cnt(self, only_repr=False):
-        """
-        :param only_repr: if True, then return repr_genic_region_to_var_cnt
-        :return: a dictionary that documents the number of variants of each genic region on this bed.
-                 (key: a genic region, value: the number of variants on the genic region (integer))
-        """
-        if only_repr:
-            return self.repr_genic_region_to_var_cnt
+        var_pos = variant.pos
+
+        # variant counting
+        if var_pos not in self.var_pos_to_cnt:
+            self.var_pos_to_cnt[var_pos] = 1
         else:
-            return self.genic_region_to_var_cnt
+            self.var_pos_to_cnt[var_pos] += 1
+
+        # gene-based annotation of the variants
+        if var_pos not in self.var_pos_to_anno_val:
+            var_anno_val = variant.get_anno_val(self.strand)
+            self.var_pos_to_anno_val[var_pos] = var_anno_val
+        else:
+            assert self.var_pos_to_anno_val[var_pos] == variant.get_anno_val(self.strand)
+
+        # save the information of the variant-associated genes
+        if var_pos not in self.var_pos_to_genes:
+            assoc_genes = variant.get_assoc_genes(self.strand)
+            self.var_pos_to_genes[var_pos] = assoc_genes
+        else:
+            assert self.var_pos_to_genes[var_pos] == variant.get_assoc_genes(self.strand)
+
+        # make up the attributes for the gene-based annotation
+        anno_dict = parse_anno_val(self.var_pos_to_anno_val[var_pos])
+        repr_is_multi, repr_genic_region = get_repr_anno(self.var_pos_to_anno_val[var_pos])
+
+        for genic_region in self._genic_regions:
+            if anno_dict[genic_region]:
+                self.genic_region_to_var_cnt[genic_region] += 1
+
+        if repr_is_multi:
+            self.repr_genic_region_to_var_cnt['5UTR'] += 1
+            self.repr_genic_region_to_var_cnt['3UTR'] += 1
+        else:
+            self.repr_genic_region_to_var_cnt[repr_genic_region] += 1
+
+    def gene_based_anno(self, anno_val_list):
+        """
+        This function enters the value of the attribute 'anno_vals' and
+        makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
+        * representative genic region: a genic region which has the highest priority among genic region candidates
+        :param anno_val_list: a list of anntation values corresponding to this bed (see gene.utils)
+        """
+        assert len(anno_val_list) == self.get_size()
+        self.anno_vals = anno_val_list
+
+        # make a statistics for genic regions
+        for anno_val in anno_val_list:
+            anno_dict = parse_anno_val(anno_val)
+
+            for genic_region in self._genic_regions:
+                if anno_dict[genic_region]:
+                    self.genic_region_to_size[genic_region] += 1
+
+        # make a statistics for representative genic regions
+        for anno_val in anno_val_list:
+            repr_is_multi, repr_genic_region = get_repr_anno(anno_val)
+
+            if repr_is_multi:
+                self.repr_genic_region_to_size['5UTR'] += 1
+                self.repr_genic_region_to_size['3UTR'] += 1
+            else:
+                self.repr_genic_region_to_size[repr_genic_region] += 1
 
     def get_var_pos_list(self):
         """
@@ -203,76 +254,24 @@ class MutPeak(NarrowPeak):
         """
         return self.anno_vals
 
-    def gene_based_anno(self, anno_val_list):
+    def get_genic_region_to_size(self, only_repr=False):
         """
-        This function enters the value of the attribute 'anno_vals' and
-        makes up the 'genic_region_to_size' and 'repr_genic_region_to_size' attribute.
-        * representative genic region: a genic region which has the highest priority among genic region candidates
-        :param anno_val_list: a list of anntation values corresponding to this bed (see gene.utils)
+        :param only_repr: if True, then return repr_genic_region_to_size
+        :return: a dictionary that documents the size of each genic region on this bed.
+                 (key: a genic region, value: a size of the genic region (integer))
         """
-        assert len(anno_val_list) == self.get_size()
-        self.anno_vals = anno_val_list
+        if only_repr:
+            return self.repr_genic_region_to_size
+        else:
+            return self.genic_region_to_size
 
-        # make a statistics for genic regions
-        for anno_val in anno_val_list:
-            anno_dict = parse_anno_val(anno_val)
-
-            for genic_region in self._genic_regions:
-                if anno_dict[genic_region]:
-                    self.genic_region_to_size[genic_region] += 1
-
-        # make a statistics for representative genic regions
-        for anno_val in anno_val_list:
-            repr_is_multi, repr_genic_region = get_repr_anno(anno_val)
-
-            if repr_is_multi:
-                self.repr_genic_region_to_size['5UTR'] += 1
-                self.repr_genic_region_to_size['3UTR'] += 1
-            else:
-                self.repr_genic_region_to_size[repr_genic_region] += 1
-
-    def put_variant(self, variant):
+    def get_genic_region_to_var_cnt(self, only_repr=False):
         """
-        Make up the distribution of variants on this bed
-        :param variant: an object of the class 'SNV'
-        * representative genic region: a genic region which has the highest priority among genic region candidates
+        :param only_repr: if True, then return repr_genic_region_to_var_cnt
+        :return: a dictionary that documents the number of variants of each genic region on this bed.
+                 (key: a genic region, value: the number of variants on the genic region (integer))
         """
-
-        assert variant.__class__.__name__ == 'SNV'
-        assert self.start <= variant.pos < self.end
-
-        var_pos = variant.pos
-
-        # variant counting
-        if var_pos not in self.var_pos_to_cnt:
-            self.var_pos_to_cnt[var_pos] = 1
+        if only_repr:
+            return self.repr_genic_region_to_var_cnt
         else:
-            self.var_pos_to_cnt[var_pos] += 1
-
-        # gene-based annotation of the variants
-        if var_pos not in self.var_pos_to_anno_val:
-            var_anno_val = variant.get_anno_val(self.strand)
-            self.var_pos_to_anno_val[var_pos] = var_anno_val
-        else:
-            assert self.var_pos_to_anno_val[var_pos] == variant.get_anno_val(self.strand)
-
-        # save the information of the variant-associated genes
-        if var_pos not in self.var_pos_to_genes:
-            assoc_genes = variant.get_assoc_genes(self.strand)
-            self.var_pos_to_genes[var_pos] = assoc_genes
-        else:
-            assert self.var_pos_to_genes[var_pos] == variant.get_assoc_genes(self.strand)
-
-        # make up the attributes for the gene-based annotation
-        anno_dict = parse_anno_val(self.var_pos_to_anno_val[var_pos])
-        repr_is_multi, repr_genic_region = get_repr_anno(self.var_pos_to_anno_val[var_pos])
-
-        for genic_region in self._genic_regions:
-            if anno_dict[genic_region]:
-                self.genic_region_to_var_cnt[genic_region] += 1
-
-        if repr_is_multi:
-            self.repr_genic_region_to_var_cnt['5UTR'] += 1
-            self.repr_genic_region_to_var_cnt['3UTR'] += 1
-        else:
-            self.repr_genic_region_to_var_cnt[repr_genic_region] += 1
+            return self.genic_region_to_var_cnt
