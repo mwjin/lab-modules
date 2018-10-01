@@ -92,6 +92,14 @@ class SNV:
         """
         return self._strand_to_anno_val[strand]
 
+    def get_mut_type_dict(self, strand):
+        """
+        Return a dictionary that contains information of mutation types for each gene associated with this variant
+        :param strand: '+' or '-'
+        :return: a dictionary (mapping route: gene symbol -> ID -> (is_non_synonymous, mutation type))
+        """
+        return self._mut_type_dict[strand]
+
     def is_non_synonymous(self):
         """
         Return a boolean value that represents whether this SNV is non-synonymous or not
