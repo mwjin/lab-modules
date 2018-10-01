@@ -234,18 +234,18 @@ class MutPeak(NarrowPeak):
         """
         :param var_pos: a variant position (0-based) inside the bed
         :return: a genic region value of the position
+                 If the var_pos is unavailable on this peak, return None
         """
-        anno_val = self.var_pos_to_anno_val.get(var_pos)
-        assert anno_val is not None
-
-        return anno_val
+        return self.var_pos_to_anno_val.get(var_pos)
 
     def get_genes_at_pos(self, var_pos):
         """
         :param var_pos: a variant position (0-based) inside the bed
-        :return: a dictionary (mapping route: gene symbol -> ID -> genic region)
+        :return: a dictionary
+                 :Mapping route: gene symbol -> ID -> genic region
+                 If the var_pos is unavailable on this peak, return None
         """
-        return self.var_pos_to_genes[var_pos]
+        return self.var_pos_to_genes.get(var_pos)
 
     def get_anno_vals(self):
         """
