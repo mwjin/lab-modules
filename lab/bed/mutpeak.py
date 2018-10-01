@@ -38,9 +38,9 @@ class MutPeak(NarrowPeak):
 
         for var_pos in other.var_pos_to_cnt:
             # combine the attributes for the variants on this bed
-            var_cnt = other.get_var_cnt_in_pos(var_pos)
-            anno_val = other.get_anno_val_in_pos(var_pos)
-            genes = other.get_genes_in_pos(var_pos)
+            var_cnt = other.get_var_cnt_at_pos(var_pos)
+            anno_val = other.get_anno_val_at_pos(var_pos)
+            genes = other.get_genes_at_pos(var_pos)
 
             if var_pos not in self.var_pos_to_cnt:
                 self.var_pos_to_anno_val[var_pos] = anno_val
@@ -154,7 +154,7 @@ class MutPeak(NarrowPeak):
 
         return var_cnt
 
-    def get_var_cnt_in_pos(self, var_pos):
+    def get_var_cnt_at_pos(self, var_pos):
         """
         :param var_pos: a variant position (0-based) inside the bed
         :return: the number of variants on the position
@@ -164,7 +164,7 @@ class MutPeak(NarrowPeak):
 
         return var_cnt
 
-    def get_anno_val_in_pos(self, var_pos):
+    def get_anno_val_at_pos(self, var_pos):
         """
         :param var_pos: a variant position (0-based) inside the bed
         :return: a genic region value of the position
@@ -174,7 +174,7 @@ class MutPeak(NarrowPeak):
 
         return anno_val
 
-    def get_genes_in_pos(self, var_pos):
+    def get_genes_at_pos(self, var_pos):
         """
         :param var_pos: a variant position (0-based) inside the bed
         :return: a dictionary (mapping route: gene symbol -> ID -> genic region)
