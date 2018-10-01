@@ -156,13 +156,10 @@ class MutPeak(NarrowPeak):
 
     def get_var_cnt_at_pos(self, var_pos):
         """
-        :param var_pos: a variant position (0-based) inside the bed
-        :return: the number of variants on the position
+        :param var_pos: a variant position (0-based) on this peak
+        :return: the number of variants at this position (If the position is unavailable, return None)
         """
-        var_cnt = self.var_pos_to_cnt.get(var_pos)
-        assert var_cnt is not None
-
-        return var_cnt
+        return self.var_pos_to_cnt.get(var_pos)
 
     def get_variants(self):
         """
@@ -177,8 +174,8 @@ class MutPeak(NarrowPeak):
 
     def get_variants_at_pos(self, var_pos):
         """
-        :param var_pos: a variant position (0-based) in this peak
-        :return: a set of variants at this position (If the position is unavailable, return None)
+        :param var_pos: a variant position (0-based) on this peak
+        :return: a set of repr strings of variants at this position (If the position is unavailable, return None)
         """
         return self.var_pos_to_var_set.get(var_pos)
 
