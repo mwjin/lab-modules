@@ -133,9 +133,8 @@ class SNV:
                 if gene_sym not in self._gene_dict[strand]:
                     self._gene_dict[strand][gene_sym] = {}
 
-                if gene_id in self._gene_dict[strand][gene_sym]:
-                    eprint('[ERROR] in %s' % caller_file_and_line())
-                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
+                if gene_sym not in self._mut_type_dict[strand]:
+                    self._mut_type_dict[strand][gene_sym] = {}
 
                 self._gene_dict[strand][gene_sym][gene_id] = 'promoter'
                 self._mut_type_dict[strand][gene_sym][gene_id] = (False, None)
@@ -149,9 +148,8 @@ class SNV:
                 if gene_sym not in self._gene_dict[strand]:
                     self._gene_dict[strand][gene_sym] = {}
 
-                if gene_id in self._gene_dict[strand][gene_sym]:
-                    eprint('[ERROR] in %s' % caller_file_and_line())
-                    sys.exit('\tThere is already same id (%s) in the gene %s.' % (gene_id, gene_sym))
+                if gene_sym not in self._mut_type_dict[strand]:
+                    self._mut_type_dict[strand][gene_sym] = {}
 
                 self._gene_dict[strand][gene_sym][gene_id] = genic_region
 
