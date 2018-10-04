@@ -253,7 +253,7 @@ class RefFlat:
             assert exon_idx != -1
 
             # find the relative position of the variant on mRNA
-            rel_pos = pos
+            rel_pos = pos - self.tx_start
 
             for j in range(exon_idx):
                 intron_size = self.exon_starts[j + 1] - self.exon_ends[j]
