@@ -157,7 +157,7 @@ class SNV:
 
                 # check the mutation type of this variant
                 if genic_region == 'ORF':
-                    is_non_synonymous, mut_type = gene.is_non_synymous()
+                    is_non_synonymous, mut_type = gene.is_non_synonymous(self.pos, self.ref_nuc, self.alt_nuc)
                     self._mut_type_dict[strand][gene_sym][gene_id] = (is_non_synonymous, mut_type)
 
                     if is_non_synonymous:
