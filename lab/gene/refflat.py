@@ -231,6 +231,8 @@ class RefFlat:
         """
         Determine whether the point mutation on this gene is non-synonymous or not.
         (It is assumed that the variant is on a same chromosome with this gene)
+        The arguments represent a point mutation.
+
         :param pos: 0-based position on the genome
         :param ref_nuc: a reference nucleotide of this variant
         :param alt_nuc: a alternative nucleotide of this variants

@@ -96,7 +96,9 @@ class SNV:
         """
         Return a dictionary that contains information of mutation types for each gene associated with this variant
         :param strand: '+' or '-'
-        :return: a dictionary (mapping route: gene symbol -> ID -> (is_non_synonymous, mutation type))
+        :return: a dictionary 
+                : mapping route: gene symbol -> ID -> (a boolean value, mutation type))
+                : If the boolean is True, it means that the gene is protein-modified gene
         """
         return self._mut_type_dict[strand]
 
@@ -155,10 +157,10 @@ class SNV:
 
                 # check the mutation type of this variant
                 if genic_region == 'ORF':
-                    is_non_synonymous, mut_type = gene.is_non_synonymous(self.pos, self.ref_nuc, self.alt_nuc)
-                    self._mut_type_dict[strand][gene_sym][gene_id] = (is_non_synonymous, mut_type)
+                    prot_is_mod, mut_type = gene.is_non_synonymous(self.pos, self.ref_nuc, self.alt_nuc)
+                    self._mut_type_dict[strand][gene_sym][gene_id] = (prot_is_mod, mut_type)
 
-                    if is_non_synonymous:
+                    if prot_is_mod:  # a protein product of the gene is modified
                         self._is_non_synonymous = True
 
         self._set_anno_val()
