@@ -227,9 +227,9 @@ class RefFlat:
             eprint("[ERROR] The position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
 
-    def is_non_synonymous(self, pos, ref_nuc, alt_nuc):
+    def point_mut_type(self, pos, ref_nuc, alt_nuc):
         """
-        Determine whether the point mutation on this gene is non-synonymous or not.
+        Determine the type of point mutation on this gene (silent, nonsense, missense, or non-coding)
         (It is assumed that the variant is on a same chromosome with this gene)
         The arguments represent a point mutation.
 
@@ -237,10 +237,10 @@ class RefFlat:
         :param ref_nuc: a reference nucleotide of this variant
         :param alt_nuc: a alternative nucleotide of this variants
         :return:
-            1. a boolean value: If True, this variant is non-synonymous.
+            1. a boolean value: If True, this point mutation is non-synonymous.
             2. a type of the point mutation:
                 If the mutation is on CDS, return 'nonsense', 'missence', or 'silent'.
-                else return None
+                else return None  (non-coding)
         """
         genic_region = self.find_genic_region(pos)
 

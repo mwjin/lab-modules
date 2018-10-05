@@ -157,7 +157,7 @@ class SNV:
 
                 # check the mutation type of this variant
                 if genic_region == 'ORF':
-                    prot_is_mod, mut_type = gene.is_non_synonymous(self.pos, self.ref_nuc, self.alt_nuc)
+                    prot_is_mod, mut_type = gene.point_mut_type(self.pos, self.ref_nuc, self.alt_nuc)
                     self._mut_type_dict[strand][gene_sym][gene_id] = (prot_is_mod, mut_type)
 
                     if prot_is_mod:  # a protein product of the gene is modified
