@@ -52,8 +52,8 @@ class SNV:
         """
         Return an entry for a VCF file. It only contains essential fields.
         """
-        return '%s\t%d\t%s\t%s\t%s\t%.1f\t%s\t%s' % (self.chrom, self.pos + 1, self.dbSNP_id, self.ref_nuc,
-                                                     self.alt_nuc, self.qual, self.filter, self.info)
+        return '%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s' % (self.chrom, self.pos + 1, self.dbSNP_id, self.ref_nuc,
+                                                   self.alt_nuc, self.qual, self.filter, self.info)
 
     def __eq__(self, other):
         """
