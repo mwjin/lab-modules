@@ -1,5 +1,5 @@
 from lab.utils import eprint
-from lab.genome.genome import get_seq, reverse_complement
+from lab.genome.genome import get_seq, reverse_complement, complementary_base, get_amino_acid
 from lab.gene.anno import genic_region_list
 
 __all__ = ['RefFlat']
@@ -53,14 +53,14 @@ class RefFlat:
         self.tx_end = int(refflat_fields[5])
 
         if self.tx_start > self.tx_end:
-            eprint("Error in %s: tx end point is ahead of tx start." % self.symbol)
+            eprint("[ERROR] in %s: Tx end point is ahead of tx start." % self.symbol)
             return
 
         self.cds_start = int(refflat_fields[6])
         self.cds_end = int(refflat_fields[7])
 
         if self.cds_start > self.cds_end:
-            eprint("Error in %s: cds end point is ahead of cds start." % self.symbol)
+            eprint("[ERROR] in %s: CDS end point is ahead of CDS start." % self.symbol)
             return
 
         self.exon_cnt = int(refflat_fields[8])
@@ -68,22 +68,22 @@ class RefFlat:
         self.exon_starts.sort()
 
         if self.tx_start != self.exon_starts[0]:
-            eprint("Error in %s: Tx start point is different with exon start point." % self.symbol)
+            eprint("[ERROR] in %s: Tx start point is different with exon start point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_starts):
-            eprint("Error in %s: Exon count is different with the number of exon starts." % self.symbol)
+            eprint("[ERROR] in %s: Exon count is different with the number of exon starts." % self.symbol)
             return
 
         self.exon_ends = [int(exon_end) for exon_end in refflat_fields[10].strip(',').split(',')]
         self.exon_ends.sort()
 
         if self.tx_end != self.exon_ends[-1]:
-            eprint("Error in %s: Tx end point is different with exon end point." % self.symbol)
+            eprint("[ERROR] in %s: Tx end point is different with exon end point." % self.symbol)
             return
 
         if self.exon_cnt != len(self.exon_ends):
-            eprint("Error in %s: Exon count is different with the number of exon ends." % self.symbol)
+            eprint("[ERROR] in %s: Exon count is different with the number of exon ends." % self.symbol)
             return
 
         valid_exon = self._check_exon_overlap()
@@ -103,7 +103,7 @@ class RefFlat:
             one_exon_size = self.exon_ends[i] - self.exon_starts[i]
 
             if one_exon_size < 0:
-                eprint("Error in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
+                eprint("[ERROR] in {0}: exon{1} end point is ahead of exon{1} start.".format(self.symbol, i + 1))
                 return False
 
             seq_exon = get_seq(self.chrom, self.exon_starts[i], self.exon_ends[i])
@@ -140,7 +140,7 @@ class RefFlat:
             self.seq_3utr = reverse_complement(seq_exons[0:cds_start_offset])
 
         else:
-            eprint("Error: invalid strand %s" % self.strand)
+            eprint("[ERROR] Invalid strand %s" % self.strand)
             return False
 
         return True
@@ -182,7 +182,9 @@ class RefFlat:
         :param pos: 0-based position
         :return: a genic region. if intergenic, return None
         """
-        if self.tx_start <= pos < self.tx_end:
+        if self.tx_start - 300 <= pos < self.tx_start:
+            return 'promoter'
+        elif self.tx_start <= pos < self.tx_end:
             idx = -1  # even number (include 0): exonic, odd number: intronic
 
             for i in range(self.exon_cnt):
@@ -222,8 +224,75 @@ class RefFlat:
                 else:
                     return 'ncRNA_exonic'
         else:
-            eprint("Error: the position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
+            eprint("[ERROR] The position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
+
+    def is_non_synonymous(self, pos, ref_nuc, alt_nuc):
+        """
+        Determine whether the point mutation on this gene is non-synonymous or not.
+        (It is assumed that the variant is on a same chromosome with this gene)
+        :param pos: 0-based position on the genome
+        :param ref_nuc: a reference nucleotide of this variant
+        :param alt_nuc: a alternative nucleotide of this variants
+        :return:
+            1. a boolean value: If True, this variant is non-synonymous.
+            2. a type of the point mutation:
+                If the mutation is on CDS, return 'nonsense', 'missence', or 'silent'.
+                else return None
+        """
+        genic_region = self.find_genic_region(pos)
+
+        if genic_region is not None and genic_region == 'ORF':
+            exon_idx = -1
+
+            for i in range(self.exon_cnt):
+                if self.exon_starts[i] <= pos < self.exon_ends[i]:
+                    exon_idx = i
+                    break
+
+            assert exon_idx != -1
+
+            # find the relative position of the variant on mRNA
+            rel_pos = pos - self.tx_start
+
+            for j in range(exon_idx):
+                intron_size = self.exon_starts[j + 1] - self.exon_ends[j]
+                rel_pos -= intron_size
+
+            # find the relative position of the variant on CDS of mRNA
+            if self.strand == '+':
+                cds_rel_pos = rel_pos - len(self.seq_5utr)
+            else:  # self.strand == '-'
+                cds_rel_pos = rel_pos - len(self.seq_3utr)
+                cds_rel_pos = len(self.seq_orf) - cds_rel_pos - 1  # reverse complement
+
+                ref_nuc = complementary_base(ref_nuc)
+                alt_nuc = complementary_base(alt_nuc)
+
+            assert ref_nuc == self.seq_orf[cds_rel_pos]
+
+            # check the change of an amino acid
+            if cds_rel_pos % 3 == 0:
+                ref_codon = self.seq_orf[cds_rel_pos:cds_rel_pos + 3]
+                alt_codon = alt_nuc + self.seq_orf[cds_rel_pos + 1:cds_rel_pos + 3]
+            elif cds_rel_pos % 3 == 1:
+                ref_codon = self.seq_orf[cds_rel_pos - 1:cds_rel_pos + 2]
+                alt_codon = self.seq_orf[cds_rel_pos - 1] + alt_nuc + self.seq_orf[cds_rel_pos + 1]
+            else:  # cds_rel_pos % 3 == 2
+                ref_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos + 1]
+                alt_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos] + alt_nuc
+
+            ref_amino_acid = get_amino_acid(ref_codon)
+            alt_amino_acid = get_amino_acid(alt_codon)
+
+            if ref_amino_acid == alt_amino_acid:
+                return False, 'silent'
+            elif alt_amino_acid == 'STOP':
+                return True, 'nonsense'
+            else:
+                return True, 'missense'
+        else:
+            return False, None
 
     def get_genic_region_dist(self, start, end):
         """
@@ -364,7 +433,7 @@ class RefFlat:
 
         for i in range(num_iter):
             if exon_positions[i] > exon_positions[i + 1]:
-                eprint("Error: %s has a exon overlap." % self.symbol)
+                eprint("[ERROR] %s has a exon overlap." % self.symbol)
                 return False
 
         return True

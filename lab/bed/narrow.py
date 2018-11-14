@@ -44,7 +44,7 @@ class NarrowPeak:
             if hasattr(self, attr):
                 setattr(self, attr, kwargs[attr])
             else:
-                raise AttributeError('Error: %s has no attribute named as %s.' % (self.__class__.__name__, attr))
+                raise AttributeError('[ERROR] %s has no attribute named as %s.' % (self.__class__.__name__, attr))
 
     def __str__(self):
         return '%s\t%d\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % \
@@ -65,14 +65,14 @@ class NarrowPeak:
 
     def get_size(self):
         """
-        :return: a size of the peak
+        :return: a size of the bed
         """
         return self.end - self.start
 
     def merge(self, peak):
         """
-        merge the position of this peak with the input peak and return the peak which has the merged position
-        :param peak: an object of the same class which chromosomal position and strand are same with this peak
+        merge the position of this bed with the input bed and return the bed which has the merged position
+        :param peak: an object of the same class which chromosomal position and strand are same with this bed
         :return: an object of the 'NarrowPeak' or None if there is a gap between the two peaks
         """
         assert peak.__class__.__name__ == self.__class__.__name__
@@ -93,8 +93,8 @@ class NarrowPeak:
 
     def intersect(self, peak):
         """
-        intersect the position of this peak with the input peak and return the peak which has the intersected position
-        :param peak: an object of the same class which chromosomal position and strand are same with this peak
+        intersect the position of this bed with the input bed and return the bed which has the intersected position
+        :param peak: an object of the same class which chromosomal position and strand are same with this bed
         :return: an object of the 'NarrowPeak' or None if there is no overlap
         """
         assert peak.__class__.__name__ == self.__class__.__name__
@@ -115,19 +115,19 @@ class NarrowPeak:
 
     def cut(self, start, end):
         """
-        cut the peak and return new object
+        cut the bed and return new object
         :param start: a start position of the new object
         :param end: an end position of the new object
         :return: a 'NarrowPeak' object
         """
         assert self.start <= start < end <= self.end
-        new_peak = NarrowPeak(self.chrom, self.start, self.end, self.strand)
+        new_peak = NarrowPeak(self.chrom, start, end, self.strand)
 
         return new_peak
 
     def parse_peak_entry(self, peak_entry):
         """
-        :param peak_entry: an entry from a narrow peak bed file
+        :param peak_entry: an entry from a narrow bed bed file
         """
         # File Format
         # Column:        0       | 1         | 2        | 3               | 4      | 5       |
@@ -159,7 +159,7 @@ class NarrowPeak:
     @classmethod
     def parse_peak_file(cls, peak_filename):
         """
-        :param peak_filename: a file which has a narrow peak bed format
+        :param peak_filename: a file which has a narrow bed bed format
         :return: a list of NarrowPeak objects
         """
         peak_file = open(peak_filename, 'r')

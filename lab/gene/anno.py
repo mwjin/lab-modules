@@ -22,12 +22,13 @@ Each bit of the integer represents a boolean value for one genic region.
 If the integer value is 0, it means that the nucleotide is intergenic.
 """
 
-__all__ = ['genic_region_list', 'get_anno_priority', 'get_anno_val', 'parse_anno_val']
+__all__ = ['genic_region_list', 'get_anno_priority', 'get_anno_val', 'parse_anno_val', 'get_repr_anno']
 
 # constants used in this module
 # SS: Splice site, 30nt at the each end of the intron
 # intronic: intronic region except the splice site
-_GENIC_REGIONS = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'SS', 'intronic', 'ncRNA_intronic', 'intergenic']
+# promoter: 300nt upstream for each gene
+_GENIC_REGIONS = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'SS', 'intronic', 'ncRNA_intronic', 'promoter', 'intergenic']
 _BIT_LEN = len(_GENIC_REGIONS) - 1
 _REGION_TO_BIT_POS = {genic_region: (i + 1) for i, genic_region in enumerate(_GENIC_REGIONS)}
 _BIT_POS_TO_REGION = {(i + 1): genic_region for i, genic_region in enumerate(_GENIC_REGIONS)}
@@ -57,8 +58,8 @@ def get_anno_val(genic_region):
         bit_pos = _REGION_TO_BIT_POS[genic_region]
         return 2 ** (_BIT_LEN - bit_pos)
     except KeyError:
-        eprint("Error in %s: invalid genic region '%s'" % (caller_file_and_line(), genic_region))
-        sys.exit()
+        eprint("[ERROR] in %s" % caller_file_and_line())
+        sys.exit("\tInvalid genic region \'%s\'" % genic_region)
 
 
 def parse_anno_val(anno_val):
@@ -82,3 +83,29 @@ def parse_anno_val(anno_val):
                 anno_dict[genic_region] = True
 
     return anno_dict
+
+
+def get_repr_anno(anno_val):
+    """
+    Return the genic region that has top priority among possible annotations
+    :param anno_val: an integer
+    :return: two elements
+        1. is_multiple: a boolean. if true, there are multiple representative genic regions
+        2. genic region: a string. if multiple is true, the genic regions are joined by ';'.
+    """
+    assert 0 <= anno_val < (2 ** _BIT_LEN)  # the maximum bit length of the genic region value is 6
+
+    anno_dict = parse_anno_val(anno_val)
+    repr_genic_region = None
+
+    for genic_region in _GENIC_REGIONS:
+        if anno_dict[genic_region]:
+            repr_genic_region = genic_region
+            break
+
+    assert repr_genic_region is not None
+
+    if repr_genic_region == '5UTR' and anno_dict['3UTR'] is True:
+        return True, '5UTR;3UTR'
+    else:
+        return False, repr_genic_region

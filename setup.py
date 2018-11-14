@@ -4,7 +4,7 @@ import lab
 setup(
     name='lab-modules',
     version=lab.__version__,
-    packages=['lab', 'lab.vcf', 'lab.gene', 'lab.peak', 'lab.genome', 'tests', 'tests.vcf', 'tests.gene', 'tests.peak',
+    packages=['lab', 'lab.vcf', 'lab.gene', 'lab.bed', 'lab.genome', 'tests', 'tests.vcf', 'tests.gene', 'tests.bed',
               'tests.genome'],
     url='https://github.com/jeongmw/lab-modules',
     license='MIT',

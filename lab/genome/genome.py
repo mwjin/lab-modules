@@ -10,10 +10,15 @@ For using them except 1, we must call the function 'set_genome' first.
 import os
 import re
 
-__all__ = ['set_genome', 'reverse_complement', 'get_seq', 'get_chr_size', 'bin_chrom']
+__all__ = ['set_genome', 'get_seq', 'get_chr_size', 'bin_chrom',
+           'reverse_complement', 'complementary_base', 'get_amino_acid']
 
 
 class _Genome:
+    """
+    This class represents one genome.
+    The methods in this class can be accessed by the outer functions in the same script.
+    """
     def __init__(self):
         self.genome_file = None
         self.chroms = []
@@ -54,15 +59,15 @@ class _Genome:
     def fetch_seq(self, chrom, start=None, end=None):
         """
         :param chrom: a chromosome ID
-        :param start: a start position of the region
+        :param start: a start position of the region (0-based)
         :param end: an end position of the region
         :return: the sequence of the input region
         """
         if self.genome_file is None:
-            raise AssertionError('ERROR: the genome data does not exist. call \'parse_file\' first.')
+            raise AssertionError('[ERROR] The genome file does not be entered. call \'parse_file\' first.')
 
         if chrom not in self.chroms:
-            raise ValueError('ERROR: invalid chromosome ID \'%s\'' % chrom)
+            raise ValueError('[ERROR] Invalid chromosome ID \'%s\'' % chrom)
 
         chr_size = self.chrom_to_size[chrom]
         offset = self.chrom_to_offset[chrom]
@@ -76,7 +81,7 @@ class _Genome:
             end = chr_size
 
         if not (0 <= start < end <= chr_size):
-            raise AssertionError('ERROR: invalid region %s:%s-%s' % (chrom, start, end))
+            raise AssertionError('[ERROR] Invalid region %s:%s-%s' % (chrom, start, end))
 
         blank_cnt = line_len_with_blk - line_len
 
@@ -100,9 +105,10 @@ class _Genome:
 _GENOME = _Genome()
 
 
+# Functions to access the methods of the class '_Genome'
 def set_genome(genome_file_path):
     """
-    Make _Fasta object
+    Make _Genome object
 
     It is essential to execute this function for using this module.
     'genome_file_path' must be '.fa' format and there must be index file (.fai) in the same directory.
@@ -110,27 +116,14 @@ def set_genome(genome_file_path):
     """
     # Sanity check
     if not os.path.isfile(genome_file_path):
-        raise AssertionError('ERROR: the genome file \'%s\' does not exist.' % genome_file_path)
+        raise AssertionError('[ERROR] the genome file \'%s\' does not exist.' % genome_file_path)
 
     genome_idx_file_path = '%s.fai' % genome_file_path
 
     if not os.path.isfile(genome_idx_file_path):
-        raise AssertionError('ERROR: the genome index file \'%s.fa\' does not exist' % genome_file_path)
+        raise AssertionError('[ERROR] the genome index file \'%s.fa\' does not exist' % genome_file_path)
 
     _GENOME.parse_file(genome_file_path)
-
-
-def reverse_complement(seq):
-    base_to_comp = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
-                    'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
-                    'N': 'N', 'n': 'n', '.': '.'}
-
-    comp_seq = ''
-
-    for base in seq:
-        comp_seq += base_to_comp[base]
-
-    return comp_seq[::-1]  # reverse
 
 
 def get_seq(chrom, start, end, strand='+', upper=True):
@@ -190,3 +183,52 @@ def bin_chrom(chrom, bin_size, overlap=0):
             bin_end = chr_size
 
     return chr_bins
+
+
+# Functions not to access the class
+_COMPLEMENTARY_BASE = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A',
+                       'a': 't', 'c': 'g', 'g': 'c', 't': 'a',
+                       'N': 'N', 'n': 'n', '.': '.'}
+
+# For convenience, the key value is a DNA triplet.
+# Types of amino acids
+# F: Phenylalanine, L: Leucine, S: Serine, Y: Tyrosine, C: Cystein, W: Tryptophan, P: Proline, H: Histidine,
+# Q: Glutamine, R: Arginine, I: Isoleucine, M: Methionine, T: Threonine, N: Asparagine, K: Lysine, V: Valine,
+# A: Alanine, D: Aspartic acid, E: Glutamic acid, G: Glycine
+_CODON_TABLE = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S', 'TCC': 'S', 'TCA': 'S', 'TCG': 'S',
+                'TAT': 'Y', 'TAC': 'Y', 'TAA': 'STOP', 'TAG': 'STOP', 'TGT': 'C', 'TGC': 'C', 'TGA': 'STOP', 'TGG': 'W',
+                'CTT': 'L', 'CTC': 'L', 'CTA': 'L', 'CTG': 'L', 'CCT': 'P', 'CCC': 'P', 'CCA': 'P', 'CCG': 'P',
+                'CAT': 'H', 'CAC': 'H', 'CAA': 'Q', 'CAG': 'Q', 'CGT': 'R', 'CGC': 'R', 'CGA': 'R', 'CGG': 'R',
+                'ATT': 'I', 'ATC': 'I', 'ATA': 'I', 'ATG': 'M', 'ACT': 'T', 'ACC': 'T', 'ACA': 'T', 'ACG': 'T',
+                'AAT': 'N', 'AAC': 'N', 'AAA': 'K', 'AAG': 'K', 'AGT': 'S', 'AGC': 'S', 'AGA': 'R', 'AGG': 'R',
+                'GTT': 'V', 'GTC': 'V', 'GTA': 'V', 'GTG': 'V', 'GCT': 'A', 'GCC': 'A', 'GCA': 'A', 'GCG': 'A',
+                'GAT': 'D', 'GAC': 'D', 'GAA': 'E', 'GAG': 'E', 'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'}
+
+
+def reverse_complement(seq):
+    """
+    :param seq: a sequence consists of DNA nucleotides
+    :return: the reverse complement sequence of that sequence
+    """
+    comp_seq = ''
+
+    for base in seq:
+        comp_seq += _COMPLEMENTARY_BASE[base]
+
+    return comp_seq[::-1]  # reverse
+
+
+def complementary_base(base):
+    """
+    :param base: a base of a nucleotide
+    :return: the complementary base of that base. If the base is wrong, return None
+    """
+    return _COMPLEMENTARY_BASE.get(base)
+
+
+def get_amino_acid(codon):
+    """
+    :param codon: a DNA triplet
+    :return: an amino acid represented as a character or 'STOP'. If the codon is wrong, return None.
+    """
+    return _CODON_TABLE.get(codon)
