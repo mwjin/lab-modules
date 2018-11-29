@@ -363,7 +363,7 @@ class RefFlat:
 
         :param pos: 0-based position on the genome
         :param ref_nuc: a reference nucleotide of this variant
-        :param alt_nuc: a alternative nucleotide of this variants
+        :param alt_nuc: a alternative nucleotide of this variant
         :return:
             1. a boolean value: If True, this point mutation is non-synonymous.
             2. a type of the point mutation:
@@ -426,23 +426,56 @@ class RefFlat:
 
     def make_point_mutation(self, pos, ref_nuc, alt_nuc):
         """
-        Make a point mutation on the sequence (UTR or CDS) of this gene.
+        Make a point mutation on the mRNA sequence of this gene.
         The arguments represent a point mutation.
 
         :param pos: 0-based position on the genome
         :param ref_nuc: a reference nucleotide of this variant
-        :param alt_nuc: a alternative nucleotide of this variants
+        :param alt_nuc: a alternative nucleotide of this variant
         """
-        genic_region = self.find_genic_region(pos)
+        exon_idx = -1
 
-        if genic_region == 'ORF':
-            pass
-        elif genic_region == '5UTR':
-            pass
-        elif genic_region == '3UTR':
-            pass
+        for i in range(self.exon_cnt):
+            if self.exon_starts[i] <= pos < self.exon_ends[i]:
+                exon_idx = i
+                break
+
+        if exon_idx == -1:  # not exonic
+            return
         else:
-            return  # no change in this gene
+            len_5utr = len(self.seq_5utr)
+            len_orf = len(self.seq_orf)
+            len_3utr = len(self.seq_3utr)
+            len_mrna = len_5utr + len_orf + len_3utr
+
+            # find the relative position of the variant on mRNA
+            rel_pos_on_mrna = pos - self.tx_start
+
+            for j in range(exon_idx):
+                intron_size = self.exon_starts[j + 1] - self.exon_ends[j]
+                rel_pos_on_mrna -= intron_size
+
+            if self.strand == '-':
+                rel_pos_on_mrna = len_mrna - rel_pos_on_mrna - 1
+                ref_nuc = complementary_base(ref_nuc)
+                alt_nuc = complementary_base(alt_nuc)
+
+            if rel_pos_on_mrna < len_5utr:  # 5UTR
+                assert self.seq_5utr[rel_pos_on_mrna] == ref_nuc
+                mut_seq_5utr = self.seq_5utr[:rel_pos_on_mrna] + alt_nuc + self.seq_5utr[rel_pos_on_mrna + 1:]
+                self.seq_5utr = mut_seq_5utr
+
+            elif len_5utr <= rel_pos_on_mrna < len_5utr + len_orf:  # ORF
+                rel_pos_on_cds = rel_pos_on_mrna - len_5utr
+                assert self.seq_orf[rel_pos_on_cds] == ref_nuc
+                mut_seq_orf = self.seq_orf[:rel_pos_on_cds] + alt_nuc + self.seq_orf[rel_pos_on_cds + 1:]
+                self.seq_orf = mut_seq_orf
+
+            else:  # 3UTR
+                rel_pos_on_3utr = rel_pos_on_mrna - len_5utr - len_orf
+                assert self.seq_3utr[rel_pos_on_3utr] == ref_nuc
+                mut_seq_3utr = self.seq_3utr[:rel_pos_on_3utr] + alt_nuc + self.seq_3utr[rel_pos_on_3utr + 1:]
+                self.seq_3utr = mut_seq_3utr
 
     def _check_exon_overlap(self):
         exon_positions = []
