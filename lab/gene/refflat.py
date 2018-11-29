@@ -227,75 +227,6 @@ class RefFlat:
             eprint("[ERROR] The position %d is not in the gene %s(%s)." % (pos, self.symbol, self.id))
             return None
 
-    def point_mut_type(self, pos, ref_nuc, alt_nuc):
-        """
-        Determine the type of point mutation on this gene (silent, nonsense, missense, or non-coding)
-        (It is assumed that the variant is on a same chromosome with this gene)
-        The arguments represent a point mutation.
-
-        :param pos: 0-based position on the genome
-        :param ref_nuc: a reference nucleotide of this variant
-        :param alt_nuc: a alternative nucleotide of this variants
-        :return:
-            1. a boolean value: If True, this point mutation is non-synonymous.
-            2. a type of the point mutation:
-                If the mutation is on CDS, return 'nonsense', 'missence', or 'silent'.
-                else return None  (non-coding)
-        """
-        genic_region = self.find_genic_region(pos)
-
-        if genic_region is not None and genic_region == 'ORF':
-            exon_idx = -1
-
-            for i in range(self.exon_cnt):
-                if self.exon_starts[i] <= pos < self.exon_ends[i]:
-                    exon_idx = i
-                    break
-
-            assert exon_idx != -1
-
-            # find the relative position of the variant on mRNA
-            rel_pos = pos - self.tx_start
-
-            for j in range(exon_idx):
-                intron_size = self.exon_starts[j + 1] - self.exon_ends[j]
-                rel_pos -= intron_size
-
-            # find the relative position of the variant on CDS of mRNA
-            if self.strand == '+':
-                cds_rel_pos = rel_pos - len(self.seq_5utr)
-            else:  # self.strand == '-'
-                cds_rel_pos = rel_pos - len(self.seq_3utr)
-                cds_rel_pos = len(self.seq_orf) - cds_rel_pos - 1  # reverse complement
-
-                ref_nuc = complementary_base(ref_nuc)
-                alt_nuc = complementary_base(alt_nuc)
-
-            assert ref_nuc == self.seq_orf[cds_rel_pos]
-
-            # check the change of an amino acid
-            if cds_rel_pos % 3 == 0:
-                ref_codon = self.seq_orf[cds_rel_pos:cds_rel_pos + 3]
-                alt_codon = alt_nuc + self.seq_orf[cds_rel_pos + 1:cds_rel_pos + 3]
-            elif cds_rel_pos % 3 == 1:
-                ref_codon = self.seq_orf[cds_rel_pos - 1:cds_rel_pos + 2]
-                alt_codon = self.seq_orf[cds_rel_pos - 1] + alt_nuc + self.seq_orf[cds_rel_pos + 1]
-            else:  # cds_rel_pos % 3 == 2
-                ref_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos + 1]
-                alt_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos] + alt_nuc
-
-            ref_amino_acid = get_amino_acid(ref_codon)
-            alt_amino_acid = get_amino_acid(alt_codon)
-
-            if ref_amino_acid == alt_amino_acid:
-                return False, 'silent'
-            elif alt_amino_acid == 'STOP':
-                return True, 'nonsense'
-            else:
-                return True, 'missense'
-        else:
-            return False, None
-
     def get_genic_region_dist(self, start, end):
         """
         Return the dictionary that contains the size of each genic region in the region (start, end)
@@ -423,6 +354,95 @@ class RefFlat:
 
         else:
             return None
+
+    def point_mut_type(self, pos, ref_nuc, alt_nuc):
+        """
+        Determine the type of point mutation on this gene (silent, nonsense, missense, or non-coding)
+        (It is assumed that the variant is on a same chromosome with this gene)
+        The arguments represent a point mutation.
+
+        :param pos: 0-based position on the genome
+        :param ref_nuc: a reference nucleotide of this variant
+        :param alt_nuc: a alternative nucleotide of this variants
+        :return:
+            1. a boolean value: If True, this point mutation is non-synonymous.
+            2. a type of the point mutation:
+                If the mutation is on CDS, return 'nonsense', 'missence', or 'silent'.
+                else return None  (non-coding)
+        """
+        genic_region = self.find_genic_region(pos)
+
+        if genic_region is not None and genic_region == 'ORF':
+            exon_idx = -1
+
+            for i in range(self.exon_cnt):
+                if self.exon_starts[i] <= pos < self.exon_ends[i]:
+                    exon_idx = i
+                    break
+
+            assert exon_idx != -1
+
+            # find the relative position of the variant on mRNA
+            rel_pos = pos - self.tx_start
+
+            for j in range(exon_idx):
+                intron_size = self.exon_starts[j + 1] - self.exon_ends[j]
+                rel_pos -= intron_size
+
+            # find the relative position of the variant on CDS of mRNA
+            if self.strand == '+':
+                cds_rel_pos = rel_pos - len(self.seq_5utr)
+            else:  # self.strand == '-'
+                cds_rel_pos = rel_pos - len(self.seq_3utr)
+                cds_rel_pos = len(self.seq_orf) - cds_rel_pos - 1  # reverse complement
+
+                ref_nuc = complementary_base(ref_nuc)
+                alt_nuc = complementary_base(alt_nuc)
+
+            assert ref_nuc == self.seq_orf[cds_rel_pos]
+
+            # check the change of an amino acid
+            if cds_rel_pos % 3 == 0:
+                ref_codon = self.seq_orf[cds_rel_pos:cds_rel_pos + 3]
+                alt_codon = alt_nuc + self.seq_orf[cds_rel_pos + 1:cds_rel_pos + 3]
+            elif cds_rel_pos % 3 == 1:
+                ref_codon = self.seq_orf[cds_rel_pos - 1:cds_rel_pos + 2]
+                alt_codon = self.seq_orf[cds_rel_pos - 1] + alt_nuc + self.seq_orf[cds_rel_pos + 1]
+            else:  # cds_rel_pos % 3 == 2
+                ref_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos + 1]
+                alt_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos] + alt_nuc
+
+            ref_amino_acid = get_amino_acid(ref_codon)
+            alt_amino_acid = get_amino_acid(alt_codon)
+
+            if ref_amino_acid == alt_amino_acid:
+                return False, 'silent'
+            elif alt_amino_acid == 'STOP':
+                return True, 'nonsense'
+            else:
+                return True, 'missense'
+        else:
+            return False, None
+
+    def make_point_mutation(self, pos, ref_nuc, alt_nuc):
+        """
+        Make a point mutation on the sequence (UTR or CDS) of this gene.
+        The arguments represent a point mutation.
+
+        :param pos: 0-based position on the genome
+        :param ref_nuc: a reference nucleotide of this variant
+        :param alt_nuc: a alternative nucleotide of this variants
+        """
+        genic_region = self.find_genic_region(pos)
+
+        if genic_region == 'ORF':
+            pass
+        elif genic_region == '5UTR':
+            pass
+        elif genic_region == '3UTR':
+            pass
+        else:
+            return  # no change in this gene
 
     def _check_exon_overlap(self):
         exon_positions = []
