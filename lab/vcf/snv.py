@@ -156,7 +156,7 @@ class SNV:
                 self._gene_dict[strand][gene_sym][gene_id] = genic_region
 
                 # check the mutation type of this variant
-                if genic_region == 'ORF':
+                if genic_region == 'CDS':
                     prot_is_mod, mut_type = gene.point_mut_type(self.pos, self.ref_nuc, self.alt_nuc)
                     self._mut_type_dict[strand][gene_sym][gene_id] = (prot_is_mod, mut_type)
 

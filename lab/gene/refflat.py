@@ -94,7 +94,7 @@ class RefFlat:
     def parse_exon_seq(self):
         """
         By parsing the default information from RefFlat,
-        get the total size of the exons and the sequences of ORF and UTR.
+        get the total size of the exons and the sequences of CDS and UTR.
         :return: a boolean value (if False, the default information is invalid)
         """
         seq_exons = ""
@@ -220,7 +220,7 @@ class RefFlat:
                     elif pos >= self.cds_end:
                         return '3UTR' if self.strand == '+' else '5UTR'
                     else:
-                        return 'ORF'
+                        return 'CDS'
                 else:
                     return 'ncRNA_exonic'
         else:
@@ -304,7 +304,7 @@ class RefFlat:
                             region_to_size['5UTR'] += right_utr
                             region_to_size['3UTR'] += left_utr
 
-                        region_to_size['ORF'] += cds
+                        region_to_size['CDS'] += cds
                     else:
                         region_to_size['ncRNA_exonic'] += (end_pos - start_pos)
 
@@ -372,7 +372,7 @@ class RefFlat:
         """
         genic_region = self.find_genic_region(pos)
 
-        if genic_region is not None and genic_region == 'ORF':
+        if genic_region is not None and genic_region == 'CDS':
             exon_idx = -1
 
             for i in range(self.exon_cnt):
@@ -465,7 +465,7 @@ class RefFlat:
                 mut_seq_5utr = self.seq_5utr[:rel_pos_on_mrna] + alt_nuc + self.seq_5utr[rel_pos_on_mrna + 1:]
                 self.seq_5utr = mut_seq_5utr
 
-            elif len_5utr <= rel_pos_on_mrna < len_5utr + len_cds:  # ORF
+            elif len_5utr <= rel_pos_on_mrna < len_5utr + len_cds:  # CDS
                 rel_pos_on_cds = rel_pos_on_mrna - len_5utr
                 assert self.seq_cds[rel_pos_on_cds] == ref_nuc
                 mut_seq_cds = self.seq_cds[:rel_pos_on_cds] + alt_nuc + self.seq_cds[rel_pos_on_cds + 1:]

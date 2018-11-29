@@ -12,7 +12,7 @@ The gene-based annotation of one nucleotide is represented as integer which bit 
 ('intergenic' is excluded).
 Each bit of the integer represents a boolean value for one genic region.
 
-1st significant bit: ORF (MSB)
+1st significant bit: CDS (MSB)
 2nd significant bit: 5'UTR
 3rd significant bit: 3'UTR
 .
@@ -28,7 +28,7 @@ __all__ = ['genic_region_list', 'get_anno_priority', 'get_anno_val', 'parse_anno
 # SS: Splice site, 30nt at the each end of the intron
 # intronic: intronic region except the splice site
 # promoter: 300nt upstream for each gene
-_GENIC_REGIONS = ['ORF', '5UTR', '3UTR', 'ncRNA_exonic', 'SS', 'intronic', 'ncRNA_intronic', 'promoter', 'intergenic']
+_GENIC_REGIONS = ['CDS', '5UTR', '3UTR', 'ncRNA_exonic', 'SS', 'intronic', 'ncRNA_intronic', 'promoter', 'intergenic']
 _BIT_LEN = len(_GENIC_REGIONS) - 1
 _REGION_TO_BIT_POS = {genic_region: (i + 1) for i, genic_region in enumerate(_GENIC_REGIONS)}
 _BIT_POS_TO_REGION = {(i + 1): genic_region for i, genic_region in enumerate(_GENIC_REGIONS)}
