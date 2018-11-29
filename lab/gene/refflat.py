@@ -25,7 +25,7 @@ class RefFlat:
         self.exons_size = 0
         self.seq_5utr = ''
         self.seq_3utr = ''
-        self.seq_orf = ''
+        self.seq_cds = ''
 
     def __str__(self):
         """
@@ -131,12 +131,12 @@ class RefFlat:
 
         if self.strand == '+':
             self.seq_5utr = seq_exons[0:cds_start_offset]
-            self.seq_orf = seq_exons[cds_start_offset:cds_end_offset]
+            self.seq_cds = seq_exons[cds_start_offset:cds_end_offset]
             self.seq_3utr = seq_exons[cds_end_offset:self.exons_size]
 
         elif self.strand == '-':
             self.seq_5utr = reverse_complement(seq_exons[cds_end_offset:self.exons_size])
-            self.seq_orf = reverse_complement(seq_exons[cds_start_offset:cds_end_offset])
+            self.seq_cds = reverse_complement(seq_exons[cds_start_offset:cds_end_offset])
             self.seq_3utr = reverse_complement(seq_exons[0:cds_start_offset])
 
         else:
@@ -145,14 +145,14 @@ class RefFlat:
 
         return True
 
-    def has_wrong_orf(self):
+    def has_wrong_cds(self):
         if not self._has_start_codon():
             return True
 
         if not self._has_stop_codon():
             return True
 
-        if len(self.seq_orf) % 3 != 0:
+        if len(self.seq_cds) % 3 != 0:
             return True
 
         if self._has_internal_stop_codon():
@@ -163,7 +163,7 @@ class RefFlat:
     def is_nmd_candidate(self):
         """
         NMD: Nonsense Mediated Decay
-        NMD candidate: The boundary between orf and 3'utr is ahead of the last exon junction + 50nt upstream.
+        NMD candidate: The boundary between cds and 3'utr is ahead of the last exon junction + 50nt upstream.
         """
         if self.strand == '+':
             last_exon_size = self.exon_ends[-1] - self.exon_starts[-1]
@@ -279,7 +279,7 @@ class RefFlat:
 
                     if is_mrna:
                         left_utr = 0
-                        orf = 0
+                        cds = 0
                         right_utr = 0
 
                         if end_pos <= self.cds_start:
@@ -295,7 +295,7 @@ class RefFlat:
                                 right_utr = end_pos - self.cds_end
                                 end_pos = self.cds_end
 
-                            orf = end_pos - start_pos
+                            cds = end_pos - start_pos
 
                         if is_top_strand:
                             region_to_size['5UTR'] += left_utr
@@ -304,7 +304,7 @@ class RefFlat:
                             region_to_size['5UTR'] += right_utr
                             region_to_size['3UTR'] += left_utr
 
-                        region_to_size['ORF'] += orf
+                        region_to_size['ORF'] += cds
                     else:
                         region_to_size['ncRNA_exonic'] += (end_pos - start_pos)
 
@@ -394,23 +394,23 @@ class RefFlat:
                 cds_rel_pos = rel_pos - len(self.seq_5utr)
             else:  # self.strand == '-'
                 cds_rel_pos = rel_pos - len(self.seq_3utr)
-                cds_rel_pos = len(self.seq_orf) - cds_rel_pos - 1  # reverse complement
+                cds_rel_pos = len(self.seq_cds) - cds_rel_pos - 1  # reverse complement
 
                 ref_nuc = complementary_base(ref_nuc)
                 alt_nuc = complementary_base(alt_nuc)
 
-            assert ref_nuc == self.seq_orf[cds_rel_pos]
+            assert ref_nuc == self.seq_cds[cds_rel_pos]
 
             # check the change of an amino acid
             if cds_rel_pos % 3 == 0:
-                ref_codon = self.seq_orf[cds_rel_pos:cds_rel_pos + 3]
-                alt_codon = alt_nuc + self.seq_orf[cds_rel_pos + 1:cds_rel_pos + 3]
+                ref_codon = self.seq_cds[cds_rel_pos:cds_rel_pos + 3]
+                alt_codon = alt_nuc + self.seq_cds[cds_rel_pos + 1:cds_rel_pos + 3]
             elif cds_rel_pos % 3 == 1:
-                ref_codon = self.seq_orf[cds_rel_pos - 1:cds_rel_pos + 2]
-                alt_codon = self.seq_orf[cds_rel_pos - 1] + alt_nuc + self.seq_orf[cds_rel_pos + 1]
+                ref_codon = self.seq_cds[cds_rel_pos - 1:cds_rel_pos + 2]
+                alt_codon = self.seq_cds[cds_rel_pos - 1] + alt_nuc + self.seq_cds[cds_rel_pos + 1]
             else:  # cds_rel_pos % 3 == 2
-                ref_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos + 1]
-                alt_codon = self.seq_orf[cds_rel_pos - 2:cds_rel_pos] + alt_nuc
+                ref_codon = self.seq_cds[cds_rel_pos - 2:cds_rel_pos + 1]
+                alt_codon = self.seq_cds[cds_rel_pos - 2:cds_rel_pos] + alt_nuc
 
             ref_amino_acid = get_amino_acid(ref_codon)
             alt_amino_acid = get_amino_acid(alt_codon)
@@ -444,9 +444,9 @@ class RefFlat:
             return
         else:
             len_5utr = len(self.seq_5utr)
-            len_orf = len(self.seq_orf)
+            len_cds = len(self.seq_cds)
             len_3utr = len(self.seq_3utr)
-            len_mrna = len_5utr + len_orf + len_3utr
+            len_mrna = len_5utr + len_cds + len_3utr
 
             # find the relative position of the variant on mRNA
             rel_pos_on_mrna = pos - self.tx_start
@@ -465,14 +465,14 @@ class RefFlat:
                 mut_seq_5utr = self.seq_5utr[:rel_pos_on_mrna] + alt_nuc + self.seq_5utr[rel_pos_on_mrna + 1:]
                 self.seq_5utr = mut_seq_5utr
 
-            elif len_5utr <= rel_pos_on_mrna < len_5utr + len_orf:  # ORF
+            elif len_5utr <= rel_pos_on_mrna < len_5utr + len_cds:  # ORF
                 rel_pos_on_cds = rel_pos_on_mrna - len_5utr
-                assert self.seq_orf[rel_pos_on_cds] == ref_nuc
-                mut_seq_orf = self.seq_orf[:rel_pos_on_cds] + alt_nuc + self.seq_orf[rel_pos_on_cds + 1:]
-                self.seq_orf = mut_seq_orf
+                assert self.seq_cds[rel_pos_on_cds] == ref_nuc
+                mut_seq_cds = self.seq_cds[:rel_pos_on_cds] + alt_nuc + self.seq_cds[rel_pos_on_cds + 1:]
+                self.seq_cds = mut_seq_cds
 
             else:  # 3UTR
-                rel_pos_on_3utr = rel_pos_on_mrna - len_5utr - len_orf
+                rel_pos_on_3utr = rel_pos_on_mrna - len_5utr - len_cds
                 assert self.seq_3utr[rel_pos_on_3utr] == ref_nuc
                 mut_seq_3utr = self.seq_3utr[:rel_pos_on_3utr] + alt_nuc + self.seq_3utr[rel_pos_on_3utr + 1:]
                 self.seq_3utr = mut_seq_3utr
@@ -494,7 +494,7 @@ class RefFlat:
         return True
 
     def _has_start_codon(self):
-        if self.seq_orf[:3] == 'ATG':
+        if self.seq_cds[:3] == 'ATG':
             return True
         else:
             return False
@@ -502,17 +502,17 @@ class RefFlat:
     def _has_stop_codon(self):
         stop_codons = ['TAA', 'TAG', 'TGA']
 
-        if self.seq_orf[-3:] in stop_codons:
+        if self.seq_cds[-3:] in stop_codons:
             return True
         else:
             return False
 
     def _has_internal_stop_codon(self):
         stop_codons = ['TAA', 'TAG', 'TGA']
-        orf_size = len(self.seq_orf)
+        cds_size = len(self.seq_cds)
 
-        for i in range(0, orf_size - 3, 3):
-            codon = self.seq_orf[i:i + 3]
+        for i in range(0, cds_size - 3, 3):
+            codon = self.seq_cds[i:i + 3]
 
             if codon in stop_codons:
                 return True
