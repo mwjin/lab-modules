@@ -278,33 +278,33 @@ class RefFlat:
                         end_pos = end
 
                     if is_mrna:
-                        left_utr = 0
-                        cds = 0
-                        right_utr = 0
+                        left_utr_size = 0
+                        cds_size = 0
+                        right_utr_size = 0
 
                         if end_pos <= self.cds_start:
-                            left_utr = end_pos - start_pos
+                            left_utr_size = end_pos - start_pos
                         elif start_pos >= self.cds_end:
-                            right_utr = end_pos - start_pos
+                            right_utr_size = end_pos - start_pos
                         else:
                             if start_pos < self.cds_start:
-                                left_utr = self.cds_start - start_pos
+                                left_utr_size = self.cds_start - start_pos
                                 start_pos = self.cds_start
 
                             if end_pos > self.cds_end:
-                                right_utr = end_pos - self.cds_end
+                                right_utr_size = end_pos - self.cds_end
                                 end_pos = self.cds_end
 
-                            cds = end_pos - start_pos
+                            cds_size = end_pos - start_pos
 
                         if is_top_strand:
-                            region_to_size['5UTR'] += left_utr
-                            region_to_size['3UTR'] += right_utr
+                            region_to_size['5UTR'] += left_utr_size
+                            region_to_size['3UTR'] += right_utr_size
                         else:
-                            region_to_size['5UTR'] += right_utr
-                            region_to_size['3UTR'] += left_utr
+                            region_to_size['5UTR'] += right_utr_size
+                            region_to_size['3UTR'] += left_utr_size
 
-                        region_to_size['CDS'] += cds
+                        region_to_size['CDS'] += cds_size
                     else:
                         region_to_size['ncRNA_exonic'] += (end_pos - start_pos)
 
