@@ -477,6 +477,16 @@ class RefFlat:
                 mut_seq_3utr = self.seq_3utr[:rel_pos_on_3utr] + alt_nuc + self.seq_3utr[rel_pos_on_3utr + 1:]
                 self.seq_3utr = mut_seq_3utr
 
+    def make_point_mutations(self, variants):
+        """
+        Make point mutations on the mRNA sequence of this gene.
+        The argument must be a list of 'SNV' objects
+        """
+        assert variants[0].__class__.__name__ == 'SNV'
+
+        for variant in variants:
+            self.make_point_mutation(variant.pos, variant.ref_nuc, variant.alt_nuc)
+
     def _check_exon_overlap(self):
         exon_positions = []
 
