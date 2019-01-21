@@ -16,7 +16,9 @@ class Job:
         self.cmd = ''
 
         # attributes for job dependency
-        self.prior_jobs = []  # a list of jobs that have higher priority to finish than this job
+        self.prior_jobs = []  # a list of prior jobs in execution than this job
+        self.hold_jid = kwargs.get('hold_jid', None)  # only used in SGE job scheduler
+        self.priority = kwargs.get('priority', 0)  # a priority to execute (for dependency, only used in PBS scheduler)
 
 
 def qsub_sge():
