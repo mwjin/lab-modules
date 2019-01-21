@@ -33,14 +33,15 @@ def qsub_sge(jobs, queue, log_dir):
 
     for job in jobs:
         log_path = '%s/%s.txt' % (log_dir, job.name)
-        qsub_cmd = 'qsub -cwd -j y -o %s -q %s -N %s' % (log_path, queue, job.name)
+        echo_proc = subprocess.Popen(('echo', job.cmd), stdout=subprocess.PIPE)
 
         if job.hold_jid is not None:
-            qsub_cmd += ' -hold_jid %s' % job.hold_jid
+            subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name),
+                             stdin=echo_proc.stdout, stdout=sys.stdout, stderr=sys.stderr)
+        else:
+            subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name,
+                              '-hold_jid', job.hold_jid), stdin=echo_proc.stdout, stdout=sys.stdout, stderr=sys.stderr)
 
-        echo_proc = subprocess.Popen(('echo', job.cmd), stdout=subprocess.PIPE)
-        subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name),
-                         stdin=echo_proc.stdout, stdout=sys.stdout, stderr=sys.stderr)
         echo_proc.wait()
 
 
