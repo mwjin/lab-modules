@@ -61,27 +61,24 @@ def qsub_pbs(jobs, queue, log_dir):
         priority_to_jobs[job.priority].append(job)
 
     priorities = list(priority_to_jobs.keys())
+    priorities.sort()
 
-    if len(priorities) == 1:  # no dependency
-        pass
-    else:
-        priorities.sort()
-        prior_job_ids = []  # job IDs that have a higher priority
+    prior_job_ids = []  # job IDs that have a higher priority
 
-        for priority in priorities:
-            curr_jobs = priority_to_jobs[priority]
-            prior_job_ids_str = ':'.join(prior_job_ids)
-            depend_opt = 'depend=afterok:{%s}' % prior_job_ids_str
-            prior_job_ids = []  # reset
+    for priority in priorities:
+        curr_jobs = priority_to_jobs[priority]
+        prior_job_ids_str = ':'.join(prior_job_ids)
+        depend_opt = 'depend=afterok:{%s}' % prior_job_ids_str
+        prior_job_ids = []  # reset
 
-            for job in curr_jobs:
-                log_path = '%s/%s.txt' % (log_dir, job.name)
+        for job in curr_jobs:
+            log_path = '%s/%s.txt' % (log_dir, job.name)
 
-                echo_proc = subprocess.Popen(('echo', job.cmd), stdout=subprocess.PIPE)
-                qsub_proc = subprocess.Popen(('qsub', '-j', 'oe', '-o',  log_path, '-q', queue, '-N', job.name,
-                                              '-W', depend_opt), stdin=echo_proc.stdout)
-                echo_proc.wait()
-                job_id = qsub_proc.pid
-                prior_job_ids.append(job_id)
+            echo_proc = subprocess.Popen(('echo', job.cmd), stdout=subprocess.PIPE)
+            qsub_proc = subprocess.Popen(('qsub', '-j', 'oe', '-o',  log_path, '-q', queue, '-N', job.name,
+                                          '-W', depend_opt), stdin=echo_proc.stdout)
+            echo_proc.wait()
+            job_id = qsub_proc.pid
+            prior_job_ids.append(job_id)
 
-                print('[LOG] Job %s \'%s\' is submitted to the queue \'%s\'.' % (job_id, job.name, queue))
+            print('[LOG] Job %s \'%s\' is submitted to the queue \'%s\'.' % (job_id, job.name, queue))
