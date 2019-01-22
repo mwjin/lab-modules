@@ -5,7 +5,6 @@ This script includes 'Job' class and functions for job schedulers (SGE and PBS).
 """
 
 import os
-import sys
 import subprocess
 
 
@@ -36,13 +35,16 @@ def qsub_sge(jobs, queue, log_dir):
         echo_proc = subprocess.Popen(('echo', job.cmd), stdout=subprocess.PIPE)
 
         if job.hold_jid is not None:
-            subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name),
-                             stdin=echo_proc.stdout, stdout=sys.stdout, stderr=sys.stderr)
+            qsub_proc = subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name),
+                                         stdin=echo_proc.stdout, stdout=subprocess.DEVNULL)
         else:
-            subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name,
-                              '-hold_jid', job.hold_jid), stdin=echo_proc.stdout, stdout=sys.stdout, stderr=sys.stderr)
+            qsub_proc = subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name,
+                                          '-hold_jid', job.hold_jid), stdin=echo_proc.stdout, stdout=subprocess.DEVNULL)
 
         echo_proc.wait()
+        qsub_proc.wait()
+
+        print('[LOG] Job (PID:%s) \'%s\' is submitted to the queue \'%s\'.' % (qsub_proc.pid, job.name, queue))
 
 
 def qsub_pbs(jobs, queue, log_dir):
@@ -68,7 +70,7 @@ def qsub_pbs(jobs, queue, log_dir):
     for priority in priorities:
         curr_jobs = priority_to_jobs[priority]
         prior_job_ids_str = ':'.join(prior_job_ids)
-        depend_opt = 'depend=afterok:{%s}' % prior_job_ids_str
+        depend_opt = 'depend=afterok:%s' % prior_job_ids_str
         prior_job_ids = []  # reset
 
         for job in curr_jobs:
@@ -76,9 +78,12 @@ def qsub_pbs(jobs, queue, log_dir):
 
             echo_proc = subprocess.Popen(('echo', job.cmd), stdout=subprocess.PIPE)
             qsub_proc = subprocess.Popen(('qsub', '-j', 'oe', '-o',  log_path, '-q', queue, '-N', job.name,
-                                          '-W', depend_opt), stdin=echo_proc.stdout)
+                                          '-W', depend_opt), stdin=echo_proc.stdout, stdout=subprocess.DEVNULL)
+
             echo_proc.wait()
+            qsub_proc.wait()
+
             job_id = qsub_proc.pid
             prior_job_ids.append(job_id)
 
-            print('[LOG] Job %s \'%s\' is submitted to the queue \'%s\'.' % (job_id, job.name, queue))
+            print('[LOG] Job (PID:%s) \'%s\' is submitted to the queue \'%s\'.' % (job_id, job.name, queue))
