@@ -12,9 +12,16 @@ class Job:
     """
     A class that represents one job
     """
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, cmd, **kwargs):
+        """
+        :param name: a name of an object of the 'Job' class
+        :param cmd: a command line of this job
+        :param kwargs:
+            - hold_jid: a regular expression of prior job names (only for SGE job scheduler)
+            - priority: an integer that represent a priority of this job for job dependency (only for PBS job scheduler)
+        """
         self.name = name
-        self.cmd = kwargs.get('cmd', '')
+        self.cmd = cmd
 
         # attributes for job dependency
         self.hold_jid = kwargs.get('hold_jid', None)  # regex for names of prior jobs (only used in SGE job scheduler)
@@ -54,6 +61,7 @@ def qsub_pbs(jobs, queue, log_dir):
     :param queue: a queue name
     :param log_dir: a directory of logs for the jobs
     """
+    os.makedirs(log_dir, exist_ok=True)
     priority_to_jobs = {}  # key: an integer that represents a priority of a job, value: a list of jobs
 
     for job in jobs:
