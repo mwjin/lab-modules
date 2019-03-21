@@ -41,7 +41,7 @@ def qsub_sge(jobs, queue, log_dir):
         log_path = '%s/%s.txt' % (log_dir, job.name)
         echo_proc = subprocess.Popen(('echo', job.cmd), stdout=subprocess.PIPE)
 
-        if job.hold_jid is not None:
+        if job.hold_jid is None:
             qsub_proc = subprocess.Popen(('qsub', '-cwd', '-j', 'y', '-o', log_path, '-q', queue, '-N', job.name),
                                          stdin=echo_proc.stdout, stdout=subprocess.DEVNULL)
         else:
