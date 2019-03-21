@@ -207,100 +207,39 @@ class SNV:
         return variant
 
     @staticmethod
-    def parse_vcf_file(vcf_filename):
-
-        if not os.path.isfile(vcf_filename):
-            raise IOError('%s does not exist' % vcf_filename)
+    def parse_vcf_file(vcf_path):
+        """
+        Parse a VCF file and return SNV objects
+        This function only returns objects with a canonical chromosome ID
+        :param vcf_path: a path of a VCF file
+        :return: a list of SNV objects
+        """
+        if not os.path.isfile(vcf_path):
+            raise IOError('%s does not exist' % vcf_path)
 
         # regex for VCF entries
-        regex_auto = re.compile('^[0-9]{1,2}$')
-        regex_sex = re.compile('^[XY]$')
-        regex_pos = re.compile('^[0-9]+$')
+        regex_chr = re.compile('^chr([0-9]{1,2}|[XY])$')
+        variants = []
 
-        var_list = []
-        invalid_chr_to_cnt = {}
-
-        if vcf_filename.endswith('.gz'):
-            vcf_file = gzip.open(vcf_filename, 'rt')
+        if vcf_path.endswith('.gz'):
+            vcf_file = gzip.open(vcf_path, 'rt')
         else:
-            vcf_file = open(vcf_filename, 'r')
+            vcf_file = open(vcf_path, 'r')
 
         for line in vcf_file:
-            """
-            <File Format>
-             Column Number:     | 0       | 1        | 2          | 3       | 4
-             Column Description:| chrom   | pos      | dbSNP_id   | ref_nuc | alt_nuc
-             Column Example:    | 13      | 32906558 | rs79483201 | T       | A
-             Column Number:     | 5       | 6        | 7          | 8              | 9./..
-             Column Description:| qual    | filter   | info       | format         | SampleIDs
-             Column Example:    | 5645.6  | PASS     | .          | GT:AD:DP:GQ:PL | Scores corresponding to format
-
-            <Examples of the formats>
-            ##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths">
-            ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth">
-            ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
-            ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-            ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Ph
-            """
-
             if line.startswith('#'):  # skip information headers
                 continue
 
-            fields = line.strip('\n').split('\t')
-
-            chrom = fields[0]
+            variant = SNV()
+            variant.parse_vcf_entry(line)
 
             # filters for chrom
-            if regex_auto.match(chrom):
-                if int(chrom) > 23:  # Wrong chromosome number
-                    invalid_chrom = 'chr%s' % chrom
-
-                    if invalid_chrom not in invalid_chr_to_cnt:
-                        invalid_chr_to_cnt[invalid_chrom] = 0
-
-                    invalid_chr_to_cnt[invalid_chrom] += 1
-
-                    continue
-
-            elif not regex_sex.match(chrom):
-                invalid_chrom = 'chr%s' % chrom
-
-                if invalid_chrom not in invalid_chr_to_cnt:
-                    invalid_chr_to_cnt[invalid_chrom] = 0
-
-                invalid_chr_to_cnt[invalid_chrom] += 1
-
-                continue
-
-            variant = SNV()
-            variant.chrom = 'chr%s' % fields[0]
-
-            if not regex_pos.match(fields[1]):
-                eprint('[LOG] Invalid variant position \'%s\'' % fields[1])
-                continue
-
-            variant.pos = int(fields[1]) - 1  # 1-based -> 0-based
-            variant.dbSNP_id = fields[2]
-            variant.ref_nuc = fields[3]
-            variant.alt_nuc = fields[4]
-            variant.qual = float(fields[5]) if fields[5] != '.' else fields[5]
-            variant.filter = fields[6]
-            variant.info = fields[7]
-
-            var_list.append(variant)
+            if regex_chr.match(variant.chrom):
+                variants.append(variant)
 
         vcf_file.close()
 
-        # print the invalid chromosome ID
-        if len(invalid_chr_to_cnt) != 0:
-            eprint('\n[LOG] Invalid chromosome ID of the variants in %s' % vcf_filename)
-
-            for invalid_chrom in invalid_chr_to_cnt:
-                eprint('--- %s: %d' % (invalid_chrom, invalid_chr_to_cnt[invalid_chrom]))
-
-            eprint()
-
-        return var_list
+        return variants
 
     def _set_anno_val(self):
         """
