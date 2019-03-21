@@ -21,7 +21,7 @@ class SNV:
         self.dbSNP_id = '.'
         self.ref_nuc = '.'
         self.alt_nuc = '.'
-        self.qual = 0.0
+        self.qual = '.'
         self.filter = '.'
         self.info = '.'
 
