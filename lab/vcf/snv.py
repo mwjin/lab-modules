@@ -165,6 +165,33 @@ class SNV:
 
         self._set_anno_val()
 
+    def parse_vcf_entry(self, vcf_entry):
+        """
+        By parsing a line of VCF file, get and store information to this VCF object.
+        :param vcf_entry: a line of a VCF file (type: str)
+        """
+        """
+        * VCF file format (tab seperated)
+        1. CHROM
+        2. POS (1-based)
+        3. ID
+        4. REF
+        5. ALT
+        6. QUAL
+        7. FILTER
+        8. INFO (Additional information, format depends of a variant caller)
+        """
+        fields = vcf_entry.strip('\n').split('\t')
+
+        self.chrom = 'chr%s' % fields[0]
+        self.pos = int(fields[1]) - 1  # 1-based -> 0-based
+        self.dbSNP_id = fields[2]
+        self.ref_nuc = fields[3]
+        self.alt_nuc = fields[4]
+        self.qual = fields[5]
+        self.filter = fields[6]
+        self.info = '\t'.join(fields[7:])
+
     @staticmethod
     def parse_repr_str(repr_str):
         """
