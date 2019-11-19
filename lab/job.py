@@ -1,5 +1,6 @@
 """
-This script includes 'Job' class and functions for job schedulers (SGE and PBS).
+This script includes 'Job' class and functions for executing job schedulers (SGE, PBS, and sbatch).
+Currently only one job per core is possible.
 * This script is a modified version of dandyrilla/baeklab/baeklab/base/jobsched.py.
 * Original Author: Sukjun Kim
 """
@@ -95,3 +96,23 @@ def qsub_pbs(jobs, queue, log_dir):
             prior_job_ids.append(job_id)
 
             print('[LOG] Job (PID:%s) \'%s\' is submitted to the queue \'%s\'.' % (job_id, job.name, queue))
+
+
+def sbatch(jobs, partition, log_dir):
+    """
+    Throw jobs using SLURM job scheduler
+    Currently setting the dependency between jobs is not available.
+    :param jobs: a list of 'Job' objects
+    :param partition: a partition name (equal with the 'queue; in SGE)
+    :param log_dir: a directory of logs for the jobs
+    """
+    os.makedirs(log_dir, exist_ok=True)
+
+    for job in jobs:
+        log_path = '%s/%s.txt' % (log_dir, job.name)
+        qsub_proc = subprocess.Popen(['sbatch', '-o', log_path, '-e', log_path, '-p', partition,
+                                      '-J', job.name, f'--wrap={job.cmd}'], stdout=subprocess.DEVNULL)
+        qsub_proc.wait()
+
+        print('[LOG] Job (PID:%s) \'%s\' is submitted to the partition \'%s\'.' % (qsub_proc.pid, job.name, partition))
+
